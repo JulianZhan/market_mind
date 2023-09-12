@@ -1,16 +1,10 @@
 import requests
-from sqlalchemy import (
-    create_engine,
-    Column,
-    Integer,
-    String,
-    Float,
-    DateTime,
-)
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker
 from config import Config
 from datetime import datetime, timedelta
+from sentiment_model import AlphaVantageNewsSentiment
 
 
 # Connect to the database
@@ -21,69 +15,26 @@ MAX_NEWS_ITEMS = 1000
 time_from = (datetime.now() - timedelta(days=1)).strftime("%Y%m%dT%H%M")
 
 url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&time_from={time_from}&limit={MAX_NEWS_ITEMS}&apikey={Config.ALPHAVANTAGE_API_KEY}"
-r = requests.get(url)
-data = r.json()
-data["feed"]
-data["items"]
-
-
+res = requests.get(url)
+data = res.json()["feed"]
 Base = declarative_base()
 
-
-class AlphaVantageNewsSentiment(Base):
-    __tablename__ = "alpha_vantage_news_sentiment"
-
-    id = Column(Integer, primary_key=True)
-    title = Column(String)
-    url = Column(String)
-    time_published = Column(DateTime)
-    authors = Column(String)
-    summary = Column(String)
-    banner_image = Column(String)
-    source = Column(String)
-    category_within_source = Column(String)
-    source_domain = Column(String)
-    overall_sentiment_score = Column(Float)
-    overall_sentiment_label = Column(String)
-
-    topics = relationship("Topic", back_populates="article")
-    ticker_sentiments = relationship("TickerSentiment", back_populates="article")
-
-
-# Sample data (as provided)
-data = [...]  # Your data here
-
-# Insert data using ORM
 with Session() as session:
-    articles = []
-    for article_data in data:
-        article = Article(
-            title=article_data["title"],
-            url=article_data["url"],
-            time_published=article_data["time_published"],
-            authors=", ".join(article_data["authors"]),
-            summary=article_data["summary"],
-            banner_image=article_data["banner_image"],
-            source=article_data["source"],
-            category_within_source=article_data["category_within_source"],
-            source_domain=article_data["source_domain"],
-            overall_sentiment_score=article_data["overall_sentiment_score"],
-            overall_sentiment_label=article_data["overall_sentiment_label"],
-            topics=[
-                Topic(topic=t["topic"], relevance_score=t["relevance_score"])
-                for t in article_data["topics"]
-            ],
-            ticker_sentiments=[
-                TickerSentiment(
-                    ticker=t["ticker"],
-                    relevance_score=t["relevance_score"],
-                    ticker_sentiment_score=t["ticker_sentiment_score"],
-                    ticker_sentiment_label=t["ticker_sentiment_label"],
-                )
-                for t in article_data.get("ticker_sentiment", [])
-            ],
+    news_sentiment_list = []
+    for news_sentiment_data in data:
+        news_sentiment = AlphaVantageNewsSentiment(
+            title=news_sentiment_data["title"],
+            url=news_sentiment_data["url"],
+            time_published=news_sentiment_data["time_published"],
+            summary=news_sentiment_data["summary"],
+            banner_image=news_sentiment_data["banner_image"],
+            source=news_sentiment_data["source"],
+            category_within_source=news_sentiment_data["category_within_source"],
+            source_domain=news_sentiment_data["source_domain"],
+            overall_sentiment_score=news_sentiment_data["overall_sentiment_score"],
+            overall_sentiment_label=news_sentiment_data["overall_sentiment_label"],
         )
-        articles.append(article)
+        news_sentiment_list.append(news_sentiment)
 
-    session.bulk_save_objects(articles)
+    session.bulk_save_objects(news_sentiment_list)
     session.commit()
