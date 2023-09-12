@@ -25,3 +25,10 @@ class AlphaVantageNewsSentiment(Base):
     source_domain = Column(String)
     overall_sentiment_score = Column(Float)
     overall_sentiment_label = Column(String)
+
+
+class RedditComment(Base):
+    __tablename__ = "reddit_comment"
+
+    id = Column(Integer, primary_key=True)
+    comment = Column(String)
