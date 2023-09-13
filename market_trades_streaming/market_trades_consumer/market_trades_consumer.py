@@ -52,6 +52,17 @@ final_df = (
     .withColumn("created_at", current_timestamp())
 )
 
+
+def insert_to_rds(batch_df, batch_id):
+    batch_df.write.format("jdbc").options(
+        url=f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}",
+        driver="com.mysql.cj.jdbc.Driver",
+        dbtable="trades",
+        user=Config.RDS_USER,
+        password=Config.RDS_PASSWORD,
+    ).mode("append").save()
+
+
 query1 = raw_df.writeStream.outputMode("append").format("console").start()
 query2 = final_df.writeStream.format("console").start()
 query1.awaitTermination()
