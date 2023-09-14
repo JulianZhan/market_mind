@@ -1,0 +1,7 @@
+py4j==0.10.9.7
+python-dotenv==1.0.0
+confluent-kafka==2.2.0
+avro==1.11.2
+websockets==11.0.3
+websocket-client==1.6.2
+finnhub-python==2.4.18
