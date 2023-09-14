@@ -5,11 +5,7 @@ import avro.schema
 import avro.io
 from confluent_kafka import Producer
 from utils import ticker_validator, avro_encode
-import sys
 import logging
-
-
-sys.path.append("../")
 from config import Config
 
 
