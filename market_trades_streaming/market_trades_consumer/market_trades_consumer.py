@@ -84,17 +84,6 @@ if __name__ == "__main__":
     )
     logger = logging.getLogger(__name__)
 
-    # setting required packages for pysaprk and kafka integration
-    os.environ["JAVA_HOME"] = "/opt/homebrew/opt/java/"
-    SPARK_VERSION = "3.4.1"
-    os.environ["PYSPARK_SUBMIT_ARGS"] = (
-        f"--jars ./mysql-connector-java-8.0.26.jar "
-        f"--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:{SPARK_VERSION},"
-        f"org.apache.spark:spark-sql-kafka-0-10_2.12:{SPARK_VERSION},"
-        f"org.apache.spark:spark-avro_2.12:{SPARK_VERSION} "
-        f"pyspark-shell"
-    )
-
     # define spark session
     spark = (
         SparkSession.builder.appName("trades_consumer").master("local[*]").getOrCreate()
