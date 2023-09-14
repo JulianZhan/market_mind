@@ -6,9 +6,19 @@ import avro.io
 from confluent_kafka import Producer
 from utils import ticker_validator, avro_encode
 import sys
+import logging
+
 
 sys.path.append("../")
 from config import Config
+
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
+
 
 # Global Variables
 finnhub_client = finnhub.Client(api_key=Config.FINNHUB_API_KEY)
@@ -33,19 +43,20 @@ def on_message(ws, message):
                 producer.flush()
                 message_counter = 0
         except Exception as e:
-            print(f"Failed to send message to Kafka: {e}")
+            logger.error(f"Failed to send message to kafka: {e}, message: {message}")
+
     else:
-        print(f"Market may be closed, message: {message}")
+        logger.warning(f"Market may be closed: {message}")
 
 
 def on_error(ws, error):
-    print(error)
+    logger.error(f"### error ###: {error}")
 
 
 def on_close(ws, close_status_code, close_msg):
-    print("### closing ###")
+    logger.info("### closing websocket ###")
     producer.flush(timeout=5)
-    print("### closed ###")
+    logger.info("### closed ###")
 
 
 def on_open(ws):
@@ -53,9 +64,9 @@ def on_open(ws):
         if ticker_validator(finnhub_client, ticker) == True:
             # subscribe to ticker, if ticker exists
             ws.send(f'{{"type":"subscribe","symbol":"{ticker}"}}')
-            print(f"Subscription for {ticker} succeeded")
+            logger.info(f"Subscribed to {ticker} successfully")
         else:
-            print(f"Subscription for {ticker} failed - ticker not found")
+            logger.warning(f"Susbscription to {ticker} failed, ticker does not exist")
 
 
 def main():
