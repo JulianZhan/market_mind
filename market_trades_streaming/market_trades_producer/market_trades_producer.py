@@ -30,6 +30,13 @@ message_counter = 0
 
 
 def on_message(ws, message):
+    """
+    produce message to kafka when message is received from websocket connection
+
+    Args:
+        ws (websocket): websocket connection
+        message (str): message received from websocket connection
+    """
     global message_counter
     message = json.loads(message)
     if "data" in message:
@@ -40,6 +47,7 @@ def on_message(ws, message):
             producer.produce(topic=Config.KAFKA_TOPIC_NAME, value=avro_message)
             message_counter += 1
             if message_counter >= batch_size:
+                # flush producer after every batch_size messages, kafka will wait for all messages to be sent before next batch
                 producer.flush()
                 message_counter = 0
         except Exception as e:
@@ -60,6 +68,12 @@ def on_close(ws, close_status_code, close_msg):
 
 
 def on_open(ws):
+    """
+    when websocket connection is opened, check if tickers exist and subscribe to them
+
+    Args:
+        ws (websocket): websocket connection
+    """
     for ticker in tickers:
         if ticker_validator(finnhub_client, ticker) == True:
             # subscribe to ticker, if ticker exists
@@ -69,7 +83,8 @@ def on_open(ws):
             logger.warning(f"Susbscription to {ticker} failed, ticker does not exist")
 
 
-def main():
+if __name__ == "__main__":
+    # open websocket connection
     websocket.enableTrace(True)
     ws = websocket.WebSocketApp(
         f"wss://ws.finnhub.io?token={Config.FINNHUB_API_KEY}",
@@ -80,7 +95,3 @@ def main():
     # define on_open method after ws is created, so that ws is available in on_open method
     ws.on_open = on_open
     ws.run_forever()
-
-
-if __name__ == "__main__":
-    main()

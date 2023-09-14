@@ -10,7 +10,16 @@ import os
 
 
 def decode_avro_df(raw_df, trades_schema):
-    # Explode the data from Avro
+    """
+    decode avro data from kafka
+
+    Args:
+        raw_df (pyspark.sql.dataframe.DataFrame): raw dataframe from kafka
+        trades_schema (avro.schema): avro schema
+
+    Returns:
+        pyspark.sql.dataframe.DataFrame: decoded dataframe
+    """
     decoded_df = (
         raw_df.withColumn("avro_data", from_avro(col("value"), trades_schema))
         .select("avro_data.*")
@@ -21,7 +30,15 @@ def decode_avro_df(raw_df, trades_schema):
 
 
 def parse_decoded_df(decoded_df):
-    # Rename columns and add proper timestamps
+    """
+    parse decoded dataframe, with columns renamed and timestamp converted to datetime
+
+    Args:
+        decoded_df (pyspark.sql.dataframe.DataFrame): decoded dataframe
+
+    Returns:
+        pyspark.sql.dataframe.DataFrame: parsed dataframe
+    """
     final_df = (
         decoded_df.withColumnRenamed("c", "trade_conditions")
         .withColumnRenamed("p", "price")
@@ -38,6 +55,13 @@ def parse_decoded_df(decoded_df):
 
 
 def insert_to_rds(batch_df, batch_id):
+    """
+    batch insert to RDS from pyspark dataframe
+
+    Args:
+        batch_df (pyspark.sql.dataframe.DataFrame): dataframe to insert
+        batch_id (int): batch id
+    """
     try:
         batch_df.write.format("jdbc").options(
             url=jdbc_url,
@@ -54,7 +78,7 @@ def insert_to_rds(batch_df, batch_id):
 
 
 if __name__ == "__main__":
-    # Set up logging
+    # set up logging
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
     )
@@ -71,11 +95,13 @@ if __name__ == "__main__":
         f"pyspark-shell"
     )
 
+    # define spark session
     spark = (
         SparkSession.builder.appName("trades_consumer").master("local[*]").getOrCreate()
     )
+    # set log level
     spark.sparkContext.setLogLevel("ERROR")
-    # topic name rule: topic_prefix.schema.table
+    # define kafka and mysql connection details
     kafka_topic_name = f"{Config.KAFKA_TOPIC_NAME}"
     kafka_bootstrap_server = f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"
     batch_size = "100"
@@ -84,6 +110,7 @@ if __name__ == "__main__":
         f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}"
     )
 
+    # read streaming data from kafka
     raw_df = (
         spark.readStream.format("kafka")
         .option("kafka.bootstrap.servers", kafka_bootstrap_server)
@@ -93,17 +120,17 @@ if __name__ == "__main__":
         .load()
     )
 
-    # Decode the Avro data
+    # decode the avro data
     try:
         decoded_df = decode_avro_df(raw_df, trades_schema)
     except Exception as e:
         logger.error(f"Failed to decode Avro: {e}, raw_df: {raw_df}")
-    # Parse the decoded data
+    # parse the decoded data
     try:
         final_df = parse_decoded_df(decoded_df)
     except Exception as e:
         logger.error(f"Failed to parse decoded df: {e}, decoded_df: {decoded_df}")
 
-    # Write to RDS
+    # write to RDS, with batch insert
     query = final_df.writeStream.foreachBatch(insert_to_rds).start()
     query.awaitTermination()

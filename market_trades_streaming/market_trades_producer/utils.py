@@ -5,6 +5,16 @@ import avro.io
 
 # validate if ticker exists in finnhub
 def ticker_validator(finnhub_client, ticker):
+    """
+    check if ticker exists in finnhub
+
+    Args:
+        finnhub_client (finnhub.Client): finnhub client
+        ticker (str): ticker to validate
+
+    Returns:
+        bool: True if ticker exists, False otherwise
+    """
     for stock in finnhub_client.symbol_lookup(ticker)["result"]:
         if stock["symbol"] == ticker:
             return True
