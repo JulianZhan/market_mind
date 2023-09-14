@@ -39,16 +39,14 @@ def parse_decoded_df(decoded_df):
 
 def insert_to_rds(batch_df, batch_id):
     try:
-        batch_df.write.jdbc(
+        batch_df.write.format("jdbc").options(
             url=jdbc_url,
-            table="trades",
-            mode="append",
-            properties={
-                "user": Config.RDS_USER,
-                "password": Config.RDS_PASSWORD,
-                "driver": "com.mysql.cj.jdbc.Driver",
-            },
-        ).save()
+            driver="com.mysql.cj.jdbc.Driver",
+            dbtable="trades",
+            user=Config.RDS_USER,
+            password=Config.RDS_PASSWORD,
+            isolationLevel="NONE",
+        ).mode("append").save()
     except Exception as e:
         logger.error(
             f"Failed to insert to RDS: {e}, batch_id: {batch_id}, batch_df: {batch_df}"
@@ -107,7 +105,5 @@ if __name__ == "__main__":
         logger.error(f"Failed to parse decoded df: {e}, decoded_df: {decoded_df}")
 
     # Write to RDS
-    query = (
-        final_df.writeStream.outputMode("append").foreachBatch(insert_to_rds).start()
-    )
+    query = final_df.writeStream.foreachBatch(insert_to_rds).start()
     query.awaitTermination()
