@@ -1,12 +1,8 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col, explode, current_timestamp, concat_ws
+from pyspark.sql.functions import col, explode, current_timestamp, concat_ws
 from pyspark.sql.avro.functions import from_avro
-import sys
 import logging
-
-sys.path.append("../")
 from config import Config
-import os
 
 
 def decode_avro_df(raw_df, trades_schema):

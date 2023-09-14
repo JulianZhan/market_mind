@@ -14,5 +14,5 @@ services:
 
 networks:
   network1:
-    name: streaming_test
+    name: streaming_network
     external: true
