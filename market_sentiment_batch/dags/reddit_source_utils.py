@@ -37,14 +37,29 @@ def clean_comment(text):
 
 new_posts = reddit.subreddit("stocks").new(limit=10)
 
-with Session() as session:
-    comments_list = []
-    for post in new_posts:
-        # fetch the top-level comments
-        post.comments.replace_more(limit=1)
-        for comment_data in post.comments:
-            comment = {"comment": comment_data.body}
-            comments_list.append(comment)
 
-    session.execute(insert(RedditComment), comments_list)
-    session.commit()
+def batch_insert_reddit_comments(data, batch_size):
+    """
+    insert reddit comments into database in batches
+
+    Args:
+        data (list): reddit comments in list of dictionary format
+        batch_size (int): number of rows to insert into database in each batch
+    """
+    # open a session with orm
+    with Session() as session:
+        for i in range(0, len(data), batch_size):
+            # for each batch of data, use slice to get the target batch
+            comments_list = []
+            batch = data[i : i + batch_size]
+
+            for post in batch:
+                # fetch the top-level comments
+                post.comments.replace_more(limit=1)
+                for comment_data in post.comments:
+                    comment = {"comment": comment_data.body}
+                    comments_list.append(comment)
+
+            # bulk insert the batch of data into database
+            session.execute(insert(RedditComment), comments_list)
+        session.commit()

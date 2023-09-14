@@ -18,6 +18,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_news_sentiment_data(url):
+    """
+    get news sentiment data from Alpha Vantage API
+
+    Args:
+        url (str): url to get news sentiment data from, with query parameters
+
+    Returns:
+        list: news sentiment data in list of dictionary format
+    """
     res = requests.get(url)
     try:
         json_data = res.json()  # Convert response to JSON
@@ -27,6 +36,7 @@ def get_news_sentiment_data(url):
                 f"Failed to get data from {url}, status code: {res.status_code}, response: {res.text}"
             )
             return None
+        # if no news items found, return None
         elif "items" in json_data and json_data["items"] == 0:
             logger.info(f"No news items found for url: {url}, response: {res.text}")
             return None
@@ -39,11 +49,21 @@ def get_news_sentiment_data(url):
 
 
 def batch_insert_news_sentiment_data(data, batch_size):
+    """
+    insert news sentiment data into database in batches
+
+    Args:
+        data (list): news sentiment data in list of dictionary format
+        batch_size (int): number of rows to insert into database in each batch
+    """
+    # open a session with orm
     with Session() as session:
+        # for each batch of data, use slice to get the target batch
         for i in range(0, len(data), batch_size):
             news_sentiment_list = []
             batch = data[i : i + batch_size]
 
+            # collect the data to be inserted as a list of dictionary
             for news_sentiment_data in batch:
                 news_sentiment = {
                     "title": news_sentiment_data["title"],
@@ -65,12 +85,23 @@ def batch_insert_news_sentiment_data(data, batch_size):
                 }
                 news_sentiment_list.append(news_sentiment)
 
+            # bulk insert the data into database
             session.execute(insert(AlphaVantageNewsWithSentiment), news_sentiment_list)
-            session.commit()
+        session.commit()
 
 
 def save_news_sentiment_data_to_db(url, batch_size):
+    """
+    combine get_news_sentiment_data and batch_insert_news_sentiment_data functions
+    save news sentiment data to database
+
+    Args:
+        url (str): url to get news sentiment data from, with query parameters
+        batch_size (int): number of rows to insert into database in each batch
+    """
     data = get_news_sentiment_data(url)
+
+    # if data is None, it implicates that no news items are found
     if data is not None:
         batch_insert_news_sentiment_data(data, batch_size)
         logger.info("Successfully inserted data into database")
