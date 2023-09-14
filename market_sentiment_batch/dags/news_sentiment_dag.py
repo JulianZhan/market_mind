@@ -1,13 +1,12 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 from config import Config
+from news_sentiment_utils import save_news_sentiment_data_to_db
 
-# These args will get passed on to each operator
-# You can override them on a per-task basis during operator initialization
+
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -34,9 +33,15 @@ task_finished = DummyOperator(
     dag=dag,
 )
 
+max_news_items = 1000
+time_from = (datetime.now() - timedelta(days=1)).strftime("%Y%m%dT%H%M")
+url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&time_from={time_from}&limit={max_news_items}&apikey={Config.ALPHAVANTAGE_API_KEY}"
 
-data_migration_task = PythonOperator(
-    task_id="data_migration_task", python_callable=migrate_gov_to_gcs, dag=dag
+get_news_sentiment_data_task = PythonOperator(
+    task_id="get_news_sentiment_data",
+    python_callable=save_news_sentiment_data_to_db,
+    op_args=[url, 300],
+    dag=dag,
 )
 
-task_start >> data_migration_task >> task_finished
+task_start >> get_news_sentiment_data_task >> task_finished

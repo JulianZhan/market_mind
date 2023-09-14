@@ -2,8 +2,7 @@ import requests
 from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker
 from config import Config
-from datetime import datetime, timedelta
-from sentiment_model import AlphaVantageNewsSentiment
+from sentiment_model import AlphaVantageNewsWithSentiment
 import logging
 
 
@@ -11,9 +10,6 @@ import logging
 database_url = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(database_url)
 Session = sessionmaker(bind=engine)
-max_news_items = 1000
-time_from = (datetime.now() - timedelta(days=1)).strftime("%Y%m%dT%H%M")
-url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&time_from={time_from}&limit={max_news_items}&apikey={Config.ALPHAVANTAGE_API_KEY}"
 # set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -69,5 +65,14 @@ def batch_insert_news_sentiment_data(data, batch_size):
                 }
                 news_sentiment_list.append(news_sentiment)
 
-            session.execute(insert(AlphaVantageNewsSentiment), news_sentiment_list)
+            session.execute(insert(AlphaVantageNewsWithSentiment), news_sentiment_list)
             session.commit()
+
+
+def save_news_sentiment_data_to_db(url, batch_size):
+    data = get_news_sentiment_data(url)
+    if data is not None:
+        batch_insert_news_sentiment_data(data, batch_size)
+        logger.info("Successfully inserted data into database")
+    else:
+        logger.info("No data to insert into database")

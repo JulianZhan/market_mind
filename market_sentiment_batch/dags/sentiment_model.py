@@ -11,8 +11,8 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class AlphaVantageNewsSentiment(Base):
-    __tablename__ = "alpha_vantage_news_sentiment"
+class AlphaVantageNewsWithSentiment(Base):
+    __tablename__ = "alpha_vantage_news_with_sentiment"
 
     id = Column(Integer, primary_key=True)
     title = Column(String)
@@ -28,7 +28,7 @@ class AlphaVantageNewsSentiment(Base):
 
 
 class RedditComment(Base):
-    __tablename__ = "reddit_comment"
+    __tablename__ = "reddit_comment_raw"
 
     id = Column(Integer, primary_key=True)
     comment = Column(String)
