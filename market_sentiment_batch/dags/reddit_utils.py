@@ -1,5 +1,6 @@
 import re
 import praw
+from datetime import datetime
 from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker
 from config import Config
@@ -23,13 +24,6 @@ DATABASE_URL = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
-
-# load the sentiment model, which trains on reddit and twitter data
-classifier = pipeline(
-    "text-classification",
-    model="j-hartmann/emotion-english-distilroberta-base",
-    return_all_scores=True,
-)
 
 # set up reddit api
 reddit = praw.Reddit(
@@ -56,15 +50,15 @@ def generic_batch_insert(session, model, data, batch_size):
         batch_size (int): the batch size
 
     Returns:
-        int: the id of the first inserted row
+        datetime: the timestamp of the first inserted row
     """
-    latest_inserted_ids = []
+    inserted_at = datetime.utcnow()
     for i in range(0, len(data), batch_size):
         batch = data[i : i + batch_size]
-        inserted_ids = session.execute(insert(model).returning(model.id), batch)
-        latest_inserted_ids.append(inserted_ids.fetchone()[0])
+        session.execute(insert(model), batch)
     session.commit()
-    return min(latest_inserted_ids)
+    logger.info(f"Number of rows inserted: {len(data)}, at: {inserted_at}")
+    return inserted_at
 
 
 def batch_insert_reddit_comments_raw(data, batch_size):
@@ -76,7 +70,7 @@ def batch_insert_reddit_comments_raw(data, batch_size):
         batch_size (int): number of rows to insert into database in each batch
 
     Returns:
-        int: the id of the first inserted row
+        datetime: the timestamp of the first inserted row
     """
     # open a session with orm
     with Session() as session:
@@ -90,19 +84,20 @@ def batch_insert_reddit_comments_raw(data, batch_size):
         )
 
 
-def fetch_comments_after_id(model, first_inserted_id):
+def fetch_comments_after_timestamp(model, inserted_at):
     """
     Fetch all model records with ID greater than the given ID.
 
     Args:
-        first_inserted_id (int): The starting ID.
+        model (sqlalchemy.ext.declarative.api.DeclarativeMeta): the model class
+        inserted_at (datetime): the timestamp
 
     Returns:
-        List of model instances with ID greater than first_inserted_id.
+        list: the list of model records
     """
     with Session() as session:
         # Query the model table for all entries with ID greater than first_inserted_id
-        comments = session.query(model).filter(model.id >= first_inserted_id).all()
+        comments = session.query(model).filter(model.created_at > inserted_at).all()
 
     return comments
 
@@ -146,7 +141,7 @@ def batch_insert_reddit_comments_clean(data, batch_size):
         batch_size (int): number of rows to insert into database in each batch
 
     Returns:
-        int: the id of the first inserted row
+        datetime: the timestamp of the first inserted row
     """
     # open a session with orm
     with Session() as session:
@@ -156,6 +151,14 @@ def batch_insert_reddit_comments_clean(data, batch_size):
         return generic_batch_insert(
             session, RedditCommentClean, cleaned_comments_list, batch_size
         )
+
+
+def get_classifier():
+    return pipeline(
+        "text-classification",
+        model="j-hartmann/emotion-english-distilroberta-base",
+        top_k=3,
+    )
 
 
 def batch_predict_emotion(data, batch_size):
@@ -169,11 +172,13 @@ def batch_predict_emotion(data, batch_size):
     Returns:
         list: list of tuples of (comment_id, predictions)
     """
+    classifier = get_classifier()
     results = []
+    logger.info(f"Number of comments to predict: {len(data)}, comments: {data}")
     for i in range(0, len(data), batch_size):
         batch_comments_data = data[i : i + batch_size]
-        batch_comments = [comment["comment"] for comment in batch_comments_data]
-        batch_ids = [comment["id"] for comment in batch_comments_data]
+        batch_comments = [comment.comment for comment in batch_comments_data]
+        batch_ids = [comment.id for comment in batch_comments_data]
         batch_predictions = classifier(batch_comments)
         results.extend(zip(batch_ids, batch_predictions))
     return results
@@ -213,17 +218,17 @@ def batch_insert_reddit_comments_emotion(data, batch_size):
         batch_size (int): number of rows to insert into database in each batch
 
     Returns:
-        int: the id of the first inserted row
+        datetime: the timestamp of the first inserted row
     """
 
     # open a session with orm
     with Session() as session:
         emotion_list = []
-        for comment, predictions in data:
+        for comment_id, predictions in data:
             for prediction in predictions:
                 emotion_list.append(
                     {
-                        "comment_id": comment.id,
+                        "comment_id": comment_id,
                         "emotion_id": prediction["label"],
                         "score": prediction["score"],
                     }
@@ -235,23 +240,31 @@ def batch_insert_reddit_comments_emotion(data, batch_size):
 
 def get_reddit_comments_to_rds(subreddit_name, post_limit, batch_size):
     data = get_new_reddit_comments(subreddit_name, post_limit)
-    first_inserted_id = batch_insert_reddit_comments_raw(data, batch_size)
-    return first_inserted_id
+    first_inserted_at = batch_insert_reddit_comments_raw(data, batch_size)
+    return first_inserted_at
 
 
-def get_reddit_comments_raw_to_clean(first_inserted_id, batch_size):
-    comments = fetch_comments_after_id(RedditCommentRaw, first_inserted_id)
-    first_inserted_id = batch_insert_reddit_comments_clean(comments, batch_size)
-    return first_inserted_id
+def get_reddit_comments_raw_to_clean(first_inserted_at, batch_size):
+    logger.info(f"Try to get comments raw after timestamp: {first_inserted_at}")
+    comments = fetch_comments_after_timestamp(RedditCommentRaw, first_inserted_at)
+    first_inserted_at = batch_insert_reddit_comments_clean(comments, batch_size)
+    logger.info(f"Number of comments cleaned: {len(comments)}, at: {first_inserted_at}")
+    return first_inserted_at
 
 
 def get_reddit_comments_clean_to_emotion(
-    first_inserted_id, batch_size_for_prediction, batch_size_for_insert
+    first_inserted_at, batch_size_for_prediction, batch_size_for_insert
 ):
-    comments = fetch_comments_after_id(RedditCommentClean, first_inserted_id)
+    logger.info(f"Try to get comments clean after timestamp: {first_inserted_at}")
+    comments = fetch_comments_after_timestamp(RedditCommentClean, first_inserted_at)
+    logger.info(f"Number of comments to predict: {len(comments)}")
     predictions = batch_predict_emotion(comments, batch_size_for_prediction)
+    logger.info(f"Number of predictions: {len(predictions)}")
     predictions_with_emotion_id = result_emotion_name_to_id(predictions)
-    first_inserted_id = batch_insert_reddit_comments_emotion(
+    logger.info(
+        f"Number of predictions with emotion id: {len(predictions_with_emotion_id)}"
+    )
+    first_inserted_at = batch_insert_reddit_comments_emotion(
         predictions_with_emotion_id, batch_size_for_insert
     )
-    return first_inserted_id
+    return first_inserted_at

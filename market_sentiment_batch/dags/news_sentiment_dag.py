@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
-from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python import PythonOperator
+from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 from config import Config
 from news_sentiment_utils import save_news_sentiment_data_to_db
@@ -19,7 +19,7 @@ default_args = {
     "start_date": days_ago(1),
     "email_on_failure": False,
     "email_on_retry": False,
-    "retries": 1,
+    "retries": 0,
     "retry_delay": timedelta(minutes=5),
 }
 
@@ -27,15 +27,16 @@ default_args = {
 dag = DAG(
     "news_sentiment_dag",
     default_args=default_args,
-    schedule_interval=timedelta(days=1),
+    schedule=timedelta(days=1),
+    catchup=False,
 )
 
-task_start = DummyOperator(
+task_start = EmptyOperator(
     task_id="task_start",
     dag=dag,
 )
 
-task_finished = DummyOperator(
+task_finished = EmptyOperator(
     task_id="task_finished",
     dag=dag,
 )

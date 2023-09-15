@@ -26,6 +26,7 @@ class RedditCommentRaw(Base):
 
     id = Column(Integer, primary_key=True)
     comment = Column(String)
+    created_at = Column(DateTime)
 
 
 class RedditCommentClean(Base):
@@ -33,6 +34,7 @@ class RedditCommentClean(Base):
 
     id = Column(Integer, primary_key=True)
     comment = Column(String)
+    created_at = Column(DateTime)
 
 
 class Emotion(Base):
@@ -49,3 +51,4 @@ class RedditCommentEmotion(Base):
     comment_id = Column(Integer, ForeignKey("reddit_comment_clean.id"))
     emotion_id = Column(Integer, ForeignKey("emotion.id"))
     score = Column(Float)
+    created_at = Column(DateTime)
