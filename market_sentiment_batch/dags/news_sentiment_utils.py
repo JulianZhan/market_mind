@@ -48,6 +48,32 @@ def get_news_sentiment_data(url):
         return None
 
 
+def parse_news_sentiment_data(data):
+    """
+    parse data to dictionary format for database insertion
+
+    Args:
+        data (dict): news sentiment data from Alpha Vantage API
+
+    Returns:
+        dict: news sentiment data in dictionary format
+    """
+
+    news_sentiment = {
+        "title": data["title"],
+        "url": data["url"],
+        "time_published": data["time_published"],
+        "summary": data["summary"],
+        "banner_image": data["banner_image"],
+        "source": data["source"],
+        "category_within_source": data["category_within_source"],
+        "source_domain": data["source_domain"],
+        "overall_sentiment_score": data["overall_sentiment_score"],
+        "overall_sentiment_label": data["overall_sentiment_label"],
+    }
+    return news_sentiment
+
+
 def batch_insert_news_sentiment_data(data, batch_size):
     """
     insert news sentiment data into database in batches
@@ -58,36 +84,27 @@ def batch_insert_news_sentiment_data(data, batch_size):
     """
     # open a session with orm
     with Session() as session:
-        # for each batch of data, use slice to get the target batch
-        for i in range(0, len(data), batch_size):
-            news_sentiment_list = []
-            batch = data[i : i + batch_size]
+        try:
+            # for each batch of data, use slice to get the target batch
+            for i in range(0, len(data), batch_size):
+                news_sentiment_list = []
+                batch = data[i : i + batch_size]
 
-            # collect the data to be inserted as a list of dictionary
-            for news_sentiment_data in batch:
-                news_sentiment = {
-                    "title": news_sentiment_data["title"],
-                    "url": news_sentiment_data["url"],
-                    "time_published": news_sentiment_data["time_published"],
-                    "summary": news_sentiment_data["summary"],
-                    "banner_image": news_sentiment_data["banner_image"],
-                    "source": news_sentiment_data["source"],
-                    "category_within_source": news_sentiment_data[
-                        "category_within_source"
-                    ],
-                    "source_domain": news_sentiment_data["source_domain"],
-                    "overall_sentiment_score": news_sentiment_data[
-                        "overall_sentiment_score"
-                    ],
-                    "overall_sentiment_label": news_sentiment_data[
-                        "overall_sentiment_label"
-                    ],
-                }
-                news_sentiment_list.append(news_sentiment)
+                # collect the data to be inserted as a list of dictionary
+                for news_sentiment_data in batch:
+                    news_sentiment = parse_news_sentiment_data(news_sentiment_data)
+                    news_sentiment_list.append(news_sentiment)
 
-            # bulk insert the data into database
-            session.execute(insert(AlphaVantageNewsWithSentiment), news_sentiment_list)
-        session.commit()
+                # bulk insert the data into database
+                session.execute(
+                    insert(AlphaVantageNewsWithSentiment), news_sentiment_list
+                )
+            session.commit()
+        except Exception as e:
+            logger.error(
+                f"Failed to insert data into database, error: {e}, data: {data}"
+            )
+            session.rollback()
 
 
 def save_news_sentiment_data_to_db(url, batch_size):
