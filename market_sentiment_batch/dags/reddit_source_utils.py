@@ -3,7 +3,12 @@ import praw
 from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker
 from config import Config
-from sentiment_model import RedditComment
+from sentiment_model import (
+    RedditCommentRaw,
+    RedditCommentClean,
+    RedditCommentEmotion,
+    Emotion,
+)
 import logging
 from transformers import pipeline
 
@@ -36,7 +41,21 @@ reddit = praw.Reddit(
 )
 
 
-def batch_insert_reddit_comments(data, batch_size):
+def get_new_reddit_comments(subreddit_name, limit):
+    return reddit.subreddit(subreddit_name).new(limit=limit)
+
+
+def generic_batch_insert(session, model, data, batch_size):
+    latest_inserted_ids = []
+    for i in range(0, len(data), batch_size):
+        batch = data[i : i + batch_size]
+        inserted_ids = session.execute(insert(model).returning(model.id), batch)
+        latest_inserted_ids.append(inserted_ids.fetchone()[0])
+    session.commit()
+    return min(latest_inserted_ids)
+
+
+def batch_insert_reddit_comments_raw(data, batch_size):
     """
     insert reddit comments into database in batches
 
@@ -47,34 +66,33 @@ def batch_insert_reddit_comments(data, batch_size):
     Returns:
         int: the id of the first inserted row
     """
-    # keep track of the inserted ids in this operation
-    latest_inserted_ids = []
-
     # open a session with orm
     with Session() as session:
-        for i in range(0, len(data), batch_size):
-            # for each batch of data, use slice to get the target batch
-            comments_list = []
-            batch = data[i : i + batch_size]
+        comments_list = []
+        for post in data:
+            post.comments.replace_more(limit=1)
+            for comment_data in post.comments:
+                comments_list.append({"comment": comment_data.body})
+        return generic_batch_insert(
+            session, RedditCommentRaw, comments_list, batch_size
+        )
 
-            for post in batch:
-                # fetch the top-level comments, and only load the morecomment once
-                post.comments.replace_more(limit=1)
-                for comment_data in post.comments:
-                    comment = {"comment": comment_data.body}
-                    comments_list.append(comment)
 
-            # bulk insert the batch of data into database, and return the inserted ids
-            inserted_ids = session.execute(
-                insert(RedditComment).returning(RedditComment.id), comments_list
-            )
-            # add the inserted ids to the list
-            latest_inserted_ids.append(inserted_ids.fetchone()[0])
+def fetch_comments_after_id(model, first_inserted_id):
+    """
+    Fetch all model records with ID greater than the given ID.
 
-        session.commit()
-        # get the first inserted id in this operation
-        first_id = min(latest_inserted_ids)
-        return first_id
+    Args:
+        first_inserted_id (int): The starting ID.
+
+    Returns:
+        List of model instances with ID greater than first_inserted_id.
+    """
+    with Session() as session:
+        # Query the model table for all entries with ID greater than first_inserted_id
+        comments = session.query(model).filter(model.id >= first_inserted_id).all()
+
+    return comments
 
 
 def clean_comment(text):
@@ -107,32 +125,31 @@ def clean_comment(text):
         return ""
 
 
-def fetch_comments_after_id(first_inserted_id):
-    """
-    Fetch all RedditComment records with ID greater than the given ID.
+def batch_insert_reddit_comments_clean(data, batch_size):
+    # keep track of the inserted ids in this operation
+    latest_inserted_ids = []
 
-    Args:
-        first_inserted_id (int): The starting ID.
-
-    Returns:
-        List of RedditComment instances with ID greater than first_inserted_id.
-    """
+    # open a session with orm
     with Session() as session:
-        # Query the RedditComment table for all entries with ID greater than first_inserted_id
-        comments = (
-            session.query(RedditComment)
-            .filter(RedditComment.id >= first_inserted_id)
-            .all()
+        cleaned_comments_list = [
+            {"comment": clean_comment(comment.comment)} for comment in data
+        ]
+        return generic_batch_insert(
+            session, RedditCommentClean, cleaned_comments_list, batch_size
         )
 
-    return comments
 
-
-# # new_posts = reddit.subreddit("stocks").new(limit=10)
 # comment_test = ["I love this!", "I hate this!", "I am sad", "I am happy"]
 # r = classifier(comment_test)
 # r[0]
 def batch_predict_emotion(data, batch_size):
+    results = []
     for i in range(0, len(data), batch_size):
         batch_comments = data[i : i + batch_size]
         batch_comments_text = [comment.comment for comment in batch_comments]
+
+        batch_predictions = classifier(batch_comments_text)
+        batch_results = zip(batch_comments, batch_predictions)
+        results.extend(batch_results)
+
+    return results
