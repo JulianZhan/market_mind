@@ -128,7 +128,11 @@ def fetch_comments_after_id(first_inserted_id):
     return comments
 
 
-# new_posts = reddit.subreddit("stocks").new(limit=10)
-comment_test = ["I love this!", "I hate this!", "I am sad", "I am happy"]
-r = classifier(comment_test)
-r[0]
+# # new_posts = reddit.subreddit("stocks").new(limit=10)
+# comment_test = ["I love this!", "I hate this!", "I am sad", "I am happy"]
+# r = classifier(comment_test)
+# r[0]
+def batch_predict_emotion(data, batch_size):
+    for i in range(0, len(data), batch_size):
+        batch_comments = data[i : i + batch_size]
+        batch_comments_text = [comment.comment for comment in batch_comments]
