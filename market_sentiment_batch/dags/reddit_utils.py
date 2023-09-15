@@ -205,6 +205,17 @@ def result_emotion_name_to_id(result):
 
 
 def batch_insert_reddit_comments_emotion(data, batch_size):
+    """
+    batch insert reddit comments emotion
+
+    Args:
+        data (list): reddit comments in list of dictionary format
+        batch_size (int): number of rows to insert into database in each batch
+
+    Returns:
+        int: the id of the first inserted row
+    """
+
     # open a session with orm
     with Session() as session:
         emotion_list = []
@@ -220,3 +231,27 @@ def batch_insert_reddit_comments_emotion(data, batch_size):
         return generic_batch_insert(
             session, RedditCommentEmotion, emotion_list, batch_size
         )
+
+
+def get_reddit_comments_to_rds(subreddit_name, post_limit, batch_size):
+    data = get_new_reddit_comments(subreddit_name, post_limit)
+    first_inserted_id = batch_insert_reddit_comments_raw(data, batch_size)
+    return first_inserted_id
+
+
+def get_reddit_comments_raw_to_clean(first_inserted_id, batch_size):
+    comments = fetch_comments_after_id(RedditCommentRaw, first_inserted_id)
+    first_inserted_id = batch_insert_reddit_comments_clean(comments, batch_size)
+    return first_inserted_id
+
+
+def get_reddit_comments_clean_to_emotion(
+    first_inserted_id, batch_size_for_prediction, batch_size_for_insert
+):
+    comments = fetch_comments_after_id(RedditCommentClean, first_inserted_id)
+    predictions = batch_predict_emotion(comments, batch_size_for_prediction)
+    predictions_with_emotion_id = result_emotion_name_to_id(predictions)
+    first_inserted_id = batch_insert_reddit_comments_emotion(
+        predictions_with_emotion_id, batch_size_for_insert
+    )
+    return first_inserted_id
