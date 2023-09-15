@@ -24,7 +24,7 @@ engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
 
-# load the sentiment model
+# load the sentiment model, which trains on reddit and twitter data
 classifier = pipeline(
     "text-classification",
     model="j-hartmann/emotion-english-distilroberta-base",
@@ -46,6 +46,18 @@ def get_new_reddit_comments(subreddit_name, limit):
 
 
 def generic_batch_insert(session, model, data, batch_size):
+    """
+    generic batch insert function
+
+    Args:
+        session (sqlalchemy.orm.session.Session): the session object
+        model (sqlalchemy.ext.declarative.api.DeclarativeMeta): the model class
+        data (list): the data to insert
+        batch_size (int): the batch size
+
+    Returns:
+        int: the id of the first inserted row
+    """
     latest_inserted_ids = []
     for i in range(0, len(data), batch_size):
         batch = data[i : i + batch_size]
@@ -126,9 +138,16 @@ def clean_comment(text):
 
 
 def batch_insert_reddit_comments_clean(data, batch_size):
-    # keep track of the inserted ids in this operation
-    latest_inserted_ids = []
+    """
+    clean and insert reddit comments into database in batches
 
+    Args:
+        data (list): reddit comments in list of dictionary format
+        batch_size (int): number of rows to insert into database in each batch
+
+    Returns:
+        int: the id of the first inserted row
+    """
     # open a session with orm
     with Session() as session:
         cleaned_comments_list = [
@@ -139,17 +158,65 @@ def batch_insert_reddit_comments_clean(data, batch_size):
         )
 
 
-# comment_test = ["I love this!", "I hate this!", "I am sad", "I am happy"]
-# r = classifier(comment_test)
-# r[0]
 def batch_predict_emotion(data, batch_size):
+    """
+    batch predict emotion for clean reddit comments
+
+    Args:
+        data (list): reddit comments in list of dictionary format
+        batch_size (int): number of rows to insert into database in each batch
+
+    Returns:
+        list: list of tuples of (comment_id, predictions)
+    """
     results = []
     for i in range(0, len(data), batch_size):
-        batch_comments = data[i : i + batch_size]
-        batch_comments_text = [comment.comment for comment in batch_comments]
-
-        batch_predictions = classifier(batch_comments_text)
-        batch_results = zip(batch_comments, batch_predictions)
-        results.extend(batch_results)
-
+        batch_comments_data = data[i : i + batch_size]
+        batch_comments = [comment["comment"] for comment in batch_comments_data]
+        batch_ids = [comment["id"] for comment in batch_comments_data]
+        batch_predictions = classifier(batch_comments)
+        results.extend(zip(batch_ids, batch_predictions))
     return results
+
+
+def result_emotion_name_to_id(result):
+    """
+    convert emotion name to emotion id
+
+    Args:
+        result (list): list of tuples of (comment_id, predictions)
+
+    Returns:
+        list: list of tuples of (comment_id, predictions)
+    """
+    with Session() as session:
+        emotions = session.query(Emotion).all()
+        emotion_name_to_id = {emotion.name: emotion.id for emotion in emotions}
+    return [
+        (
+            comment_id,
+            [
+                {"label": emotion_name_to_id[pred["label"]], "score": pred["score"]}
+                for pred in predictions
+            ],
+        )
+        for comment_id, predictions in result
+    ]
+
+
+def batch_insert_reddit_comments_emotion(data, batch_size):
+    # open a session with orm
+    with Session() as session:
+        emotion_list = []
+        for comment, predictions in data:
+            for prediction in predictions:
+                emotion_list.append(
+                    {
+                        "comment_id": comment.id,
+                        "emotion_id": prediction["label"],
+                        "score": prediction["score"],
+                    }
+                )
+        return generic_batch_insert(
+            session, RedditCommentEmotion, emotion_list, batch_size
+        )

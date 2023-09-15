@@ -39,8 +39,7 @@ class Emotion(Base):
     __tablename__ = "emotion"
 
     id = Column(Integer, primary_key=True)
-    emotion_name = Column(String)
-    emotion_id = Column(Float)
+    name = Column(String)
 
 
 class RedditCommentEmotion(Base):
