@@ -1,5 +1,5 @@
 import requests
-from sqlalchemy import create_engine, insert
+from sqlalchemy import create_engine, insert, func
 from sqlalchemy.orm import sessionmaker
 from config import Config
 from sentiment_model import AlphaVantageNewsWithSentiment
