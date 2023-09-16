@@ -2,7 +2,7 @@ import requests
 from sqlalchemy import create_engine, insert, func
 from sqlalchemy.orm import sessionmaker
 from config import Config
-from sentiment_model import AlphaVantageNewsWithSentiment
+from sentiment_model import AlphaVantageNewsWithSentiment, AlphaVantageAgg
 import logging
 
 
@@ -124,3 +124,74 @@ def save_news_sentiment_data_to_db(url, batch_size):
         logger.info("Successfully inserted data into database")
     else:
         logger.info("No data to insert into database")
+
+
+def calculate_news_agg():
+    """
+    calculate news sentiment aggregation from alpha_vantage_news_with_sentiment table
+
+    Returns:
+        list: news sentiment aggregation in list of dictionary format
+    """
+    with Session() as session:
+        try:
+            return (
+                session.query(
+                    func.date(AlphaVantageNewsWithSentiment.time_published).label(
+                        "date_recorded"
+                    ),
+                    func.avg(
+                        AlphaVantageNewsWithSentiment.overall_sentiment_score
+                    ).label("avg_score"),
+                    func.max(
+                        AlphaVantageNewsWithSentiment.overall_sentiment_score
+                    ).label("max_score"),
+                    func.min(
+                        AlphaVantageNewsWithSentiment.overall_sentiment_score
+                    ).label("min_score"),
+                    func.stddev(
+                        AlphaVantageNewsWithSentiment.overall_sentiment_score
+                    ).label("std_score"),
+                ).group_by(func.date(AlphaVantageNewsWithSentiment.time_published))
+            ).all()
+        except Exception as e:
+            logger.error(f"Failed to calculate news agg: {e}")
+            return None
+
+
+def save_news_agg_to_db():
+    """
+    save news sentiment aggregation to database
+    """
+    news_agg = calculate_news_agg()
+    with Session() as session:
+        try:
+            # the data size of news_agg is pretty small, so we use basic method to insert data to improve readability and maintainability
+            for row in news_agg:
+                # insert on duplicate key update, if the date_recorded already exists, update the other columns
+                existing = (
+                    session.query(AlphaVantageAgg)
+                    .filter_by(date_recorded=row.date_recorded)
+                    .first()
+                )
+                if existing:
+                    existing.avg_score = row.avg_score
+                    existing.max_score = row.max_score
+                    existing.min_score = row.min_score
+                    existing.std_score = row.std_score
+                else:
+                    # if the date_recorded does not exist, insert a new row
+                    new_agg = {
+                        "date_recorded": row.date_recorded,
+                        "avg_score": row.avg_score,
+                        "max_score": row.max_score,
+                        "min_score": row.min_score,
+                        "std_score": row.std_score,
+                    }
+                    session.execute(insert(AlphaVantageAgg), new_agg)
+
+            session.commit()
+            logger.info("Successfully inserted data into database")
+        except Exception as e:
+            logger.error(f"Failed to insert data into database, error: {e}")
+            session.rollback()

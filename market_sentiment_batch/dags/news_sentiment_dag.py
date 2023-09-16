@@ -4,7 +4,7 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 from config import Config
-from news_sentiment_utils import save_news_sentiment_data_to_db
+from news_sentiment_utils import save_news_sentiment_data_to_db, save_news_agg_to_db
 
 # set global variables, parse parameters to url
 max_news_items = 1000
@@ -50,5 +50,9 @@ get_news_sentiment_data_task = PythonOperator(
     dag=dag,
 )
 
+get_news_agg_task = PythonOperator(
+    task_id="get_news_agg", python_callable=save_news_agg_to_db, dag=dag
+)
+
 # define the task dependencies
-task_start >> get_news_sentiment_data_task >> task_finished
+task_start >> get_news_sentiment_data_task >> get_news_agg_task >> task_finished
