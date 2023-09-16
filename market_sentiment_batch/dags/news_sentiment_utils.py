@@ -2,6 +2,7 @@ import requests
 from sqlalchemy import create_engine, insert, func
 from sqlalchemy.orm import sessionmaker
 from config import Config
+from datetime import datetime, timedelta
 from sentiment_model import AlphaVantageNewsWithSentiment, AlphaVantageAgg
 import logging
 
@@ -131,10 +132,13 @@ def calculate_news_agg():
     calculate news sentiment aggregation from alpha_vantage_news_with_sentiment table
 
     Returns:
-        list: news sentiment aggregation in list of dictionary format
+        list: news sentiment aggregation in list format, each row is a tuple
     """
     with Session() as session:
         try:
+            three_days_ago = (datetime.utcnow() - timedelta(days=3)).isoformat(
+                timespec="seconds"
+            )
             return (
                 session.query(
                     func.date(AlphaVantageNewsWithSentiment.time_published).label(
@@ -152,7 +156,9 @@ def calculate_news_agg():
                     func.stddev(
                         AlphaVantageNewsWithSentiment.overall_sentiment_score
                     ).label("std_score"),
-                ).group_by(func.date(AlphaVantageNewsWithSentiment.time_published))
+                )
+                .filter(AlphaVantageNewsWithSentiment.time_published >= three_days_ago)
+                .group_by(func.date(AlphaVantageNewsWithSentiment.time_published))
             ).all()
         except Exception as e:
             logger.error(f"Failed to calculate news agg: {e}")

@@ -7,7 +7,7 @@ from reddit_utils import (
     get_reddit_comments_to_rds,
     get_reddit_comments_raw_to_clean,
     get_reddit_comments_clean_to_emotion,
-    save_reddit_agg_to_db,
+    get_reddit_agg_to_db,
 )
 
 
@@ -80,7 +80,7 @@ clean_to_emotion_task = PythonOperator(
 )
 
 get_reddit_agg_task = PythonOperator(
-    task_id="get_reddit_agg", python_callable=save_reddit_agg_to_db, dag=dag
+    task_id="get_reddit_agg", python_callable=get_reddit_agg_to_db, dag=dag
 )
 
 # Set up the order of the tasks

@@ -1,6 +1,6 @@
 import re
 import praw
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import create_engine, insert, func, desc
 from sqlalchemy.orm import sessionmaker
 from config import Config
@@ -248,6 +248,9 @@ def calculate_reddit_agg():
     """
     with Session() as session:
         try:
+            three_days_ago = (datetime.utcnow() - timedelta(days=3)).isoformat(
+                timespec="seconds"
+            )
             return (
                 session.query(
                     func.date(RedditCommentEmotion.created_at).label("date_recorded"),
@@ -255,6 +258,7 @@ def calculate_reddit_agg():
                     func.avg(RedditCommentEmotion.score).label("avg_score"),
                 )
                 .join(Emotion, Emotion.id == RedditCommentEmotion.emotion_id)
+                .filter(RedditCommentEmotion.created_at >= three_days_ago)
                 .group_by(
                     func.date(RedditCommentEmotion.created_at),
                     RedditCommentEmotion.emotion_id,
@@ -265,12 +269,11 @@ def calculate_reddit_agg():
             logger.error(f"Failed to calculate reddit agg: {e}")
 
 
-def save_reddit_agg_to_db():
+def insert_reddit_agg_to_db(reddit_agg):
     """
     save reddit agg to database
     """
     with Session() as session:
-        reddit_agg = calculate_reddit_agg()
         try:
             # the data size of news_agg is pretty small, so we use basic method to insert data to improve readability and maintainability
             # inser on duplicate key update
@@ -328,3 +331,13 @@ def get_reddit_comments_clean_to_emotion(
         predictions_with_emotion_id, batch_size_for_insert
     )
     return first_inserted_at
+
+
+def get_reddit_agg_to_db():
+    """
+    get reddit agg
+    """
+    reddit_agg = calculate_reddit_agg()
+    logger.info(f"Number of reddit agg: {len(reddit_agg)}")
+    insert_reddit_agg_to_db(reddit_agg)
+    logger.info("Successfully inserted data into database")
