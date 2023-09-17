@@ -18,7 +18,6 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 1,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -34,7 +33,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -155,7 +155,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -266,7 +267,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -375,7 +377,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -440,6 +443,10 @@
         "type": "timeseries"
       },
       {
+        "datasource": {
+          "type": "mysql",
+          "uid": "P211906C1C32DB77E"
+        },
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -480,7 +487,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -510,11 +518,41 @@
             "sort": "none"
           }
         },
-        "title": "Panel Title",
+        "targets": [
+          {
+            "datasource": {
+              "type": "mysql",
+              "uid": "P211906C1C32DB77E"
+            },
+            "editorMode": "code",
+            "format": "table",
+            "rawQuery": true,
+            "rawSql": "select symbol, price, trade_timestamp from trades \nwhere symbol = 'BINANCE:BTCUSDT' \nand date(trade_timestamp) = curdate()",
+            "refId": "A",
+            "sql": {
+              "columns": [
+                {
+                  "parameters": [],
+                  "type": "function"
+                }
+              ],
+              "groupBy": [
+                {
+                  "property": {
+                    "type": "string"
+                  },
+                  "type": "groupBy"
+                }
+              ],
+              "limit": 50
+            }
+          }
+        ],
+        "title": "BTC Price",
         "type": "timeseries"
       }
     ],
-    "refresh": "",
+    "refresh": "1h",
     "schemaVersion": 38,
     "style": "dark",
     "tags": [],
@@ -527,8 +565,8 @@
     },
     "timepicker": {},
     "timezone": "",
-    "title": "Market Mind",
+    "title": "Market Mind Overview",
     "uid": "fd2b6c85-fab1-4b03-91af-516ebcefc520",
-    "version": 8,
+    "version": 1,
     "weekStart": ""
   }
