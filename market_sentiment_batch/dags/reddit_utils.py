@@ -158,7 +158,7 @@ def get_classifier():
     return pipeline(
         "text-classification",
         model="j-hartmann/emotion-english-distilroberta-base",
-        top_k=3,
+        top_k=None,
     )
 
 
