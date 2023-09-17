@@ -34,7 +34,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -155,7 +156,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -181,10 +183,11 @@
           "reduceOptions": {
             "calcs": [],
             "fields": "",
+            "limit": 25,
             "values": true
           },
           "showUnfilled": true,
-          "valueMode": "color"
+          "valueMode": "hidden"
         },
         "pluginVersion": "10.0.0",
         "targets": [
@@ -196,7 +199,7 @@
             "editorMode": "code",
             "format": "table",
             "rawQuery": true,
-            "rawSql": "select emotion_name, \navg_score\nfrom reddit_agg\n-- where date_recorded = curdate()\nlimit 7\n",
+            "rawSql": "select emotion_name, \nround(avg_score, 2)\nfrom reddit_agg\n-- where date_recorded = curdate()\nlimit 7\n",
             "refId": "A",
             "sql": {
               "columns": [
@@ -265,7 +268,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -374,7 +378,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
@@ -479,7 +484,8 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green"
+                  "color": "green",
+                  "value": null
                 },
                 {
                   "color": "red",
