@@ -3,3 +3,6 @@ Flask-RESTful==0.3.10
 sqlalchemy==1.4.32
 mysql-connector-python==8.1.0
 python_dotenv==1.0.0
+confluent-kafka==2.2.0
+avro==1.11.2
+Flask-SocketIO==5.3.6

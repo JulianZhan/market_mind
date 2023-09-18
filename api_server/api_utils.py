@@ -4,6 +4,9 @@ from sqlalchemy.orm import sessionmaker
 import logging
 from config import Config
 import datetime
+import avro.schema
+import avro.io
+import io
 
 
 # set up logging
@@ -16,6 +19,14 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
+avro_schema = avro.schema.parse(open("trades_schema.avsc", "r").read())
+
+
+def decode_avro_message(message, schema):
+    bytes_reader = io.BytesIO(message)
+    decoder = avro.io.BinaryDecoder(bytes_reader)
+    reader = avro.io.DatumReader(schema)
+    return reader.read(decoder)
 
 
 def validate_date(date_text):

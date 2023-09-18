@@ -9,3 +9,10 @@ services:
       - .:/app
     env_file:
       - .env
+    networks:
+      - network1
+
+networks:
+  network1:
+    name: streaming_network
+    external: true
