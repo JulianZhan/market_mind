@@ -34,7 +34,7 @@ def get_news_sentiment(target_date):
             .filter(func.date(AlphaVantageAgg.date_recorded) == target_date)
             .first()
         )
-        news_sentiment = {
+        news_sentiment_dict = {
             "score_definition": {
                 "Bearish": "score <= -0.35",
                 "Somewhat-Bearish": "-0.35 < score <= -0.15",
@@ -50,7 +50,7 @@ def get_news_sentiment(target_date):
             },
             "date_recorded": target_date,
         }
-        return news_sentiment
+        return news_sentiment_dict
 
 
 def get_reddit_emotion(target_date):
@@ -60,3 +60,8 @@ def get_reddit_emotion(target_date):
             .filter(func.date(RedditAgg.date_recorded) == target_date)
             .all()
         )
+        reddit_emotion_dict = {"emotion": {}}
+        for emotion in reddit_emotion:
+            reddit_emotion_dict["emotion"][emotion.emotion_name] = emotion.avg_score
+        reddit_emotion_dict["date_recorded"] = target_date
+        return reddit_emotion_dict
