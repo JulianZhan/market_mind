@@ -2,16 +2,18 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
+from airflow.operators.empty import EmptyOperator
 from reddit_utils import (
     get_reddit_comments_to_rds,
     get_reddit_comments_raw_to_clean,
     get_reddit_comments_clean_to_emotion,
+    get_reddit_agg_to_db,
 )
 
 
 # Define Python functions for tasks
 def task_get_comments_to_rds():
-    return get_reddit_comments_to_rds("stock", post_limit=50, batch_size=300)
+    return get_reddit_comments_to_rds("CryptoCurrency", post_limit=100, batch_size=300)
 
 
 def task_raw_to_clean(**context):
@@ -43,9 +45,20 @@ default_args = {
 dag = DAG(
     "reddit_dag",
     default_args=default_args,
-    schedule=timedelta(days=1),
+    schedule="0 0 * * *",
     catchup=False,
 )
+
+task_start = EmptyOperator(
+    task_id="task_start",
+    dag=dag,
+)
+
+task_finished = EmptyOperator(
+    task_id="task_finished",
+    dag=dag,
+)
+
 
 # Define tasks
 get_comments_to_rds_task = PythonOperator(
@@ -66,5 +79,16 @@ clean_to_emotion_task = PythonOperator(
     dag=dag,
 )
 
+get_reddit_agg_task = PythonOperator(
+    task_id="get_reddit_agg", python_callable=get_reddit_agg_to_db, dag=dag
+)
+
 # Set up the order of the tasks
-get_comments_to_rds_task >> raw_to_clean_task >> clean_to_emotion_task
+(
+    task_start
+    >> get_comments_to_rds_task
+    >> raw_to_clean_task
+    >> clean_to_emotion_task
+    >> get_reddit_agg_task
+    >> task_finished
+)

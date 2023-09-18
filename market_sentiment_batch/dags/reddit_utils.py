@@ -1,7 +1,7 @@
 import re
 import praw
-from datetime import datetime
-from sqlalchemy import create_engine, insert
+from datetime import datetime, timedelta
+from sqlalchemy import create_engine, insert, func, desc
 from sqlalchemy.orm import sessionmaker
 from config import Config
 from sentiment_model import (
@@ -9,6 +9,7 @@ from sentiment_model import (
     RedditCommentClean,
     RedditCommentEmotion,
     Emotion,
+    RedditAgg,
 )
 import logging
 from transformers import pipeline
@@ -52,7 +53,7 @@ def generic_batch_insert(session, model, data, batch_size):
     Returns:
         datetime: the timestamp of the first inserted row
     """
-    inserted_at = datetime.utcnow()
+    inserted_at = datetime.utcnow().isoformat(timespec="seconds")
     for i in range(0, len(data), batch_size):
         batch = data[i : i + batch_size]
         session.execute(insert(model), batch)
@@ -97,7 +98,7 @@ def fetch_comments_after_timestamp(model, inserted_at):
     """
     with Session() as session:
         # Query the model table for all entries with ID greater than first_inserted_id
-        comments = session.query(model).filter(model.created_at > inserted_at).all()
+        comments = session.query(model).filter(model.created_at >= inserted_at).all()
 
     return comments
 
@@ -157,7 +158,7 @@ def get_classifier():
     return pipeline(
         "text-classification",
         model="j-hartmann/emotion-english-distilroberta-base",
-        top_k=3,
+        top_k=None,
     )
 
 
@@ -238,6 +239,68 @@ def batch_insert_reddit_comments_emotion(data, batch_size):
         )
 
 
+def calculate_reddit_agg():
+    """
+    calculate reddit agg from reddit comment emotion
+
+    Returns:
+        list: list of tuples of (date_recorded, emotion_name, avg_score)
+    """
+    with Session() as session:
+        try:
+            three_days_ago = (datetime.utcnow() - timedelta(days=3)).isoformat(
+                timespec="seconds"
+            )
+            return (
+                session.query(
+                    func.date(RedditCommentEmotion.created_at).label("date_recorded"),
+                    Emotion.name.label("emotion_name"),
+                    func.avg(RedditCommentEmotion.score).label("avg_score"),
+                )
+                .join(Emotion, Emotion.id == RedditCommentEmotion.emotion_id)
+                .filter(RedditCommentEmotion.created_at >= three_days_ago)
+                .group_by(
+                    func.date(RedditCommentEmotion.created_at),
+                    RedditCommentEmotion.emotion_id,
+                )
+                .order_by(desc("avg_score"))
+            ).all()
+        except Exception as e:
+            logger.error(f"Failed to calculate reddit agg: {e}")
+
+
+def insert_reddit_agg_to_db(reddit_agg):
+    """
+    save reddit agg to database
+    """
+    with Session() as session:
+        try:
+            # the data size of news_agg is pretty small, so we use basic method to insert data to improve readability and maintainability
+            # inser on duplicate key update
+            for row in reddit_agg:
+                existing = (
+                    session.query(RedditAgg)
+                    .filter_by(
+                        date_recorded=row.date_recorded, emotion_name=row.emotion_name
+                    )
+                    .first()
+                )
+                if existing:
+                    # if the date_recorded and emotion_name already exists, update the other columns
+                    existing.avg_score = row.avg_score
+                else:
+                    # if the date_recorded and emotion_name does not exist, insert a new row
+                    new_agg = {
+                        "date_recorded": row.date_recorded,
+                        "emotion_name": row.emotion_name,
+                        "avg_score": row.avg_score,
+                    }
+                    session.execute(insert(RedditAgg), new_agg)
+            session.commit()
+        except Exception as e:
+            logger.error(f"Failed to save reddit agg to db: {e}")
+
+
 def get_reddit_comments_to_rds(subreddit_name, post_limit, batch_size):
     data = get_new_reddit_comments(subreddit_name, post_limit)
     first_inserted_at = batch_insert_reddit_comments_raw(data, batch_size)
@@ -268,3 +331,13 @@ def get_reddit_comments_clean_to_emotion(
         predictions_with_emotion_id, batch_size_for_insert
     )
     return first_inserted_at
+
+
+def get_reddit_agg_to_db():
+    """
+    get reddit agg
+    """
+    reddit_agg = calculate_reddit_agg()
+    logger.info(f"Number of reddit agg: {len(reddit_agg)}")
+    insert_reddit_agg_to_db(reddit_agg)
+    logger.info("Successfully inserted data into database")
