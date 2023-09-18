@@ -27,7 +27,7 @@ default_args = {
 dag = DAG(
     "news_sentiment_dag",
     default_args=default_args,
-    schedule=timedelta(days=1),
+    schedule="0 0 * * *",
     catchup=False,
 )
 

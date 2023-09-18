@@ -13,7 +13,7 @@ from reddit_utils import (
 
 # Define Python functions for tasks
 def task_get_comments_to_rds():
-    return get_reddit_comments_to_rds("stock", post_limit=100, batch_size=300)
+    return get_reddit_comments_to_rds("CryptoCurrency", post_limit=100, batch_size=300)
 
 
 def task_raw_to_clean(**context):
@@ -45,7 +45,7 @@ default_args = {
 dag = DAG(
     "reddit_dag",
     default_args=default_args,
-    schedule=timedelta(days=1),
+    schedule="0 0 * * *",
     catchup=False,
 )
 
