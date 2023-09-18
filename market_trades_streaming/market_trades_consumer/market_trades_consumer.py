@@ -100,7 +100,7 @@ if __name__ == "__main__":
         spark.readStream.format("kafka")
         .option("kafka.bootstrap.servers", kafka_bootstrap_server)
         .option("subscribe", kafka_topic_name)
-        .option("startingOffsets", "earliest")
+        .option("startingOffsets", "latest")
         .option("maxOffsetsPerTrigger", batch_size)
         .load()
     )
