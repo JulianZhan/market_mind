@@ -12,13 +12,6 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class Emotion(Base):
-    __tablename__ = "emotion"
-
-    id = Column(BigInteger, primary_key=True)
-    name = Column(String)
-
-
 class AlphaVantageAgg(Base):
     __tablename__ = "alpha_vantage_agg"
 
