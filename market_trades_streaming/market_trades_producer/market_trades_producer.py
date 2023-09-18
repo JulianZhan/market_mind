@@ -81,7 +81,7 @@ def on_open(ws):
 
 if __name__ == "__main__":
     # open websocket connection
-    websocket.enableTrace(True)
+    websocket.enableTrace(False)
     ws = websocket.WebSocketApp(
         f"wss://ws.finnhub.io?token={Config.FINNHUB_API_KEY}",
         on_message=on_message,
