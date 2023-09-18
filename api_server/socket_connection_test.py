@@ -3,21 +3,16 @@ import socketio
 sio = socketio.Client()
 
 
-@sio.event
-def connect():
-    print("connection established")
+@sio.on("market_trades")
+def on_market_trades(data):
+    print("Received event:", data)
 
 
-@sio.event
-def my_message(data):
-    print("message received with ", data)
-    sio.emit("my response", {"response": "my response"})
+# Connect to the server
+sio.connect("http://52.63.8.207:5001")  # Adjust the hostname and port as needed
 
-
-@sio.event
-def disconnect():
-    print("disconnected from server")
-
-
-sio.connect("http://localhost:5001")
-sio.wait()
+try:
+    sio.wait()
+except KeyboardInterrupt:
+    print("Disconnecting...")
+    sio.disconnect()
