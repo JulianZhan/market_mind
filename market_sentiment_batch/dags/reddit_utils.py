@@ -53,13 +53,18 @@ def generic_batch_insert(session, model, data, batch_size):
     Returns:
         datetime: the timestamp of the first inserted row
     """
-    inserted_at = datetime.utcnow().isoformat(timespec="seconds")
-    for i in range(0, len(data), batch_size):
-        batch = data[i : i + batch_size]
-        session.execute(insert(model), batch)
-    session.commit()
-    logger.info(f"Number of rows inserted: {len(data)}, at: {inserted_at}")
-    return inserted_at
+    try:
+        inserted_at = datetime.utcnow().isoformat(timespec="seconds")
+        for i in range(0, len(data), batch_size):
+            batch = data[i : i + batch_size]
+            session.execute(insert(model), batch)
+        session.commit()
+        logger.info(f"Number of rows inserted: {len(data)}, at: {inserted_at}")
+        return inserted_at
+    except Exception as e:
+        logger.error(f"Failed to insert data: {e}")
+        session.rollback()
+        return None
 
 
 def batch_insert_reddit_comments_raw(data, batch_size):
@@ -75,14 +80,17 @@ def batch_insert_reddit_comments_raw(data, batch_size):
     """
     # open a session with orm
     with Session() as session:
-        comments_list = []
-        for post in data:
-            post.comments.replace_more(limit=1)
-            for comment_data in post.comments:
-                comments_list.append({"comment": comment_data.body})
-        return generic_batch_insert(
-            session, RedditCommentRaw, comments_list, batch_size
-        )
+        try:
+            comments_list = []
+            for post in data:
+                post.comments.replace_more(limit=1)
+                for comment_data in post.comments:
+                    comments_list.append({"comment": comment_data.body})
+            return generic_batch_insert(
+                session, RedditCommentRaw, comments_list, batch_size
+            )
+        except Exception as e:
+            logger.error(f"Failed to insert data: {e}")
 
 
 def fetch_comments_after_timestamp(model, inserted_at):
@@ -97,10 +105,15 @@ def fetch_comments_after_timestamp(model, inserted_at):
         list: the list of model records
     """
     with Session() as session:
-        # Query the model table for all entries with ID greater than first_inserted_id
-        comments = session.query(model).filter(model.created_at >= inserted_at).all()
+        try:
+            # Query the model table for all entries with ID greater than first_inserted_id
+            comments = (
+                session.query(model).filter(model.created_at >= inserted_at).all()
+            )
 
-    return comments
+            return comments
+        except Exception as e:
+            logger.error(f"Failed to fetch comments: {e}")
 
 
 def clean_comment(text):
@@ -146,12 +159,15 @@ def batch_insert_reddit_comments_clean(data, batch_size):
     """
     # open a session with orm
     with Session() as session:
-        cleaned_comments_list = [
-            {"comment": clean_comment(comment.comment)} for comment in data
-        ]
-        return generic_batch_insert(
-            session, RedditCommentClean, cleaned_comments_list, batch_size
-        )
+        try:
+            cleaned_comments_list = [
+                {"comment": clean_comment(comment.comment)} for comment in data
+            ]
+            return generic_batch_insert(
+                session, RedditCommentClean, cleaned_comments_list, batch_size
+            )
+        except Exception as e:
+            logger.error(f"Failed to insert data: {e}")
 
 
 def get_classifier():
@@ -173,16 +189,19 @@ def batch_predict_emotion(data, batch_size):
     Returns:
         list: list of tuples of (comment_id, predictions)
     """
-    classifier = get_classifier()
-    results = []
-    logger.info(f"Number of comments to predict: {len(data)}, comments: {data}")
-    for i in range(0, len(data), batch_size):
-        batch_comments_data = data[i : i + batch_size]
-        batch_comments = [comment.comment for comment in batch_comments_data]
-        batch_ids = [comment.id for comment in batch_comments_data]
-        batch_predictions = classifier(batch_comments)
-        results.extend(zip(batch_ids, batch_predictions))
-    return results
+    try:
+        classifier = get_classifier()
+        results = []
+        logger.info(f"Number of comments to predict: {len(data)}, comments: {data}")
+        for i in range(0, len(data), batch_size):
+            batch_comments_data = data[i : i + batch_size]
+            batch_comments = [comment.comment for comment in batch_comments_data]
+            batch_ids = [comment.id for comment in batch_comments_data]
+            batch_predictions = classifier(batch_comments)
+            results.extend(zip(batch_ids, batch_predictions))
+        return results
+    except Exception as e:
+        logger.error(f"Failed to predict emotion: {e}")
 
 
 def result_emotion_name_to_id(result):
@@ -196,18 +215,24 @@ def result_emotion_name_to_id(result):
         list: list of tuples of (comment_id, predictions)
     """
     with Session() as session:
-        emotions = session.query(Emotion).all()
-        emotion_name_to_id = {emotion.name: emotion.id for emotion in emotions}
-    return [
-        (
-            comment_id,
-            [
-                {"label": emotion_name_to_id[pred["label"]], "score": pred["score"]}
-                for pred in predictions
-            ],
-        )
-        for comment_id, predictions in result
-    ]
+        try:
+            emotions = session.query(Emotion).all()
+            emotion_name_to_id = {emotion.name: emotion.id for emotion in emotions}
+            return [
+                (
+                    comment_id,
+                    [
+                        {
+                            "label": emotion_name_to_id[pred["label"]],
+                            "score": pred["score"],
+                        }
+                        for pred in predictions
+                    ],
+                )
+                for comment_id, predictions in result
+            ]
+        except Exception as e:
+            logger.error(f"Failed to convert emotion name to id: {e}")
 
 
 def batch_insert_reddit_comments_emotion(data, batch_size):
@@ -224,19 +249,22 @@ def batch_insert_reddit_comments_emotion(data, batch_size):
 
     # open a session with orm
     with Session() as session:
-        emotion_list = []
-        for comment_id, predictions in data:
-            for prediction in predictions:
-                emotion_list.append(
-                    {
-                        "comment_id": comment_id,
-                        "emotion_id": prediction["label"],
-                        "score": prediction["score"],
-                    }
-                )
-        return generic_batch_insert(
-            session, RedditCommentEmotion, emotion_list, batch_size
-        )
+        try:
+            emotion_list = []
+            for comment_id, predictions in data:
+                for prediction in predictions:
+                    emotion_list.append(
+                        {
+                            "comment_id": comment_id,
+                            "emotion_id": prediction["label"],
+                            "score": prediction["score"],
+                        }
+                    )
+            return generic_batch_insert(
+                session, RedditCommentEmotion, emotion_list, batch_size
+            )
+        except Exception as e:
+            logger.error(f"Failed to insert data: {e}")
 
 
 def calculate_reddit_agg():
@@ -304,6 +332,7 @@ def insert_reddit_agg_to_db(reddit_agg):
 def get_reddit_comments_to_rds(subreddit_name, post_limit, batch_size):
     data = get_new_reddit_comments(subreddit_name, post_limit)
     first_inserted_at = batch_insert_reddit_comments_raw(data, batch_size)
+    logger.info("Data inserted into database frin reddit praw api")
     return first_inserted_at
 
 

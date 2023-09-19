@@ -27,6 +27,7 @@ default_args = {
 dag = DAG(
     "news_sentiment_dag",
     default_args=default_args,
+    # execute every day at midnight UTC
     schedule="0 0 * * *",
     catchup=False,
 )

@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # define kafka and mysql connection details
     kafka_topic_name = f"{Config.KAFKA_TOPIC_NAME}"
     kafka_bootstrap_server = f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"
-    batch_size = "100"
+    batch_size = "3000"
     trades_schema = open("trades_schema.avsc", "r").read()
     jdbc_url = (
         f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}"
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         spark.readStream.format("kafka")
         .option("kafka.bootstrap.servers", kafka_bootstrap_server)
         .option("subscribe", kafka_topic_name)
-        .option("startingOffsets", "earliest")
+        .option("startingOffsets", "latest")
         .option("maxOffsetsPerTrigger", batch_size)
         .load()
     )
