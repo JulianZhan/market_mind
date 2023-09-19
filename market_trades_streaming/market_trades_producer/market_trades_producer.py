@@ -8,6 +8,7 @@ from utils import ticker_validator, avro_encode
 import logging
 from config import Config
 import time
+import threading
 
 
 # Set up logging
@@ -29,6 +30,14 @@ avro_schema = avro.schema.parse(open("trades_schema.avsc").read())
 tickers = ["SPY", "BINANCE:BTCUSDT"]
 batch_size = 1000  # flush after every 1000 messages
 message_counter = 0
+
+
+def reset_retry_counter():
+    global retry_counter
+    while True:
+        time.sleep(72000)  # sleep for 20 hour
+        retry_counter = 0
+        logger.info(f"Resetting retry_counter. retry_counter: {retry_counter}")
 
 
 def on_message(ws, message):
@@ -96,6 +105,9 @@ def on_open(ws):
 
 
 if __name__ == "__main__":
+    reset_thread = threading.Thread(target=reset_retry_counter, daemon=True)
+    reset_thread.start()
+
     # open websocket connection
     websocket.enableTrace(True)
     ws = websocket.WebSocketApp(
