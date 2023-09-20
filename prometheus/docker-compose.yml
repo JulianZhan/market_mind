@@ -1,18 +1,29 @@
 version: '3.9'
 
 services:
+
   prometheus:
     build: 
       context: .
       dockerfile: Dockerfile
+    container_name: prometheus
     volumes:
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
-      - '9090:9090'
+      - '9090:9090'    
+    networks:
+      - network1
+
+
 
   # Define your data pipeline services here
 
 volumes:
   prometheus_data:
+
+networks:
+  network1:
+    name: pipeline_monitoring
+    external: true
