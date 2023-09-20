@@ -5,6 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: pyspark-consumer
+    ports:
+      - 5052:5052
     volumes:
       - .:/app
     env_file:

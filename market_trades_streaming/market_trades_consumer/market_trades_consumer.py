@@ -3,8 +3,34 @@ from pyspark.sql.functions import col, explode, current_timestamp, concat_ws
 from pyspark.sql.avro.functions import from_avro
 import logging
 from config import Config
+from prometheus_client import start_http_server, Counter, Gauge, Summary
+
+# Metrics
+
+process_records = Counter(
+    "pyspark_consumer_process_records", "Number of records processed"
+)
+decode_time = Summary(
+    "pyspark_consumer_decode_time_seconds", "Time spent decoding a batch"
+)
+parse_time = Summary(
+    "pyspark_consumer_parse_time_seconds", "Time spent parsing a batch"
+)
+insert_time = Summary(
+    "pyspark_consumer_insert_time_seconds", "Time spent inserting a batch"
+)
+decode_errors = Counter(
+    "pyspark_consumer_decode_errors", "Errors encountered while decoding Avro"
+)
+parse_errors = Counter(
+    "pyspark_consumer_parse_errors", "Errors encountered while parsing"
+)
+database_errors = Counter(
+    "pyspark_consumer_database_errors", "Errors encountered while inserting into RDS"
+)
 
 
+@decode_time.time()
 def decode_avro_df(raw_df, trades_schema):
     """
     decode avro data from kafka
@@ -25,6 +51,7 @@ def decode_avro_df(raw_df, trades_schema):
     return decoded_df
 
 
+@parse_time.time()
 def parse_decoded_df(decoded_df):
     """
     parse decoded dataframe, with columns renamed and timestamp converted to datetime
@@ -47,9 +74,12 @@ def parse_decoded_df(decoded_df):
         .withColumn("created_at", current_timestamp())
         .withColumn("trade_conditions", concat_ws(",", col("trade_conditions")))
     )
+    records_count = final_df.count()
+    process_records.inc(records_count)
     return final_df
 
 
+@insert_time.time()
 def insert_to_rds(batch_df, batch_id):
     """
     batch insert to RDS from pyspark dataframe
@@ -71,9 +101,12 @@ def insert_to_rds(batch_df, batch_id):
         logger.error(
             f"Failed to insert to RDS: {e}, batch_id: {batch_id}, batch_df: {batch_df}"
         )
+        database_errors.inc()
 
 
 if __name__ == "__main__":
+    start_http_server(5052)
+
     # set up logging
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -110,12 +143,13 @@ if __name__ == "__main__":
         decoded_df = decode_avro_df(raw_df, trades_schema)
     except Exception as e:
         logger.error(f"Failed to decode Avro: {e}, raw_df: {raw_df}")
+        decode_errors.inc()
     # parse the decoded data
     try:
         final_df = parse_decoded_df(decoded_df)
     except Exception as e:
         logger.error(f"Failed to parse decoded df: {e}, decoded_df: {decoded_df}")
-
+        parse_errors.inc()
     # write to RDS, with batch insert
     query = final_df.writeStream.foreachBatch(insert_to_rds).start()
     query.awaitTermination()

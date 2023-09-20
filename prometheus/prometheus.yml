@@ -17,3 +17,7 @@ scrape_configs:
   - job_name: 'python-producer'
     static_configs:
       - targets: ['python-producer:5051']
+
+  - job_name: 'pyspark-consumer'
+    static_configs:
+      - targets: ['pyspark-consumer:5052']
