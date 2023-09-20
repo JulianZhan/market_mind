@@ -21,13 +21,13 @@ logger = logging.getLogger(__name__)
 # Global Variables
 max_retries = 5
 retry_counter = 0
-retry_interval = 10
+retry_interval = 20
 
 
 finnhub_client = finnhub.Client(api_key=Config.FINNHUB_API_KEY)
 producer = Producer({"bootstrap.servers": f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"})
 avro_schema = avro.schema.parse(open("trades_schema.avsc").read())
-tickers = ["SPY", "BINANCE:BTCUSDT"]
+tickers = ["BINANCE:BTCUSDT"]
 batch_size = 1000  # flush after every 1000 messages
 message_counter = 0
 
@@ -35,7 +35,7 @@ message_counter = 0
 def reset_retry_counter():
     global retry_counter
     while True:
-        time.sleep(72000)  # sleep for 20 hour
+        time.sleep(18000)  # sleep for 3 hour
         retry_counter = 0
         logger.info(f"Resetting retry_counter. retry_counter: {retry_counter}")
 
