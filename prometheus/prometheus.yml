@@ -13,3 +13,7 @@ scrape_configs:
   - job_name: 'kafka'
     static_configs:
       - targets: ['kafka_exporter:9308']
+
+  - job_name: 'python-producer'
+    static_configs:
+      - targets: ['python-producer:5051']

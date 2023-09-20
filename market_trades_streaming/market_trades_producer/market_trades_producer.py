@@ -9,6 +9,18 @@ import logging
 from config import Config
 import time
 import threading
+from prometheus_client import start_http_server, Counter, Gauge
+
+# Metrics definition
+messages_produced = Counter(
+    "python_producer_produced_messages_total", "Total Produced Messages"
+)
+produce_failures = Counter("python_producer__failures_total", "Total Produce Failures")
+connection_errors = Counter(
+    "python_producer_connection_errors_total", "Total Connection Errors"
+)
+current_retries = Gauge("python_producer_current_retries", "Current Retries")
+
 
 # Set up logging
 logging.basicConfig(
@@ -36,6 +48,7 @@ def reset_retry_counter():
     while True:
         time.sleep(18000)  # sleep for 3 hour
         retry_counter = 0
+        current_retries.set(0)
         logger.info(f"Resetting retry_counter. retry_counter: {retry_counter}")
 
 
@@ -55,6 +68,7 @@ def on_message(ws, message):
         )
         try:
             producer.produce(topic=Config.KAFKA_TOPIC_NAME, value=avro_message)
+            messages_produced.inc()
             message_counter += 1
             if message_counter >= batch_size:
                 # flush producer after every batch_size messages, kafka will wait for all messages to be sent before next batch
@@ -62,6 +76,7 @@ def on_message(ws, message):
                 message_counter = 0
         except Exception as e:
             logger.error(f"Failed to send message to kafka: {e}, message: {message}")
+            produce_failures.inc()
 
     else:
         logger.warning(f"Market may be closed: {message}")
@@ -72,6 +87,8 @@ def on_error(ws, error):
     global retry_counter
     if retry_counter < max_retries:
         retry_counter += 1
+        connection_errors.inc()
+        current_retries.inc()
         ws.close()
         logger.info(f"Retrying in {retry_interval} seconds")
         time.sleep(retry_interval)
@@ -104,6 +121,7 @@ def on_open(ws):
 
 
 if __name__ == "__main__":
+    start_http_server(5051)
     reset_thread = threading.Thread(target=reset_retry_counter, daemon=True)
     reset_thread.start()
 
