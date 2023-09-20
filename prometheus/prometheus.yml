@@ -21,3 +21,7 @@ scrape_configs:
   - job_name: 'pyspark-consumer'
     static_configs:
       - targets: ['pyspark-consumer:5052']
+
+  - job_name: 'flask-api'
+    static_configs:
+      - targets: ['flask-api:5053']

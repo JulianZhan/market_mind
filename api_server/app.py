@@ -11,6 +11,8 @@ from api_utils import (
 )
 from config import Config
 import logging
+from prometheus_flask_exporter import RESTfulPrometheusMetrics
+from prometheus_client import start_http_server, Counter, Gauge
 
 # set up logging
 logging.basicConfig(
@@ -22,6 +24,17 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 api = Api(app)
 socketio = SocketIO(app)
+metrics = RESTfulPrometheusMetrics(app, api, path=None)
+
+socket_io_active_connections = Gauge(
+    "socket_io_active_connections", "Number of active socketio connections"
+)
+socket_io_messages_received = Counter(
+    "socket_io_messages_received", "Number of messages received by socketio"
+)
+socket_io_messages_published = Counter(
+    "socket_io_messages_published", "Number of messages published by socketio"
+)
 
 
 class MarketSentiment(Resource):
@@ -72,6 +85,7 @@ def kafka_consumer():
     while True:
         # consumer will fetch the message received in the last 1 second from the kafka topic
         msg = consumer.poll(1.0)
+        socket_io_messages_received.inc()
         if msg is None:
             continue
         if msg.error():
@@ -82,17 +96,27 @@ def kafka_consumer():
             decoded_message = decode_avro_message(msg.value(), avro_schema)
             # emit the message to the socketio client
             socketio.emit("market_trades", decoded_message)
+            socket_io_messages_published.inc()
 
 
 @socketio.on("connect")
 def handle_connect():
+    socket_io_active_connections.inc()
     # start a background thread to listen to the kafka topic
     socketio.start_background_task(kafka_consumer)
     logger.info("socketio client connected")
 
 
+@socketio.on("disconnect")
+def handle_disconnect():
+    socket_io_active_connections.dec()
+    logger.info("socketio client disconnected")
+
+
 api.add_resource(MarketSentiment, "/market_sentiment")
 api.add_resource(MarketEmotion, "/market_emotion")
+
+metrics.start_http_server(5053)
 
 
 if __name__ == "__main__":
