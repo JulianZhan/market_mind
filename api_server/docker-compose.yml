@@ -6,7 +6,6 @@ services:
     container_name: flask-api
     ports:
       - "5001:5001"
-      - "5053:5053"
     volumes:
       - .:/app
     env_file:

@@ -11,8 +11,14 @@ from api_utils import (
 )
 from config import Config
 import logging
-from prometheus_flask_exporter import RESTfulPrometheusMetrics
-from prometheus_client import start_http_server, Counter, Gauge
+from prometheus_client import (
+    Counter,
+    Gauge,
+    make_wsgi_app,
+    Histogram,
+)
+import time
+
 
 # set up logging
 logging.basicConfig(
@@ -24,8 +30,18 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 api = Api(app)
 socketio = SocketIO(app)
-metrics = RESTfulPrometheusMetrics(app, api, path=None)
 
+
+restful_api_request_latency = Histogram(
+    "restful_api_request_latency_seconds",
+    "Flask Request Latency",
+    ["method", "endpoint"],
+)
+restful_api_request_count = Counter(
+    "restful_api_request_count",
+    "Flask Request Count",
+    ["method", "endpoint", "http_status"],
+)
 socket_io_active_connections = Gauge(
     "socket_io_active_connections", "Number of active socketio connections"
 )
@@ -35,6 +51,28 @@ socket_io_messages_received = Counter(
 socket_io_messages_published = Counter(
     "socket_io_messages_published", "Number of messages published by socketio"
 )
+
+
+@app.before_request
+def before_request():
+    request.start_time = time.time()
+
+
+@app.after_request
+def increment_request_count(response):
+    request_latency = time.time() - request.start_time
+    restful_api_request_latency.labels(request.method, request.path).observe(
+        request_latency
+    )
+    restful_api_request_count.labels(
+        request.method, request.path, response.status_code
+    ).inc()
+    return response
+
+
+@app.route("/metrics")
+def metrics():
+    return make_wsgi_app()
 
 
 class MarketSentiment(Resource):
@@ -115,8 +153,6 @@ def handle_disconnect():
 
 api.add_resource(MarketSentiment, "/market_sentiment")
 api.add_resource(MarketEmotion, "/market_emotion")
-
-metrics.start_http_server(5053)
 
 
 if __name__ == "__main__":
