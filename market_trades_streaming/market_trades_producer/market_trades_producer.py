@@ -109,7 +109,7 @@ if __name__ == "__main__":
     reset_thread.start()
 
     # open websocket connection
-    websocket.enableTrace(True)
+    websocket.enableTrace(False)
     ws = websocket.WebSocketApp(
         f"wss://ws.finnhub.io?token={Config.FINNHUB_API_KEY}",
         on_message=on_message,
