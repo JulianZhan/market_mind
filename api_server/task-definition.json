@@ -1,0 +1,41 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX",
+        "cpuArchitecture": "ARM64"
+    },
+    "family": "flask-api",
+    "memory": "2 GB",
+    "cpu": ".5 vCPU",
+    "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "flask-api",
+            "image": "public.ecr.aws/k5r8z9q8/flask-api:0.1.0",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 5001,
+                "hostPort": 5001
+              }
+            ],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::market-mind/env/flask_api.env",
+                    "type": "s3"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/flask-api",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ]
+}
