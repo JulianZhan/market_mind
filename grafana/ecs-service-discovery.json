@@ -1,0 +1,20 @@
+{
+    "cluster": "market-mind",
+    "serviceName": "ecs-service-discovery",
+    "taskDefinition": "tutorial-task-def",
+    "serviceRegistries": [
+       {
+          "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-vbuo2hlr5bqqgkmd"
+       }
+    ],
+    "launchType": "FARGATE",
+    "platformVersion": "LATEST",
+    "networkConfiguration": {
+       "awsvpcConfiguration": {
+          "assignPublicIp": "ENABLED",
+          "securityGroups": [ "sg-0b869fdabbe7e0581" ],
+          "subnets": [ "subnet-0799aaf1bde435651" ]
+       }
+    },
+    "desiredCount": 1
+}
