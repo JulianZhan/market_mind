@@ -24,4 +24,4 @@ scrape_configs:
 
   - job_name: 'flask-api'
     static_configs:
-      - targets: ['flask-api:5001']
+      - targets: ['flask-api.market-mind:5001']

@@ -6,35 +6,29 @@
         "operatingSystemFamily": "LINUX",
         "cpuArchitecture": "ARM64"
     },
-    "family": "flask-api",
+    "family": "prometheus",
     "memory": "2 GB",
     "cpu": ".5 vCPU",
     "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "containerDefinitions": [
         {
-            "name": "flask-api",
-            "image": "public.ecr.aws/k5r8z9q8/flask-api:0.1.0",
+            "name": "prometheus",
+            "image": "public.ecr.aws/k5r8z9q8/prometheus:0.1.2",
             "essential": true,
             "portMappings": [
               {
-                "name": "flask-api-5001-tcp",
-                "containerPort": 5001,
-                "hostPort": 5001,
+                "name": "prometheus-9090-tcp",
+                "containerPort": 9090,
+                "hostPort": 9090,
                 "protocol": "tcp", 
                 "appProtocol": "http"
               }
             ],
-            "environmentFiles": [
-                {
-                    "value": "arn:aws:s3:::market-mind/env/flask_api.env",
-                    "type": "s3"
-                }
-            ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/flask-api",
+                    "awslogs-group": "/ecs/prometheus",
                     "awslogs-region": "ap-southeast-2",
                     "awslogs-stream-prefix": "ecs"
                 }

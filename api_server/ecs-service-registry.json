@@ -4,7 +4,7 @@
     "taskDefinition": "flask-api:5",
     "serviceRegistries": [
        {
-          "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-cvimw5sdhfhrsp5q"
+          "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-pw2bvlk2b3wa5g67"
        }
     ],
     "launchType": "FARGATE",
