@@ -1,7 +1,7 @@
 {
     "cluster": "market-mind",
     "serviceName": "kafka",
-    "taskDefinition": "kafka:19",
+    "taskDefinition": "kafka:21",
     "serviceRegistries": [
        {
           "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-ojjtmxdgao43vumx"

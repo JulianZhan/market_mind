@@ -16,7 +16,7 @@
             "name": "flask-api",
             "image": "public.ecr.aws/k5r8z9q8/flask-api:0.1.0",
             "essential": true,
-            "portMappings": [
+            "portMappings": [ 
               {
                 "name": "flask-api-5001-tcp",
                 "containerPort": 5001,
@@ -25,10 +25,37 @@
                 "appProtocol": "http"
               }
             ],
-            "environmentFiles": [
+            "secrets": [
+                {"name": "RDS_HOSTNAME",
+                 "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_HOSTNAME_Follower"
+                },
                 {
-                    "value": "arn:aws:s3:::market-mind/env/flask_api.env",
-                    "type": "s3"
+                    "name": "RDS_USER",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_USER"
+                },
+                {
+                    "name": "RDS_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PASSWORD"
+                },
+                {
+                    "name": "RDS_DB_NAME",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_DB_NAME"
+                },
+                {
+                    "name": "RDS_PORT",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PORT"
+                },
+                {
+                    "name": "KAFKA_SERVER",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_SERVER"
+                },
+                {
+                    "name": "KAFKA_TOPIC_NAME",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_TOPIC_NAME"
+                },
+                {
+                    "name": "KAFKA_PORT",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_PORT"
                 }
             ],
             "logConfiguration": {

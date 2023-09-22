@@ -58,7 +58,10 @@
             "portMappings": [
               {
                 "containerPort": 29092,
-                "hostPort": 29092
+                "hostPort": 29092,
+                "protocol": "tcp",
+                "appProtocol": "http",
+                "name": "kafka-29092-tcp"
               },
               {
                 "containerPort": 9092,
@@ -72,7 +75,7 @@
             "environment": [
                 {
                     "name": "KAFKA_ADVERTISED_HOST_NAME",
-                    "value": "localhost"
+                    "value": "kafka.market-mind"
                 },
                 {
                     "name": "KAFKA_BROKER_ID",
@@ -88,7 +91,7 @@
                 },
                 {
                     "name": "KAFKA_ADVERTISED_LISTENERS",
-                    "value": "PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:9092"
+                    "value": "PLAINTEXT://kafka.market-mind:29092,PLAINTEXT_HOST://kafka.market-mind:9092"
                 },
                 {
                     "name": "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR",

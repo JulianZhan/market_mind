@@ -1,7 +1,7 @@
 {
     "cluster": "market-mind",
     "serviceName": "python-producer",
-    "taskDefinition": "python-producer:2",
+    "taskDefinition": "python-producer:3",
     "serviceRegistries": [
        {
           "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-epsa3btyhky537le"

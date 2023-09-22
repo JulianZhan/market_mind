@@ -18,19 +18,30 @@
             "essential": true,
             "portMappings": [
               {
-                "name": "python-producer-5001-tcp",
+                "name": "python-producer-5051-tcp",
                 "containerPort": 5051,
                 "hostPort": 5051,
                 "protocol": "tcp", 
                 "appProtocol": "http"
               }
             ],
-            "environmentFiles": [
+            "secrets": [
+              {"name": "KAFKA_SERVER",
+               "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_SERVER"
+              },
               {
-                  "value": "arn:aws:s3:::market-mind/env/python-producer.env",
-                  "type": "s3"
+                  "name": "KAFKA_PORT",
+                  "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_PORT"
+              },
+              {
+                "name": "KAFKA_TOPIC_NAME",
+                "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_TOPIC_NAME"
+              },
+              {
+                "name": "FINNHUB_API_KEY",
+                "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/FINNHUB_API_KEY"
               }
-          ],
+            ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {

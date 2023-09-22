@@ -18,19 +18,46 @@
             "essential": true,
             "portMappings": [
               {
-                "name": "pyspark-consumer-5002-tcp",
+                "name": "pyspark-consumer-5052-tcp",
                 "containerPort": 5052,
                 "hostPort": 5052,
                 "protocol": "tcp", 
                 "appProtocol": "http"
               }
             ],
-            "environmentFiles": [
-              {
-                  "value": "arn:aws:s3:::market-mind/env/pyspark-consumer.env",
-                  "type": "s3"
-              }
-          ],
+            "secrets": [{
+              "name": "KAFKA_SERVER",
+              "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_SERVER"
+          },
+          {
+              "name": "KAFKA_TOPIC_NAME",
+              "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_TOPIC_NAME"
+          },
+          {
+              "name": "KAFKA_PORT",
+              "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_PORT"
+          },
+          {
+            "name": "RDS_HOSTNAME",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_HOSTNAME"
+          },
+          {
+            "name": "RDS_PORT",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PORT"
+          },
+          {
+            "name": "RDS_DB_NAME",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_DB_NAME"
+          },
+          {
+            "name": "RDS_USER",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_USER"
+          },
+          {
+            "name": "RDS_PASSWORD",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PASSWORD"
+          }
+        ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {

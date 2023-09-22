@@ -5,11 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY requirements.txt /app
-COPY app.py /app
-COPY sentiment_model.py /app
-COPY config.py /app
-COPY api_utils.py /app
+COPY . /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt
