@@ -19,12 +19,15 @@
             "portMappings": [
               {
                 "containerPort": 3000,
-                "hostPort": 3000
+                "hostPort": 3000,
+                "protocol": "tcp",
+                "name": "grafana-3000-tcp",
+                "appProtocol": "http"
               }
             ],
             "environmentFiles": [
                 {
-                    "value": "arn:aws:s3:::market-mind/env/grafana.env",
+                    "value": "arn:aws:s3:::s3://market-mind/env/flask_api.env",
                     "type": "s3"
                 }
             ],

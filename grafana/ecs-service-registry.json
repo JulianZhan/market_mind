@@ -1,10 +1,10 @@
 {
     "cluster": "market-mind",
-    "serviceName": "kafka",
-    "taskDefinition": "kafka:20",
+    "serviceName": "grafana",
+    "taskDefinition": "grafana:4",
     "serviceRegistries": [
        {
-          "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-ojjtmxdgao43vumx"
+          "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-moofucf5chigf4bm"
        }
     ],
     "launchType": "FARGATE",
