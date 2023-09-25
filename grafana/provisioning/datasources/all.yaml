@@ -9,3 +9,8 @@ datasources:
     database: ${RDS_DB_NAME}
     secureJsonData:
       password: ${RDS_PASSWORD}
+
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus.market-mind:9090

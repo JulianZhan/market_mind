@@ -8,7 +8,7 @@ scrape_configs:
 
   - job_name: 'airflow-statsd-exporter'
     static_configs:
-      - targets: ['airflow-statsd-exporter:9102']
+      - targets: ['52.63.8.207:9102']
 
   - job_name: 'kafka'
     static_configs:
