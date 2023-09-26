@@ -7,9 +7,6 @@ from prometheus_client import start_http_server, Counter, Gauge, Summary
 
 # Metrics
 
-process_records = Counter(
-    "pyspark_consumer_process_records", "Number of records processed"
-)
 decode_time = Summary(
     "pyspark_consumer_decode_time_seconds", "Time spent decoding a batch"
 )
@@ -42,13 +39,17 @@ def decode_avro_df(raw_df, trades_schema):
     Returns:
         pyspark.sql.dataframe.DataFrame: decoded dataframe
     """
-    decoded_df = (
-        raw_df.withColumn("avro_data", from_avro(col("value"), trades_schema))
-        .select("avro_data.*")
-        .select(explode(col("data")), col("type"))
-        .select("col.*")
-    )
-    return decoded_df
+    try:
+        decoded_df = (
+            raw_df.withColumn("avro_data", from_avro(col("value"), trades_schema))
+            .select("avro_data.*")
+            .select(explode(col("data")), col("type"))
+            .select("col.*")
+        )
+        return decoded_df
+    except Exception as e:
+        logger.error(f"Failed to decode Avro: {e}, raw_df: {raw_df}")
+        decode_errors.inc()
 
 
 @parse_time.time()
@@ -62,21 +63,25 @@ def parse_decoded_df(decoded_df):
     Returns:
         pyspark.sql.dataframe.DataFrame: parsed dataframe
     """
-    final_df = (
-        decoded_df.withColumnRenamed("c", "trade_conditions")
-        .withColumnRenamed("p", "price")
-        .withColumnRenamed("s", "symbol")
-        .withColumnRenamed("t", "trade_timestamp")
-        .withColumnRenamed("v", "volume")
-        .withColumn(
-            "trade_timestamp", (col("trade_timestamp") / 1000).cast("timestamp")
+    try:
+        final_df = (
+            decoded_df.withColumnRenamed("c", "trade_conditions")
+            .withColumnRenamed("p", "price")
+            .withColumnRenamed("s", "symbol")
+            .withColumnRenamed("t", "trade_timestamp")
+            .withColumnRenamed("v", "volume")
+            .withColumn(
+                "trade_timestamp", (col("trade_timestamp") / 1000).cast("timestamp")
+            )
+            .withColumn("created_at", current_timestamp())
+            .withColumn("trade_conditions", concat_ws(",", col("trade_conditions")))
         )
-        .withColumn("created_at", current_timestamp())
-        .withColumn("trade_conditions", concat_ws(",", col("trade_conditions")))
-    )
-    records_count = final_df.count()
-    process_records.inc(records_count)
-    return final_df
+        return final_df
+    except Exception as e:
+        logger.error(
+            f"Failed to parse decoded dataframe: {e}, decoded_df: {decoded_df}"
+        )
+        parse_errors.inc()
 
 
 @insert_time.time()
@@ -139,17 +144,9 @@ if __name__ == "__main__":
     )
 
     # decode the avro data
-    try:
-        decoded_df = decode_avro_df(raw_df, trades_schema)
-    except Exception as e:
-        logger.error(f"Failed to decode Avro: {e}, raw_df: {raw_df}")
-        decode_errors.inc()
+    decoded_df = decode_avro_df(raw_df, trades_schema)
     # parse the decoded data
-    try:
-        final_df = parse_decoded_df(decoded_df)
-    except Exception as e:
-        logger.error(f"Failed to parse decoded df: {e}, decoded_df: {decoded_df}")
-        parse_errors.inc()
+    final_df = parse_decoded_df(decoded_df)
     # write to RDS, with batch insert
     query = final_df.writeStream.foreachBatch(insert_to_rds).start()
     query.awaitTermination()
