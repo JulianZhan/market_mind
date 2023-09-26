@@ -44,6 +44,14 @@
                 {
                     "name": "RDS_PORT",
                     "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PORT"
+                },
+                {
+                    "name": "AWS_ACCESS_KEY",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/GRAFANA_MONITOR_ACCESS_KEY"
+                },
+                {
+                    "name":"AWS_ACCESS_KEY",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/GRAFANA_MONITOR_SECRET_ACCESS_KEY"
                 }
             ],
             "logConfiguration": {

@@ -14,3 +14,13 @@ datasources:
     type: prometheus
     access: proxy
     url: http://prometheus.market-mind:9090
+  
+  - name: CloudWatch
+    type: cloudwatch
+    access: proxy
+    jsonData:
+      defaultRegion: ap-southeast-2
+      authType: keys 
+    secureJsonData:
+      accessKey: ${AWS_ACCESS_KEY}  
+      secretKey: ${AWS_SECRET_KEY}
