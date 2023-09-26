@@ -1,0 +1,185 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX",
+        "cpuArchitecture": "ARM64"
+    },
+    "family": "kafka",
+    "memory": "2 GB",
+    "cpu": ".5 vCPU",
+    "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "zookeeper",
+            "image": "confluentinc/cp-zookeeper:7.5.0.arm64",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 2181,
+                "hostPort": 2181
+              }
+            ],
+            "environment": [
+              {
+                "name": "ZOOKEEPER_CLIENT_PORT",
+                "value": "2181"
+              },
+              {
+                "name": "ZOOKEEPER_TICK_TIME",
+                "value": "2000"
+              },
+              {"name": "ZOO_4LW_COMMANDS_WHITELIST",
+              "value": "srvr"
+              }
+            ],
+            "healthCheck": {
+              "command": ["CMD-SHELL", "echo srvr | nc localhost 2181 | grep Mode || exit 1"],
+              "startPeriod": 10,
+              "retries": 10,
+              "interval": 10
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/kafka",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+            
+          },
+          {
+            "name": "broker",
+            "image": "confluentinc/cp-kafka:7.5.0.arm64",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 29092,
+                "hostPort": 29092,
+                "protocol": "tcp",
+                "appProtocol": "http",
+                "name": "kafka-29092-tcp"
+              },
+              {
+                "containerPort": 9092,
+                "hostPort": 9092
+              },
+              {
+                "containerPort": 9091,
+                "hostPort": 9091
+              }
+            ],
+            "environment": [
+                {
+                    "name": "KAFKA_ADVERTISED_HOST_NAME",
+                    "value": "kafka.market-mind"
+                },
+                {
+                    "name": "KAFKA_BROKER_ID",
+                    "value": "1"
+                },
+                {
+                    "name": "KAFKA_ZOOKEEPER_CONNECT",
+                    "value": "localhost:2181"
+                },
+                {
+                    "name": "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
+                    "value": "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+                },
+                {
+                    "name": "KAFKA_ADVERTISED_LISTENERS",
+                    "value": "PLAINTEXT://kafka.market-mind:29092,PLAINTEXT_HOST://kafka.market-mind:9092"
+                },
+                {
+                    "name": "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR",
+                    "value": "1"
+                },
+                {
+                    "name": "KAFKA_TRANSACTION_STATE_LOG_MIN_ISR",
+                    "value": "1"
+                },
+                {
+                    "name": "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR",
+                    "value": "1"
+                },
+                {
+                    "name": "KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS",
+                    "value": "0"
+                },
+                {
+                    "name": "KAFKA_AUTO_CREATE_TOPICS_ENABLE",
+                    "value": "true"
+                },
+                {
+                    "name": "KAFKA_JMX_PORT",
+                    "value": "9091"
+                },
+                {
+                    "name": "KAFKA_JMX_HOSTNAME",
+                    "value": "localhost"
+                }
+            ],
+            "dependsOn": [
+                {
+                    "containerName": "zookeeper",
+                    "condition": "HEALTHY"
+                }
+            ],
+            
+            "healthCheck": {
+            "command": ["CMD-SHELL", "nc -z localhost 9092 || exit 1"],
+              "startPeriod": 15,
+              "retries": 10,
+              "interval": 5,
+              "timeout": 10
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/kafka",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+          },
+          {
+            "name": "kafka_exporter",
+            "image": "bitnami/kafka-exporter:1.7.0",
+            "essential": true,
+            "portMappings": [
+              {
+                "name": "kafka-exporter-5001-tcp",
+                "containerPort": 9308,
+                "hostPort": 9308,
+                "protocol": "tcp", 
+                "appProtocol": "http"
+              }
+            ],
+            "environment": [
+              {
+                "name": "KAFKA_SERVER",
+                "value": "localhost:9092"
+              }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/kafka",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "command": ["--kafka.server=localhost:9092", "--kafka.version=3.5.0"],
+            "dependsOn": [
+                {
+                    "containerName": "broker",
+                    "condition": "HEALTHY"
+                }
+            ]
+          }]
+        
+    
+}

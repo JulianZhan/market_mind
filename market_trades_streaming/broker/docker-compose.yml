@@ -1,7 +1,6 @@
 version: '3.9'
 
 
-
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0.arm64
@@ -30,7 +29,7 @@ services:
     ports:
       - '29092:29092'
       - '9092:9092'
-      - '9101:9101'
+      - '9091:9091'
     environment:
       KAFKA_ADVERTISED_HOST_NAME: broker
       KAFKA_BROKER_ID: 1
@@ -42,7 +41,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_PORT: '9091'
       KAFKA_JMX_HOSTNAME: localhost
     healthcheck:
       test: nc -z localhost 9092 || exit -1
@@ -53,7 +52,23 @@ services:
     networks:
       - network1
 
+  kafka_exporter:
+    image: bitnami/kafka-exporter:1.7.0
+    container_name: kafka_exporter
+    depends_on:
+      broker:
+        condition: service_healthy
+    ports:
+      - '9308:9308'
+    environment:
+      KAFKA_SERVER: broker:9092
+    command:
+      - '--kafka.server=broker:9092'
+      - '--kafka.version=3.5.0'
+    networks:
+      - network1
+
 networks:
   network1:
-    name: streaming_network
+    name: pipeline_monitoring
     external: true

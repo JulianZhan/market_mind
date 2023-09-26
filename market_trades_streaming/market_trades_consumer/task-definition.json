@@ -1,0 +1,72 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX",
+        "cpuArchitecture": "ARM64"
+    },
+    "family": "pyspark-consumer",
+    "memory": "2 GB",
+    "cpu": ".5 vCPU",
+    "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "pyspark-consumer",
+            "image": "public.ecr.aws/k5r8z9q8/pyspark-consumer:0.1.0",
+            "essential": true,
+            "portMappings": [
+              {
+                "name": "pyspark-consumer-5052-tcp",
+                "containerPort": 5052,
+                "hostPort": 5052,
+                "protocol": "tcp", 
+                "appProtocol": "http"
+              }
+            ],
+            "secrets": [{
+              "name": "KAFKA_SERVER",
+              "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_SERVER"
+          },
+          {
+              "name": "KAFKA_TOPIC_NAME",
+              "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_TOPIC_NAME"
+          },
+          {
+              "name": "KAFKA_PORT",
+              "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_PORT"
+          },
+          {
+            "name": "RDS_HOSTNAME",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_HOSTNAME"
+          },
+          {
+            "name": "RDS_PORT",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PORT"
+          },
+          {
+            "name": "RDS_DB_NAME",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_DB_NAME"
+          },
+          {
+            "name": "RDS_USER",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_USER"
+          },
+          {
+            "name": "RDS_PASSWORD",
+            "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PASSWORD"
+          }
+        ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/pyspark-consumer",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+          }]
+        
+    
+}

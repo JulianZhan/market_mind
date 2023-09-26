@@ -3,6 +3,7 @@ version: '3.9'
 services:
   api:
     build: .
+    container_name: flask-api
     ports:
       - "5001:5001"
     volumes:
@@ -14,5 +15,5 @@ services:
 
 networks:
   network1:
-    name: streaming_network
+    name: pipeline_monitoring
     external: true

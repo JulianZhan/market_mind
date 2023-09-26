@@ -6,3 +6,4 @@ python_dotenv==1.0.0
 confluent-kafka==2.2.0
 avro==1.11.2
 Flask-SocketIO==5.3.6
+prometheus-client==0.17.1
