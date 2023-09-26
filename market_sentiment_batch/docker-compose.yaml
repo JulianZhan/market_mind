@@ -261,6 +261,8 @@ services:
     command:
       - '--statsd.listen-udp=:9125'
       - '--web.listen-address=:9102'
+    networks:
+      - network1
 
 
 
