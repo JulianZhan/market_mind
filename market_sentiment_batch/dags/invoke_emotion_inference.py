@@ -15,7 +15,3 @@ def invoke_sagemaker_endpoint(data):
     result = response["Body"].read().decode("utf-8")
 
     return result
-
-
-res = invoke_sagemaker_endpoint(["good", "bad", "okay"])
-print(res)

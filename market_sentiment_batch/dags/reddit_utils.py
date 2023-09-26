@@ -12,7 +12,9 @@ from sentiment_model import (
     RedditAgg,
 )
 import logging
-from transformers import pipeline
+import boto3
+import json
+
 
 # set up logging
 logging.basicConfig(
@@ -24,6 +26,7 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
+boto3.setup_default_session(profile_name="market-mind-julian")
 
 
 # set up reddit api
@@ -170,12 +173,16 @@ def batch_insert_reddit_comments_clean(data, batch_size):
             logger.error(f"Failed to insert data: {e}")
 
 
-def get_classifier():
-    return pipeline(
-        "text-classification",
-        model="j-hartmann/emotion-english-distilroberta-base",
-        top_k=None,
+def invoke_sagemaker_endpoint(data):
+    client = boto3.client("sagemaker-runtime")
+    response = client.invoke_endpoint(
+        EndpointName=Config.MODEL_ENDPOINT,
+        Body=json.dumps({"inputs": data, "parameters": {"top_k": None}}),
+        ContentType="application/json",
     )
+    result = response["Body"].read().decode("utf-8")
+
+    return result
 
 
 def batch_predict_emotion(data, batch_size):
@@ -190,14 +197,13 @@ def batch_predict_emotion(data, batch_size):
         list: list of tuples of (comment_id, predictions)
     """
     try:
-        classifier = get_classifier()
         results = []
         logger.info(f"Number of comments to predict: {len(data)}, comments: {data}")
         for i in range(0, len(data), batch_size):
             batch_comments_data = data[i : i + batch_size]
             batch_comments = [comment.comment for comment in batch_comments_data]
             batch_ids = [comment.id for comment in batch_comments_data]
-            batch_predictions = classifier(batch_comments)
+            batch_predictions = json.loads(invoke_sagemaker_endpoint(batch_comments))
             results.extend(zip(batch_ids, batch_predictions))
         return results
     except Exception as e:
