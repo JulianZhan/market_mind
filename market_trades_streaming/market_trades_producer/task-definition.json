@@ -1,0 +1,56 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX",
+        "cpuArchitecture": "ARM64"
+    },
+    "family": "python-producer",
+    "memory": "2 GB",
+    "cpu": ".5 vCPU",
+    "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "python-producer",
+            "image": "public.ecr.aws/k5r8z9q8/python-producer:0.1.0",
+            "essential": true,
+            "portMappings": [
+              {
+                "name": "python-producer-5051-tcp",
+                "containerPort": 5051,
+                "hostPort": 5051,
+                "protocol": "tcp", 
+                "appProtocol": "http"
+              }
+            ],
+            "secrets": [
+              {"name": "KAFKA_SERVER",
+               "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_SERVER"
+              },
+              {
+                  "name": "KAFKA_PORT",
+                  "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_PORT"
+              },
+              {
+                "name": "KAFKA_TOPIC_NAME",
+                "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_TOPIC_NAME"
+              },
+              {
+                "name": "FINNHUB_API_KEY",
+                "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/FINNHUB_API_KEY"
+              }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/python-producer",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+          }]
+        
+    
+}

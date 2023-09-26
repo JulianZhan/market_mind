@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'airflow-statsd-exporter'
+    static_configs:
+      - targets: ['52.63.8.207:9102']
+
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka.market-mind:9308']
+
+  - job_name: 'python-producer'
+    static_configs:
+      - targets: ['python-producer.market-mind:5051']
+
+  - job_name: 'pyspark-consumer'
+    static_configs:
+      - targets: ['pyspark-consumer.market-mind:5052']
+
+  - job_name: 'flask-api'
+    static_configs:
+      - targets: ['flask-api.market-mind:5001']
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana.market-mind:3000']

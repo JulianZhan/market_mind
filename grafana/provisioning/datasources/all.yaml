@@ -1,0 +1,26 @@
+apiVersion: 1
+
+datasources:
+  - name: MySQL
+    type: mysql
+    access: proxy
+    url: ${RDS_HOSTNAME}:${RDS_PORT}
+    user: ${RDS_USER}
+    database: ${RDS_DB_NAME}
+    secureJsonData:
+      password: ${RDS_PASSWORD}
+
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus.market-mind:9090
+  
+  - name: CloudWatch
+    type: cloudwatch
+    access: proxy
+    jsonData:
+      defaultRegion: ap-southeast-2
+      authType: keys 
+    secureJsonData:
+      accessKey: ${AWS_ACCESS_KEY}  
+      secretKey: ${AWS_SECRET_KEY}
