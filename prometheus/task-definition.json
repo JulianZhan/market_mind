@@ -14,7 +14,7 @@
     "containerDefinitions": [
         {
             "name": "prometheus",
-            "image": "public.ecr.aws/k5r8z9q8/prometheus:0.1.2",
+            "image": "public.ecr.aws/k5r8z9q8/prometheus:0.1.0",
             "essential": true,
             "portMappings": [
               {

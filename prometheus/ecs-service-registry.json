@@ -1,7 +1,7 @@
 {
     "cluster": "market-mind",
     "serviceName": "prometheus",
-    "taskDefinition": "prometheus:6",
+    "taskDefinition": "prometheus:7",
     "serviceRegistries": [
        {
           "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-g4ebi34gxfb2alva"
