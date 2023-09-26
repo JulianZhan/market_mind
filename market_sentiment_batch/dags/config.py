@@ -17,3 +17,5 @@ class Config:
     RDS_USER = os.getenv("RDS_USER")
     RDS_PASSWORD = os.getenv("RDS_PASSWORD")
     RDS_DB_NAME = os.getenv("RDS_DB_NAME")
+
+    MODEL_ENDPOINT = os.getenv("MODEL_ENDPOINT")
