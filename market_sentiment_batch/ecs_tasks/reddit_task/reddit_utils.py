@@ -14,6 +14,7 @@ from sentiment_model import (
 import logging
 import boto3
 import json
+from transformers import RobertaTokenizer
 
 
 # set up logging
@@ -26,6 +27,9 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
+tokenizer = RobertaTokenizer.from_pretrained(
+    "j-hartmann/emotion-english-distilroberta-base"
+)
 
 # set up reddit api
 reddit = praw.Reddit(
@@ -117,6 +121,24 @@ def fetch_comments_after_timestamp(model, inserted_at):
             logger.error(f"Failed to fetch comments: {e}")
 
 
+def truncate_text_to_fit_bert(text, max_length=512):
+    """
+    Tokenize and truncate the text to fit within BERT's token limit.
+
+    Args:
+        text (str): The input text.
+        max_length (int): The maximum token length for BERT (default is 512).
+
+    Returns:
+        str: The truncated text.
+    """
+    tokens = tokenizer.tokenize(text)
+    if len(tokens) > max_length - 2:  # -2 for [CLS] and [SEP] tokens
+        tokens = tokens[: max_length - 2]
+    truncated_text = tokenizer.convert_tokens_to_string(tokens)
+    return truncated_text
+
+
 def clean_comment(text):
     """
     clean the reddit comment text
@@ -140,6 +162,8 @@ def clean_comment(text):
         text = text.lower()
         # remove extra spaces
         text = " ".join(text.split())
+        # truncate text to fit within BERT's token limit
+        text = truncate_text_to_fit_bert(text)
 
         return text
     except Exception as e:
@@ -196,7 +220,7 @@ def batch_predict_emotion(data, batch_size):
     """
     try:
         results = []
-        logger.info(f"Number of comments to predict: {len(data)}, comments: {data}")
+        logger.info(f"Number of comments to predict: {len(data)}")
         for i in range(0, len(data), batch_size):
             batch_comments_data = data[i : i + batch_size]
             batch_comments = [comment.comment for comment in batch_comments_data]
@@ -205,7 +229,9 @@ def batch_predict_emotion(data, batch_size):
             results.extend(zip(batch_ids, batch_predictions))
         return results
     except Exception as e:
-        logger.error(f"Failed to predict emotion: {e}")
+        logger.error(
+            f"Failed to predict emotion: {e}, batch_comments: {batch_comments}"
+        )
 
 
 def result_emotion_name_to_id(result):
