@@ -1,0 +1,59 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX",
+        "cpuArchitecture": "ARM64"
+    },
+    "family": "news-sentiment-task",
+    "memory": "2 GB",
+    "cpu": ".5 vCPU",
+    "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "news-sentiment-task",
+            "image": "public.ecr.aws/k5r8z9q8/news-sentiment-task:0.1.0",
+            "essential": true,
+            "portMappings": [ 
+              {
+                "name": "news-sentiment-task-5053-tcp",
+                "containerPort": 5053,
+                "hostPort": 5053,
+                "protocol": "tcp", 
+                "appProtocol": "http"
+              }
+            ],
+            "secrets": [
+                {"name": "RDS_HOSTNAME",
+                 "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_HOSTNAME_Follower"
+                },
+                {
+                    "name": "RDS_USER",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_USER"
+                },
+                {
+                    "name": "RDS_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PASSWORD"
+                },
+                {
+                    "name": "RDS_DB_NAME",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_DB_NAME"
+                },
+                {
+                    "name": "ALPHAVANTAGE_API_KEY",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/ALPHAVANTAGE_API_KEY"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/news-sentiment-task",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ]
+}

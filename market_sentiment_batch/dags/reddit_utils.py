@@ -26,8 +26,6 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
-boto3.setup_default_session(profile_name="market-mind-julian")
-
 
 # set up reddit api
 reddit = praw.Reddit(
