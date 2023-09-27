@@ -52,6 +52,10 @@
                 {
                     "name":"AWS_SECRET_KEY",
                     "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/GRAFANA_MONITOR_SECRET_ACCESS_KEY"
+                },
+                {
+                    "name": "GF_SMTP_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/GF_SMTP_PASSWORD"
                 }
             ],
             "logConfiguration": {
