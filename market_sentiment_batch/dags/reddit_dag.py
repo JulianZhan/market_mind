@@ -1,33 +1,8 @@
 from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago
-from airflow.operators.python import PythonOperator
+from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
 from airflow.operators.empty import EmptyOperator
-from reddit_utils import (
-    get_reddit_comments_to_rds,
-    get_reddit_comments_raw_to_clean,
-    get_reddit_comments_clean_to_emotion,
-    get_reddit_agg_to_db,
-)
-
-
-# Define Python functions for tasks
-def task_get_comments_to_rds():
-    return get_reddit_comments_to_rds("CryptoCurrency", post_limit=100, batch_size=300)
-
-
-def task_raw_to_clean(**context):
-    first_inserted_at = context["task_instance"].xcom_pull(
-        task_ids="get_comments_to_rds_task"
-    )
-    return get_reddit_comments_raw_to_clean(first_inserted_at, batch_size=300)
-
-
-def task_clean_to_emotion(**context):
-    first_inserted_at = context["task_instance"].xcom_pull(task_ids="raw_to_clean_task")
-    return get_reddit_comments_clean_to_emotion(
-        first_inserted_at, batch_size_for_prediction=20, batch_size_for_insert=300
-    )
 
 
 # Define the default_args dictionary
@@ -59,36 +34,27 @@ task_finished = EmptyOperator(
     dag=dag,
 )
 
-
-# Define tasks
-get_comments_to_rds_task = PythonOperator(
-    task_id="get_comments_to_rds_task",
-    python_callable=task_get_comments_to_rds,
+reddit_task = EcsRunTaskOperator(
+    task_id="reddit_task",
+    cluster="market-mind",
+    task_definition="reddit-task:4",
+    launch_type="FARGATE",
+    overrides={
+        "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+    },
+    network_configuration={
+        "awsvpcConfiguration": {
+            "subnets": "vpc-0fc70fccc5b9a1b95",
+            "securityGroups": "sg-08d17d26eb8ea6c2e",
+            "assignPublicIp": "ENABLED",
+        },
+    },
+    awslogs_group="/ecs/reddit-task",
+    awslogs_region="ap-southeast-2",
+    awslogs_stream_prefix="ecs",
     dag=dag,
-)
-
-raw_to_clean_task = PythonOperator(
-    task_id="raw_to_clean_task",
-    python_callable=task_raw_to_clean,
-    dag=dag,
-)
-
-clean_to_emotion_task = PythonOperator(
-    task_id="clean_to_emotion_task",
-    python_callable=task_clean_to_emotion,
-    dag=dag,
-)
-
-get_reddit_agg_task = PythonOperator(
-    task_id="get_reddit_agg", python_callable=get_reddit_agg_to_db, dag=dag
 )
 
 # Set up the order of the tasks
-(
-    task_start
-    >> get_comments_to_rds_task
-    >> raw_to_clean_task
-    >> clean_to_emotion_task
-    >> get_reddit_agg_task
-    >> task_finished
-)
+(task_start >> reddit_task >> task_finished)
