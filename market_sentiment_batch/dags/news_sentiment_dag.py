@@ -39,6 +39,7 @@ news_sentiment_task = EcsRunTaskOperator(
     cluster="market-mind",
     task_definition="news-sentiment-task:2",
     launch_type="FARGATE",
+    region="ap-southeast-2",
     overrides={
         "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
         "taskRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
