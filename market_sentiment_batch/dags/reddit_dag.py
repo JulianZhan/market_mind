@@ -46,8 +46,8 @@ reddit_task = EcsRunTaskOperator(
     },
     network_configuration={
         "awsvpcConfiguration": {
-            "subnets": "vpc-0fc70fccc5b9a1b95",
-            "securityGroups": "sg-08d17d26eb8ea6c2e",
+            "subnets": ["vpc-0fc70fccc5b9a1b95"],
+            "securityGroups": ["sg-08d17d26eb8ea6c2e"],
             "assignPublicIp": "ENABLED",
         },
     },
