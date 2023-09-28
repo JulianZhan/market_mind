@@ -56,7 +56,7 @@ services:
       - network1
 
   redis:
-    image: redis:latest
+    image: redis:7.2.1
     expose:
       - 6379
     healthcheck:
