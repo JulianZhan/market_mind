@@ -55,9 +55,6 @@ reddit_task = EcsRunTaskOperator(
             "assignPublicIp": "ENABLED",
         },
     },
-    awslogs_group="/ecs/reddit-task",
-    awslogs_region="ap-southeast-2",
-    awslogs_stream_prefix="ecs",
     dag=dag,
 )
 

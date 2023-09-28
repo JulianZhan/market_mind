@@ -55,9 +55,6 @@ news_sentiment_task = EcsRunTaskOperator(
             "assignPublicIp": "ENABLED",
         },
     },
-    awslogs_group="/ecs/news-sentiment-task",
-    awslogs_region="ap-southeast-2",
-    awslogs_stream_prefix="ecs",
     dag=dag,
 )
 
