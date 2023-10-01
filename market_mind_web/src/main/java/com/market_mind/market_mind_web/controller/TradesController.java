@@ -24,4 +24,9 @@ public class TradesController {
             @RequestParam LocalDate endDate) {
         return tradesService.getPriceAndVolumeWithinDateRange(startDate, endDate);
     }
+
+    @GetMapping("/last-30-minutes")
+    public List<PriceAndVolumeDTO> getLast30MinutesPriceAndVolume() {
+        return tradesService.getLast30MinutesPriceAndVolume();
+    }
 }

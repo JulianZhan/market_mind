@@ -21,4 +21,10 @@ public class TradesService {
 
         return tradesRepository.findPriceAndVolumeByDateRange(startDateTime, endDateTime);
     }
+
+    public List<PriceAndVolumeDTO> getLast30MinutesPriceAndVolume() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime thirtyMinutesAgo = now.minusMinutes(30);
+        return tradesRepository.findPriceAndVolumeByDateRange(thirtyMinutesAgo, now);
+    }
 }
