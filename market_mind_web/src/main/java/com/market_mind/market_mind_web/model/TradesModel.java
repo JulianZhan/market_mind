@@ -1,7 +1,7 @@
 package com.market_mind.market_mind_web.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Table(name = "trades")
 @Entity
@@ -11,8 +11,8 @@ public class TradesModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "trade_times")
-    private Date tradeTimes;
+    @Column(name = "trade_timestamp")
+    private LocalDate tradeTimestamp;
 
     @Column(name = "symbol")
     private String symbol;
@@ -28,8 +28,8 @@ public class TradesModel {
         return id;
     }
 
-    public Date getTradeTimes() {
-        return tradeTimes;
+    public LocalDate getTradeTimestamp() {
+        return tradeTimestamp;
     }
 
     public String getSymbol() {

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 public class TradesService {
@@ -15,5 +16,9 @@ public class TradesService {
 
     public List<TradesModel> getAllData() {
         return tradesRepository.findAll();
+    }
+
+    public List<Double> getRecordAfterDate(LocalDate date) {
+        return tradesRepository.findTradesAfterDate(date);
     }
 }
