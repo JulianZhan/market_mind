@@ -1,4 +1,4 @@
-package com.market_mind_web;
+package com.market_mind.market_mind_web;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
