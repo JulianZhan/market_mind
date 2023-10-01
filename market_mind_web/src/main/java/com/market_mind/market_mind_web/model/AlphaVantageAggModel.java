@@ -1,7 +1,7 @@
 package com.market_mind.market_mind_web.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Table(name = "alpha_vantage_agg")
 @Entity
@@ -11,7 +11,7 @@ public class AlphaVantageAggModel {
     private Long id;
 
     @Column(name = "date_recorded")
-    private Date dateRecorded;
+    private LocalDate dateRecorded;
 
     @Column(name = "avg_score")
     private Double avgScore;
@@ -30,7 +30,7 @@ public class AlphaVantageAggModel {
         return id;
     }
 
-    public Date getDateRecorded() {
+    public LocalDate getDateRecorded() {
         return dateRecorded;
     }
 

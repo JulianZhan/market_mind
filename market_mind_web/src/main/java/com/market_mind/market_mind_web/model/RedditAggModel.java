@@ -1,7 +1,7 @@
 package com.market_mind.market_mind_web.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Table(name = "reddit_agg")
 @Entity
@@ -11,7 +11,7 @@ public class RedditAggModel {
     private Long id;
 
     @Column(name = "date_recorded")
-    private Date dateRecorded;
+    private LocalDate dateRecorded;
 
     @Column(name = "emotion_name")
     private String emotionName;
@@ -24,7 +24,7 @@ public class RedditAggModel {
         return id;
     }
 
-    public Date getDateRecorded() {
+    public LocalDate getDateRecorded() {
         return dateRecorded;
     }
 

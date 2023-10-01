@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 public class AlphaVantageAggService {
@@ -15,5 +16,13 @@ public class AlphaVantageAggService {
 
     public List<AlphaVantageAggModel> getAllData() {
         return alphaVantageAggRepository.findAll();
+    }
+
+    public List<AlphaVantageAggModel> getRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
+        return alphaVantageAggRepository.findDataByDateRange(startDate, endDate);
+    }
+
+    public AlphaVantageAggModel getMostRecentRecord() {
+        return alphaVantageAggRepository.findTopByOrderByDateRecordedDesc();
     }
 }

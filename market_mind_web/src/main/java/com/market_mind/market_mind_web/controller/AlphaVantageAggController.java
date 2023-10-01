@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/alphavantageagg")
@@ -21,4 +23,14 @@ public class AlphaVantageAggController {
         return alphaVantageAggService.getAllData();
     }
 
+    @GetMapping("/date-range")
+    public List<AlphaVantageAggModel> getRecordWithinDateRange(@RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        return alphaVantageAggService.getRecordWithinDateRange(startDate, endDate);
+    }
+
+    @GetMapping("/recent")
+    public AlphaVantageAggModel getMostRecentRecord() {
+        return alphaVantageAggService.getMostRecentRecord();
+    }
 }
