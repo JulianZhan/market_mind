@@ -1,6 +1,7 @@
 package com.market_mind.market_mind_web.service;
 
 import com.market_mind.market_mind_web.model.TradesModel;
+import com.market_mind.market_mind_web.dto.PriceAndVolumeDTO;
 import com.market_mind.market_mind_web.repository.TradesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,7 @@ public class TradesService {
     @Autowired
     private TradesRepository tradesRepository;
 
-    public List<TradesModel> getAllData() {
-        return tradesRepository.findAll();
-    }
-
-    public List<Double> getRecordAfterDate(LocalDate date) {
-        return tradesRepository.findTradesAfterDate(date);
+    public List<PriceAndVolumeDTO> getPriceAndVolumeWithinDateRange(LocalDate startDate, LocalDate endDate) {
+        return tradesRepository.findPriceAndVolumeByDateRange(startDate, endDate);
     }
 }
