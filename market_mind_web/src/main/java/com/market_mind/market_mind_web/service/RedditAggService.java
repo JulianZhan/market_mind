@@ -5,6 +5,7 @@ import com.market_mind.market_mind_web.repository.RedditAggRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -15,5 +16,13 @@ public class RedditAggService {
 
     public List<RedditAggModel> getAllData() {
         return redditAggRepository.findAll();
+    }
+
+    public List<RedditAggModel> getRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
+        return redditAggRepository.findDataByDateRange(startDate, endDate);
+    }
+
+    public RedditAggModel getMostRecentRecord() {
+        return redditAggRepository.findTopByOrderByDateRecordedDesc();
     }
 }
