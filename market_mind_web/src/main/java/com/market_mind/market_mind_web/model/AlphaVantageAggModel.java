@@ -3,9 +3,9 @@ package com.market_mind.market_mind_web.model;
 import jakarta.persistence.*;
 import java.util.Date;
 
-@Table(name = "reddit_agg")
+@Table(name = "alpha_vantage_agg")
 @Entity
-public class RedditAggModel {
+public class AlphaVantageAggModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,11 +13,17 @@ public class RedditAggModel {
     @Column(name = "date_recorded")
     private Date dateRecorded;
 
-    @Column(name = "emotion_name")
-    private String emotionName;
-
     @Column(name = "avg_score")
     private Double avgScore;
+
+    @Column(name = "max_score")
+    private Double maxScore;
+
+    @Column(name = "min_score")
+    private Double minScore;
+
+    @Column(name = "std_score")
+    private Double stdScore;
 
     // Getters
     public Long getId() {
@@ -28,12 +34,20 @@ public class RedditAggModel {
         return dateRecorded;
     }
 
-    public String getEmotionName() {
-        return emotionName;
-    }
-
     public Double getAvgScore() {
         return avgScore;
+    }
+
+    public Double getMaxScore() {
+        return maxScore;
+    }
+
+    public Double getMinScore() {
+        return minScore;
+    }
+
+    public Double getStdScore() {
+        return stdScore;
     }
 
 }
