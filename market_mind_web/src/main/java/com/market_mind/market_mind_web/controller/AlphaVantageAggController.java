@@ -18,11 +18,6 @@ public class AlphaVantageAggController {
     @Autowired
     private AlphaVantageAggService alphaVantageAggService;
 
-    @GetMapping
-    public List<AlphaVantageAggModel> getAllData() {
-        return alphaVantageAggService.getAllData();
-    }
-
     @GetMapping("/date-range")
     public List<AlphaVantageAggModel> getRecordWithinDateRange(@RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {

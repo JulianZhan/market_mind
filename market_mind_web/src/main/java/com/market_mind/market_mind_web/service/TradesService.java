@@ -1,6 +1,5 @@
 package com.market_mind.market_mind_web.service;
 
-import com.market_mind.market_mind_web.model.TradesModel;
 import com.market_mind.market_mind_web.dto.PriceAndVolumeDTO;
 import com.market_mind.market_mind_web.repository.TradesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class TradesService {
@@ -16,6 +16,9 @@ public class TradesService {
     private TradesRepository tradesRepository;
 
     public List<PriceAndVolumeDTO> getPriceAndVolumeWithinDateRange(LocalDate startDate, LocalDate endDate) {
-        return tradesRepository.findPriceAndVolumeByDateRange(startDate, endDate);
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59, 999999999);
+
+        return tradesRepository.findPriceAndVolumeByDateRange(startDateTime, endDateTime);
     }
 }

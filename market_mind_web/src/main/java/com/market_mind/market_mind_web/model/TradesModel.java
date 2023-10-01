@@ -1,7 +1,7 @@
 package com.market_mind.market_mind_web.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Table(name = "trades")
 @Entity
@@ -12,7 +12,7 @@ public class TradesModel {
     private Long id;
 
     @Column(name = "trade_timestamp")
-    private LocalDate tradeTimestamp;
+    private LocalDateTime tradeTimestamp;
 
     @Column(name = "symbol")
     private String symbol;
@@ -28,7 +28,7 @@ public class TradesModel {
         return id;
     }
 
-    public LocalDate getTradeTimestamp() {
+    public LocalDateTime getTradeTimestamp() {
         return tradeTimestamp;
     }
 

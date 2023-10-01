@@ -18,11 +18,6 @@ public class RedditAggController {
     @Autowired
     private RedditAggService redditAggService;
 
-    @GetMapping
-    public List<RedditAggModel> getAllData() {
-        return redditAggService.getAllData();
-    }
-
     @GetMapping("/date-range")
     public List<RedditAggModel> getRecordWithinDateRange(@RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {

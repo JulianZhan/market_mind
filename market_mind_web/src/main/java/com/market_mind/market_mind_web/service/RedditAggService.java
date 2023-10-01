@@ -14,10 +14,6 @@ public class RedditAggService {
     @Autowired
     private RedditAggRepository redditAggRepository;
 
-    public List<RedditAggModel> getAllData() {
-        return redditAggRepository.findAll();
-    }
-
     public List<RedditAggModel> getRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
         return redditAggRepository.findDataByDateRange(startDate, endDate);
     }

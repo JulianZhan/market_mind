@@ -14,10 +14,6 @@ public class AlphaVantageAggService {
     @Autowired
     private AlphaVantageAggRepository alphaVantageAggRepository;
 
-    public List<AlphaVantageAggModel> getAllData() {
-        return alphaVantageAggRepository.findAll();
-    }
-
     public List<AlphaVantageAggModel> getRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
         return alphaVantageAggRepository.findDataByDateRange(startDate, endDate);
     }
