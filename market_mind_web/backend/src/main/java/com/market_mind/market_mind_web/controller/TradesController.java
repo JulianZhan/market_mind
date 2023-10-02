@@ -1,6 +1,5 @@
 package com.market_mind.market_mind_web.controller;
 
-import com.market_mind.market_mind_web.model.TradesModel;
 import com.market_mind.market_mind_web.service.TradesService;
 import com.market_mind.market_mind_web.dto.PriceAndVolumeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
