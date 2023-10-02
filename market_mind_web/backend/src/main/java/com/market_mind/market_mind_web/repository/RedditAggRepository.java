@@ -14,4 +14,7 @@ public interface RedditAggRepository extends JpaRepository<RedditAggModel, Long>
     List<RedditAggModel> findDataByDateRange(@Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
+    @Query("SELECT r FROM RedditAggModel r ORDER BY r.dateRecorded DESC LIMIT 12")
+    List<RedditAggModel> findTopByOrderByDateRecordedDesc();
+
 }

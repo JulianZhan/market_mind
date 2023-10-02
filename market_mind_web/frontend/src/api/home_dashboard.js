@@ -15,7 +15,7 @@ export const fetchRedditData = async (startDate, endDate) => {
 };
 
 export const fetchAlphaVantageMostRecent = async () => {
-  const response = await fetch(`${API_BASE_URL}/alphavantageagg/ecent`);
+  const response = await fetch(`${API_BASE_URL}/alphavantageagg/recent`);
   return response.json();
 };
 

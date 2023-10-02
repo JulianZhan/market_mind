@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "recharts";
 
-const RedditTimeSeries = ({ data, dataKey, title }) => {
+const RedditTrend = ({ data, title }) => {
   return (
     <div>
       <h3>{title}</h3>
@@ -29,4 +29,4 @@ const RedditTimeSeries = ({ data, dataKey, title }) => {
   );
 };
 
-export default RedditTimeSeries;
+export default RedditTrend;

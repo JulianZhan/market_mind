@@ -2,13 +2,17 @@ import React, { useState, useEffect } from "react";
 import {
   fetchAlphaVantageData,
   fetchRedditData,
-} from "../api/market_sentiment";
-import AlphaVantageTimeSeries from "../components/alphavantage_timeseries";
-import RedditTimeSeries from "../components/reddit_timeseries";
+  fetchAlphaVantageMostRecent,
+  fetchRedditMostRecent,
+} from "../api/home_dashboard";
+import AlphaVantageTrend from "../components/market_sentiment_trend";
+import RedditTrend from "../components/market_emotion_trend";
+import RedditBarChart from "../components/market_emotion_bar";
 
 const HomePage = () => {
   const [alphavantageData, setAlphaData] = useState([]);
   const [redditData, setRedditData] = useState([]);
+  const [redditBarData, setRedditBarData] = useState([]);
 
   useEffect(() => {
     // Replace with your date range
@@ -19,20 +23,18 @@ const HomePage = () => {
       setAlphaData(data)
     );
     fetchRedditData(startDate, endDate).then((data) => setRedditData(data));
+    fetchRedditMostRecent().then((data) => setRedditBarData(data));
   }, []);
 
   return (
     <div>
-      <AlphaVantageTimeSeries
+      <AlphaVantageTrend
         data={alphavantageData}
         dataKey="avgScore"
-        title="Alpha Vantage Data"
+        title="Market Sentiment"
       />
-      <RedditTimeSeries
-        data={redditData}
-        dataKey="avgScore"
-        title="Reddit Data"
-      />
+      <RedditTrend data={redditData} title="Market Emotion" />
+      <RedditBarChart data={redditBarData} title="Market Emotion" />
     </div>
   );
 };

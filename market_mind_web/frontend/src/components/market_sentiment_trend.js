@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "recharts";
 
-const AlphaVantageTimeSeries = ({ data, dataKey, title }) => {
+const AlphaVantageTrend = ({ data, dataKey, title }) => {
   return (
     <div>
       <h3>{title}</h3>
@@ -23,4 +23,4 @@ const AlphaVantageTimeSeries = ({ data, dataKey, title }) => {
   );
 };
 
-export default AlphaVantageTimeSeries;
+export default AlphaVantageTrend;
