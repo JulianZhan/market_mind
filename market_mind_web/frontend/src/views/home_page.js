@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  fetchAlphaVantageData,
-  fetchRedditData,
-  fetchAlphaVantageMostRecent,
-  fetchRedditMostRecent,
-} from "../api/home_dashboard";
+import { fetchAlphaVantageData, fetchRedditData } from "../api/home_dashboard";
 import AlphaVantageTrend from "../components/market_sentiment_trend";
 import AlphaVantageStat from "../components/market_sentiment_stat";
 import RedditTrend from "../components/market_emotion_trend";
@@ -19,20 +14,24 @@ const HomePage = () => {
   const [timeLength, setTimeLength] = useState(7); // default to 7 days
 
   useEffect(() => {
-    const startDate = new Date(selectedEndDate);
+    let startDate = new Date(selectedEndDate);
     startDate.setDate(startDate.getDate() - timeLength);
+    startDate = startDate.toISOString().split("T")[0];
+    const formattedEndDate = selectedEndDate.toISOString().split("T")[0];
 
-    fetchAlphaVantageData(
-      startDate.toISOString().split("T")[0],
-      selectedEndDate.toISOString().split("T")[0]
-    ).then((data) => setAlphaData(data));
-    fetchAlphaVantageMostRecent().then((data) => setAlphaStatData(data));
+    fetchAlphaVantageData(startDate, formattedEndDate).then((data) =>
+      setAlphaData(data)
+    );
+    fetchAlphaVantageData(formattedEndDate, formattedEndDate).then((data) =>
+      setAlphaStatData(data.length > 0 ? data[0] : [])
+    );
 
-    fetchRedditData(
-      startDate.toISOString().split("T")[0],
-      selectedEndDate.toISOString().split("T")[0]
-    ).then((data) => setRedditData(data));
-    fetchRedditMostRecent().then((data) => setRedditBarData(data));
+    fetchRedditData(startDate, formattedEndDate).then((data) =>
+      setRedditData(data)
+    );
+    fetchRedditData(formattedEndDate, formattedEndDate).then((data) =>
+      setRedditBarData(data.length > 0 ? data[0] : [])
+    );
   }, [selectedEndDate, timeLength]);
 
   return (
