@@ -3,10 +3,11 @@ import {
   fetchAlphaVantageData,
   fetchRedditData,
 } from "../api/market_sentiment";
-import DataChart from "../components/market_sentiment_chart";
+import AlphaVantageTimeSeries from "../components/alphavantage_timeseries";
+import RedditTimeSeries from "../components/reddit_timeseries";
 
 const HomePage = () => {
-  const [alphaData, setAlphaData] = useState([]);
+  const [alphavantageData, setAlphaData] = useState([]);
   const [redditData, setRedditData] = useState([]);
 
   useEffect(() => {
@@ -22,12 +23,16 @@ const HomePage = () => {
 
   return (
     <div>
-      <DataChart
-        data={alphaData}
+      <AlphaVantageTimeSeries
+        data={alphavantageData}
         dataKey="avgScore"
         title="Alpha Vantage Data"
       />
-      <DataChart data={redditData} dataKey="avgScore" title="Reddit Data" />
+      <RedditTimeSeries
+        data={redditData}
+        dataKey="avgScore"
+        title="Reddit Data"
+      />
     </div>
   );
 };

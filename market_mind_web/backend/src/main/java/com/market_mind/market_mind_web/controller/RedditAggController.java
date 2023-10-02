@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 import java.time.LocalDate;
 
 @RestController
@@ -21,9 +22,9 @@ public class RedditAggController {
     private RedditAggService redditAggService;
 
     @GetMapping("/date-range")
-    public List<RedditAggModel> getRecordWithinDateRange(@RequestParam LocalDate startDate,
+    public List<Map<String, Object>> getRecordWithinDateRange(@RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {
-        return redditAggService.getRecordWithinDateRange(startDate, endDate);
+        return redditAggService.getTransformedRecordWithinDateRange(startDate, endDate);
     }
 
     @GetMapping("/recent")

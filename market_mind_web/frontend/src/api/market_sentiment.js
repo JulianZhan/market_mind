@@ -13,3 +13,13 @@ export const fetchRedditData = async (startDate, endDate) => {
   );
   return response.json();
 };
+
+export const fetchAlphaVantageMostRecent = async () => {
+  const response = await fetch(`${API_BASE_URL}/alphavantageagg/ecent`);
+  return response.json();
+};
+
+export const fetchRedditMostRecent = async () => {
+  const response = await fetch(`${API_BASE_URL}/redditagg/recent`);
+  return response.json();
+};

@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "recharts";
 
-const DataChart = ({ data, dataKey, title }) => {
+const AlphaVantageTimeSeries = ({ data, dataKey, title }) => {
   return (
     <div>
       <h3>{title}</h3>
@@ -23,4 +23,4 @@ const DataChart = ({ data, dataKey, title }) => {
   );
 };
 
-export default DataChart;
+export default AlphaVantageTimeSeries;

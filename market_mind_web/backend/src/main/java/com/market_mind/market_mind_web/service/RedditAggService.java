@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RedditAggService {
@@ -21,4 +24,21 @@ public class RedditAggService {
     public RedditAggModel getMostRecentRecord() {
         return redditAggRepository.findTopByOrderByDateRecordedDesc();
     }
+
+    public List<Map<String, Object>> getTransformedRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
+        List<RedditAggModel> originalData = redditAggRepository.findDataByDateRange(startDate, endDate);
+
+        Map<LocalDate, Map<String, Object>> transformedData = new LinkedHashMap<>();
+        for (RedditAggModel item : originalData) {
+            transformedData
+                    .computeIfAbsent(item.getDateRecorded(), date -> new LinkedHashMap<String, Object>())
+                    .put(item.getEmotionName(), item.getAvgScore());
+        }
+
+        // Add the date to each map
+        transformedData.forEach((date, map) -> map.put("dateRecorded", date.toString()));
+
+        return new ArrayList<>(transformedData.values());
+    }
+
 }
