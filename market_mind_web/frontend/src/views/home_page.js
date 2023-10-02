@@ -6,11 +6,13 @@ import {
   fetchRedditMostRecent,
 } from "../api/home_dashboard";
 import AlphaVantageTrend from "../components/market_sentiment_trend";
+import AlphaVantageStat from "../components/market_sentiment_stat";
 import RedditTrend from "../components/market_emotion_trend";
 import RedditBarChart from "../components/market_emotion_bar";
 
 const HomePage = () => {
   const [alphavantageData, setAlphaData] = useState([]);
+  const [alphavantageStatData, setAlphaStatData] = useState([]);
   const [redditData, setRedditData] = useState([]);
   const [redditBarData, setRedditBarData] = useState([]);
 
@@ -22,6 +24,7 @@ const HomePage = () => {
     fetchAlphaVantageData(startDate, endDate).then((data) =>
       setAlphaData(data)
     );
+    fetchAlphaVantageMostRecent().then((data) => setAlphaStatData(data));
     fetchRedditData(startDate, endDate).then((data) => setRedditData(data));
     fetchRedditMostRecent().then((data) => setRedditBarData(data));
   }, []);
@@ -33,6 +36,7 @@ const HomePage = () => {
         dataKey="avgScore"
         title="Market Sentiment"
       />
+      <AlphaVantageStat data={alphavantageStatData} />
       <RedditTrend data={redditData} title="Market Emotion" />
       <RedditBarChart data={redditBarData} title="Market Emotion" />
     </div>
