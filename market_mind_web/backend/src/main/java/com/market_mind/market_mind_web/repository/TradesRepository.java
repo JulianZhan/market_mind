@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface TradesRepository extends JpaRepository<TradesModel, Long> {
 
-    @Query("SELECT new com.market_mind.market_mind_web.dto.PriceAndVolumeDTO(t.price, t.volume) FROM TradesModel t WHERE t.tradeTimestamp BETWEEN :startDate AND :endDate")
+    @Query("SELECT new com.market_mind.market_mind_web.dto.PriceAndVolumeDTO(t.price, t.volume, t.tradeTimestamp) FROM TradesModel t WHERE t.tradeTimestamp BETWEEN :startDate AND :endDate")
     List<PriceAndVolumeDTO> findPriceAndVolumeByDateRange(@Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 

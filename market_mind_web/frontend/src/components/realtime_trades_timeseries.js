@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from "react";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 import {
   LineChart,
   CartesianGrid,
@@ -8,7 +11,28 @@ import {
   Line,
 } from "recharts";
 
-const RealtimeTradesTimeSeries = (data) => {
+function RealtimeTradesTimeSeries() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const socket = new SockJS("http://localhost:8080/websocket-endpoint");
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      onConnect: () => {
+        stompClient.subscribe("/topic/last-30-minutes", (message) => {
+          setData(JSON.parse(message.body));
+        });
+      },
+    });
+    stompClient.activate();
+
+    return () => {
+      if (stompClient.connected) {
+        stompClient.deactivate();
+      }
+    };
+  }, []);
+
   return (
     <LineChart
       width={1000}
@@ -30,6 +54,6 @@ const RealtimeTradesTimeSeries = (data) => {
       <Line type="monotone" dataKey="volume" stroke="#82ca9d" />
     </LineChart>
   );
-};
+}
 
 export default RealtimeTradesTimeSeries;

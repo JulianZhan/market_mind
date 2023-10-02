@@ -10,6 +10,12 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final String frontendOrigin;
+
+    public WebSocketConfig(String frontendOrigin) {
+        this.frontendOrigin = frontendOrigin;
+    }
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
@@ -18,6 +24,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket-endpoint").withSockJS();
+        registry.addEndpoint("/websocket-endpoint").setAllowedOrigins(frontendOrigin).withSockJS();
     }
 }
