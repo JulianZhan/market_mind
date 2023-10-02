@@ -25,10 +25,4 @@ public class RedditAggController {
             @RequestParam LocalDate endDate) {
         return redditAggService.getTransformedRecordWithinDateRange(startDate, endDate);
     }
-
-    @GetMapping("/recent")
-    public Map<String, Object> getTransformedMostRecentRecord() {
-        List<Map<String, Object>> list = redditAggService.getTransformedMostRecentRecord();
-        return list.get(0);
-    }
 }

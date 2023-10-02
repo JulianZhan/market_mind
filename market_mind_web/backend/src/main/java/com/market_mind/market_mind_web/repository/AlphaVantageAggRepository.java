@@ -15,7 +15,4 @@ public interface AlphaVantageAggRepository extends JpaRepository<AlphaVantageAgg
     List<AlphaVantageAggModel> findDataByDateRange(@Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
-    // Retrieve the most recent record
-    @Query("SELECT a FROM AlphaVantageAggModel a ORDER BY a.dateRecorded DESC LIMIT 1")
-    AlphaVantageAggModel findTopByOrderByDateRecordedDesc();
 }

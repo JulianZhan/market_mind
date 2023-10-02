@@ -32,19 +32,4 @@ public class RedditAggService {
         return new ArrayList<>(transformedData.values());
     }
 
-    public List<Map<String, Object>> getTransformedMostRecentRecord() {
-        List<RedditAggModel> originalData = redditAggRepository.findTopByOrderByDateRecordedDesc();
-
-        Map<LocalDate, Map<String, Object>> transformedData = new LinkedHashMap<>();
-        for (RedditAggModel item : originalData) {
-            transformedData
-                    .computeIfAbsent(item.getDateRecorded(), date -> new LinkedHashMap<String, Object>())
-                    .put(item.getEmotionName(), item.getAvgScore());
-        }
-
-        transformedData.forEach((date, map) -> map.put("dateRecorded", date.toString()));
-
-        return new ArrayList<>(transformedData.values());
-    }
-
 }

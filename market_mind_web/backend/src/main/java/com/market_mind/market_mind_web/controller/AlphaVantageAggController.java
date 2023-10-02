@@ -25,9 +25,4 @@ public class AlphaVantageAggController {
             @RequestParam LocalDate endDate) {
         return alphaVantageAggService.getRecordWithinDateRange(startDate, endDate);
     }
-
-    @GetMapping("/recent")
-    public AlphaVantageAggModel getMostRecentRecord() {
-        return alphaVantageAggService.getMostRecentRecord();
-    }
 }

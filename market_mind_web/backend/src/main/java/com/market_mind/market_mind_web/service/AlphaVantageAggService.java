@@ -18,7 +18,4 @@ public class AlphaVantageAggService {
         return alphaVantageAggRepository.findDataByDateRange(startDate, endDate);
     }
 
-    public AlphaVantageAggModel getMostRecentRecord() {
-        return alphaVantageAggRepository.findTopByOrderByDateRecordedDesc();
-    }
 }
