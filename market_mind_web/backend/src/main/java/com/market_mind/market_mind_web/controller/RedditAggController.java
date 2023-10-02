@@ -13,7 +13,7 @@ import java.util.Map;
 import java.time.LocalDate;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "#{@frontendOrigin}")
 @RequestMapping("/api/v1/redditagg")
 public class RedditAggController {
 
