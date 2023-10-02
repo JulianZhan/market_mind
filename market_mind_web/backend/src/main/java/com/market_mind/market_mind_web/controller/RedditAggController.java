@@ -28,7 +28,9 @@ public class RedditAggController {
     }
 
     @GetMapping("/recent")
-    public RedditAggModel getMostRecentRecord() {
-        return redditAggService.getMostRecentRecord();
+    public Map<String, Object> getMostRecentRecord(@RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        List<Map<String, Object>> list = redditAggService.getTransformedRecordWithinDateRange(startDate, endDate);
+        return list.get(list.size() - 1);
     }
 }

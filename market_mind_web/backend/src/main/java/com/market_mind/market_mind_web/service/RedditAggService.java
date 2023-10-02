@@ -17,14 +17,6 @@ public class RedditAggService {
     @Autowired
     private RedditAggRepository redditAggRepository;
 
-    public List<RedditAggModel> getRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
-        return redditAggRepository.findDataByDateRange(startDate, endDate);
-    }
-
-    public RedditAggModel getMostRecentRecord() {
-        return redditAggRepository.findTopByOrderByDateRecordedDesc();
-    }
-
     public List<Map<String, Object>> getTransformedRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
         List<RedditAggModel> originalData = redditAggRepository.findDataByDateRange(startDate, endDate);
 
@@ -35,7 +27,6 @@ public class RedditAggService {
                     .put(item.getEmotionName(), item.getAvgScore());
         }
 
-        // Add the date to each map
         transformedData.forEach((date, map) -> map.put("dateRecorded", date.toString()));
 
         return new ArrayList<>(transformedData.values());
