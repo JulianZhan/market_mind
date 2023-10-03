@@ -3,7 +3,7 @@ import { Cell, XAxis, YAxis, Tooltip, BarChart, Bar } from "recharts";
 
 function getBarColor(value) {
   const opacity = Math.min(1, value * 5); // Arbitrary multiplier to adjust redness
-  return `rgba(255, 0, 0, ${opacity})`; // Using RGBA to control the redness based on opacity
+  return `rgba(91,192,235, ${opacity})`; // Using RGBA to control the redness based on opacity
 }
 
 const RedditBarChart = ({ data, title }) => {
