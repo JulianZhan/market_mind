@@ -6,6 +6,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -17,9 +18,28 @@ public class WebSocketService {
     @Autowired
     private TradesService tradesService;
 
-    @Scheduled(fixedDelay = 5000) // Every 5 seconds
-    public void sendLast30MinutesPriceAndVolume() {
-        List<PriceAndVolumeDTO> data = tradesService.getLast30MinutesPriceAndVolume();
-        this.template.convertAndSend("/topic/last-30-minutes", data);
+    private int granularity = 5;
+
+    @Scheduled(fixedDelay = 1000) // Every 1 second
+    public void sendPriceAndVolumeBasedOnGranularity() {
+        List<PriceAndVolumeDTO> data;
+        switch (granularity) {
+            case 1:
+                data = tradesService.getPriceAndVolumePerSecond();
+                break;
+            case 5:
+                data = tradesService.getPriceAndVolumePerFiveSeconds();
+                break;
+            case 60:
+                data = tradesService.getPriceAndVolumePerMinute();
+                break;
+            default:
+                data = Collections.emptyList();
+        }
+        this.template.convertAndSend("/topic/trades", data);
+    }
+
+    public void setGranularity(int granularity) {
+        this.granularity = granularity;
     }
 }

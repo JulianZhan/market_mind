@@ -12,8 +12,16 @@ import java.util.List;
 
 public interface TradesRepository extends JpaRepository<TradesModel, Long> {
 
-    @Query("SELECT new com.market_mind.market_mind_web.dto.PriceAndVolumeDTO(t.price, t.volume, t.tradeTimestamp) FROM TradesModel t WHERE t.tradeTimestamp BETWEEN :startDate AND :endDate")
-    List<PriceAndVolumeDTO> findPriceAndVolumeByDateRange(@Param("startDate") LocalDateTime startDate,
+    @Query("SELECT new com.market_mind.market_mind_web.dto.PriceAndVolumeDTO(AVG(t.price) as avgPrice, SUM(t.volume) as totalVolume, MIN(t.tradeTimestamp) as minTimestamp) FROM TradesModel t WHERE t.tradeTimestamp BETWEEN :startDate AND :endDate GROUP BY FUNCTION('HOUR', t.tradeTimestamp), FUNCTION('MINUTE', t.tradeTimestamp), FUNCTION('SECOND', t.tradeTimestamp)")
+    List<PriceAndVolumeDTO> findPriceAndVolumeByDateRangePerSecond(@Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT new com.market_mind.market_mind_web.dto.PriceAndVolumeDTO(AVG(t.price) as avgPrice, SUM(t.volume) as totalVolume, MIN(t.tradeTimestamp) as minTimestamp) FROM TradesModel t WHERE t.tradeTimestamp BETWEEN :startDate AND :endDate GROUP BY FUNCTION('HOUR', t.tradeTimestamp), FUNCTION('MINUTE', t.tradeTimestamp), FUNCTION('SECOND', t.tradeTimestamp) DIV 5")
+    List<PriceAndVolumeDTO> findPriceAndVolumeByDateRangePerFiveSeconds(@Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT new com.market_mind.market_mind_web.dto.PriceAndVolumeDTO(AVG(t.price) as avgPrice, SUM(t.volume) as totalVolume, MIN(t.tradeTimestamp) as minTimestamp) FROM TradesModel t WHERE t.tradeTimestamp BETWEEN :startDate AND :endDate GROUP BY FUNCTION('HOUR', t.tradeTimestamp), FUNCTION('MINUTE', t.tradeTimestamp)")
+    List<PriceAndVolumeDTO> findPriceAndVolumeByDateRangePerMinute(@Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
 }
