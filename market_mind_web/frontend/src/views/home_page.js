@@ -6,6 +6,7 @@ import RedditTrend from "../components/market_emotion_trend";
 import RedditBarChart from "../components/market_emotion_bar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
   const [alphavantageData, setAlphaData] = useState([]);
@@ -41,6 +42,9 @@ const HomePage = () => {
       <div className="dashboard-header text-center mb-4">
         <h1>Market Mind</h1>
         <p>The latest market sentiment from news and reddit!</p>
+        <Link to="/realtime-trades">
+          <button className="btn btn-primary">Go to Real-time Dashboard</button>
+        </Link>
       </div>
 
       <div className="mb-4">

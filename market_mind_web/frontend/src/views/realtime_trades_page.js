@@ -4,6 +4,7 @@ import {
   initiateWebSocketConnection,
   updateGranularityOnServer,
 } from "../api/realtime_trades_dashboard";
+import { Link } from "react-router-dom";
 
 function RealtimeTradesPage() {
   const [data, setData] = useState([]);
@@ -46,6 +47,9 @@ function RealtimeTradesPage() {
             <option value="5">5 Seconds</option>
             <option value="60">1 Minute</option>
           </select>
+          <Link to="/">
+            <button className="btn btn-secondary -3">Back to Home</button>{" "}
+          </Link>
         </div>
       </div>
       <div className="row">
