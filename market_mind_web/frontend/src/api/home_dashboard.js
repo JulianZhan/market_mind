@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:8080/api/v1";
+import CONFIG from "../config";
+const API_BASE_URL = CONFIG.API_BASE_URL;
 
 export const fetchAlphaVantageData = async (startDate, endDate) => {
   const response = await fetch(

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
-@RequestMapping("/api/granularity")
+@RequestMapping("/api/v1/granularity")
 public class WebsocketGranularityController {
 
     @Autowired
