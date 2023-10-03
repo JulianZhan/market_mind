@@ -13,7 +13,7 @@ const RedditBarChart = ({ data, title }) => {
     .sort((a, b) => b.value - a.value);
 
   return (
-    <div>
+    <div style={{ textAlign: "center" }}>
       <h3>{title}</h3>
       <BarChart
         width={500}
