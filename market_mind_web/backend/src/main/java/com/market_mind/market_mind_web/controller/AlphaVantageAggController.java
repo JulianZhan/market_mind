@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.time.LocalDate;
@@ -15,12 +17,17 @@ import java.time.LocalDate;
 @RequestMapping("/api/v1/alphavantageagg")
 public class AlphaVantageAggController {
 
+    private static final Logger LOGGER = LogManager.getLogger(AlphaVantageAggController.class);
+
     @Autowired
     private AlphaVantageAggService alphaVantageAggService;
 
     @GetMapping("/date-range")
     public List<AlphaVantageAggModel> getRecordWithinDateRange(@RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {
+        LOGGER.info(
+                "API call: /api/v1/alphavantageagg/date-range, startDate: %s, endDate: %s, return type: List<AlphaVantageAggModel>",
+                startDate, endDate);
         return alphaVantageAggService.getRecordWithinDateRange(startDate, endDate);
     }
 }

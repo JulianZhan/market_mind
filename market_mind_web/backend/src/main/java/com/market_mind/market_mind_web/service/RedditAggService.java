@@ -4,6 +4,8 @@ import com.market_mind.market_mind_web.model.RedditAggModel;
 import com.market_mind.market_mind_web.repository.RedditAggRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,6 +15,8 @@ import java.util.Map;
 
 @Service
 public class RedditAggService {
+
+    private static final Logger LOGGER = LogManager.getLogger(RedditAggService.class);
 
     @Autowired
     private RedditAggRepository redditAggRepository;
@@ -29,6 +33,7 @@ public class RedditAggService {
 
         transformedData.forEach((date, map) -> map.put("dateRecorded", date.toString()));
 
+        LOGGER.info("Get transformed data from RedditAggRepository, startDate: %s, endDate: %s", startDate, endDate);
         return new ArrayList<>(transformedData.values());
     }
 

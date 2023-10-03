@@ -9,7 +9,6 @@ const RealtimeTradesTimeSeries = ({
 }) => {
   return (
     <div>
-      {/* Price Chart */}
       <LineChart
         width={1000}
         height={250}
