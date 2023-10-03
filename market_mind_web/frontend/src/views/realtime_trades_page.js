@@ -31,38 +31,41 @@ function RealtimeTradesPage() {
   };
 
   return (
-    <div className="container mt-4">
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <h1>BTC Price</h1>
-          <p>View real-time BTC prices with various granularities.</p>
+    (document.title = "Market Mind"),
+    (
+      <div className="container mt-4">
+        <div className="row mb-4">
+          <div className="col-md-6">
+            <h1>BTC Price</h1>
+            <p>View real-time BTC prices with various granularities.</p>
+          </div>
+          <div className="col-md-6 d-flex align-items-center">
+            <select
+              className="form-control"
+              value={granularity}
+              onChange={changeGranularity}
+            >
+              <option value="1">1 Second</option>
+              <option value="5">5 Seconds</option>
+              <option value="60">1 Minute</option>
+            </select>
+            <Link to="/">
+              <button className="btn btn-secondary -3">Back to Home</button>{" "}
+            </Link>
+          </div>
         </div>
-        <div className="col-md-6 d-flex align-items-center">
-          <select
-            className="form-control"
-            value={granularity}
-            onChange={changeGranularity}
-          >
-            <option value="1">1 Second</option>
-            <option value="5">5 Seconds</option>
-            <option value="60">1 Minute</option>
-          </select>
-          <Link to="/">
-            <button className="btn btn-secondary -3">Back to Home</button>{" "}
-          </Link>
+        <div className="row">
+          <div className="col">
+            <RealtimeTradesTimeSeries
+              data={data}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              domainMargin={domainMargin}
+            />
+          </div>
         </div>
       </div>
-      <div className="row">
-        <div className="col">
-          <RealtimeTradesTimeSeries
-            data={data}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            domainMargin={domainMargin}
-          />
-        </div>
-      </div>
-    </div>
+    )
   );
 }
 
