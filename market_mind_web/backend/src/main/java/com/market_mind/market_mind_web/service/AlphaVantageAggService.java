@@ -19,7 +19,8 @@ public class AlphaVantageAggService {
     private AlphaVantageAggRepository alphaVantageAggRepository;
 
     public List<AlphaVantageAggModel> getRecordWithinDateRange(LocalDate startDate, LocalDate endDate) {
-        LOGGER.info("Get data from AlphaVantageAggRepository, startDate: %s, endDate: %s", startDate, endDate);
+        LOGGER.info(String.format("Get data from AlphaVantageAggRepository, startDate: %s, endDate: %s", startDate,
+                endDate));
         return alphaVantageAggRepository.findDataByDateRange(startDate, endDate);
     }
 

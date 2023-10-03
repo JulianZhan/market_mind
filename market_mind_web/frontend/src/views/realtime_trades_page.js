@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 function RealtimeTradesPage() {
   const [data, setData] = useState([]);
   const [granularity, setGranularity] = useState(5);
+  updateGranularityOnServer(granularity);
 
   useEffect(() => {
     const stompClient = initiateWebSocketConnection(setData);

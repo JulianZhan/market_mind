@@ -26,8 +26,9 @@ public class AlphaVantageAggController {
     public List<AlphaVantageAggModel> getRecordWithinDateRange(@RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {
         LOGGER.info(
-                "API call: /api/v1/alphavantageagg/date-range, startDate: %s, endDate: %s, return type: List<AlphaVantageAggModel>",
-                startDate, endDate);
+                String.format(
+                        "API call: /api/v1/alphavantageagg/date-range, startDate: %s, endDate: %s, return type: List<AlphaVantageAggModel>",
+                        startDate, endDate));
         return alphaVantageAggService.getRecordWithinDateRange(startDate, endDate);
     }
 }

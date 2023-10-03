@@ -40,7 +40,7 @@ public class WebSocketService {
                 break;
             default:
                 data = Collections.emptyList();
-                LOGGER.error("Invalid granularity: " + granularity);
+                LOGGER.error(String.format("Invalid granularity: ", granularity));
 
         }
 

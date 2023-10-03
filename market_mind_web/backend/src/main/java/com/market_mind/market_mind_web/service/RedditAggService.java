@@ -33,7 +33,8 @@ public class RedditAggService {
 
         transformedData.forEach((date, map) -> map.put("dateRecorded", date.toString()));
 
-        LOGGER.info("Get transformed data from RedditAggRepository, startDate: %s, endDate: %s", startDate, endDate);
+        LOGGER.info(String.format("Get transformed data from RedditAggRepository, startDate: %s, endDate: %s",
+                startDate, endDate));
         return new ArrayList<>(transformedData.values());
     }
 

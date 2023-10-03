@@ -26,8 +26,9 @@ public class RedditAggController {
     public List<Map<String, Object>> getRecordWithinDateRange(@RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {
         LOGGER.info(
-                "API call: /api/v1/redditagg/date-range, startDate: %s, endDate: %s, return type: List<Map<String, Object>>",
-                startDate, endDate);
+                String.format(
+                        "API call: /api/v1/redditagg/date-range, startDate: %s, endDate: %s, return type: List<Map<String, Object>>",
+                        startDate, endDate));
         return redditAggService.getTransformedRecordWithinDateRange(startDate, endDate);
     }
 }

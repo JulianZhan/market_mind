@@ -22,7 +22,7 @@ public class WebsocketGranularityController {
     @PostMapping
     public ResponseEntity<Void> setGranularity(@RequestParam int granularity) {
         webSocketService.setGranularity(granularity);
-        LOGGER.info("API call: /api/v1/granularity, granularity: %d", granularity);
+        LOGGER.info(String.format("API call: /api/v1/granularity, granularity: %d", granularity));
         return ResponseEntity.ok().build();
     }
 }
