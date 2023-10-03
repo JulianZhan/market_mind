@@ -4,6 +4,8 @@ import AlphaVantageTrend from "../components/market_sentiment_trend";
 import AlphaVantageStat from "../components/market_sentiment_stat";
 import RedditTrend from "../components/market_emotion_trend";
 import RedditBarChart from "../components/market_emotion_bar";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const HomePage = () => {
   const [alphavantageData, setAlphaData] = useState([]);
@@ -35,32 +37,58 @@ const HomePage = () => {
   }, [selectedEndDate, timeLength]);
 
   return (
-    <div>
-      <div>
-        {/* Date Picker */}
-        <input
-          type="date"
-          value={selectedEndDate.toISOString().split("T")[0]}
-          onChange={(e) => setSelectedEndDate(new Date(e.target.value))}
-        />
-
-        {/* Time Length Dropdown */}
-        <select
-          value={timeLength}
-          onChange={(e) => setTimeLength(Number(e.target.value))}
-        >
-          <option value={7}>7 days</option>
-          <option value={14}>14 days</option>
-        </select>
+    <div className="container mt-5">
+      <div className="dashboard-header text-center mb-4">
+        <h1>Market Mind</h1>
+        <p>The latest market sentiment from news and reddit!</p>
       </div>
-      <AlphaVantageTrend
-        data={alphavantageData}
-        dataKey="avgScore"
-        title="Market Sentiment"
-      />
-      <AlphaVantageStat data={alphavantageStatData} />
-      <RedditTrend data={redditData} title="Market Emotion" />
-      <RedditBarChart data={redditBarData} title="Market Emotion" />
+
+      <div className="mb-4">
+        <div className="form-row">
+          <div className="col">
+            {/* Date Picker */}
+            <p>Pick a Date!</p>
+            <DatePicker
+              selected={selectedEndDate}
+              onChange={(date) => setSelectedEndDate(date)}
+              dateFormat="yyyy-MM-dd"
+            />
+          </div>
+          <div className="col">
+            {/* Time Length Dropdown */}
+            <p>Time Length</p>
+            <select
+              value={timeLength}
+              onChange={(e) => setTimeLength(Number(e.target.value))}
+            >
+              <option value={7}>7 days</option>
+              <option value={14}>14 days</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-md-6 mb-4">
+          <AlphaVantageTrend
+            data={alphavantageData}
+            dataKey="avgScore"
+            title="Market Sentiment Trend"
+          />
+        </div>
+        <div className="col-md-6 mb-4">
+          <AlphaVantageStat
+            data={alphavantageStatData}
+            title="Market Sentiment"
+          />
+        </div>
+        <div className="col-md-6 mb-4">
+          <RedditTrend data={redditData} title="Market Emotion Trend" />
+        </div>
+        <div className="col-md-6 mb-4">
+          <RedditBarChart data={redditBarData} title="Market Emotion" />
+        </div>
+      </div>
     </div>
   );
 };

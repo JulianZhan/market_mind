@@ -5,6 +5,7 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import HomePage from "./views/home_page";
 import RealtimeTradesTimeSeries from "./views/realtime_trades_page";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   return (
