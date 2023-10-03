@@ -21,7 +21,7 @@ function RealtimeTradesPage() {
 
   const minPrice = Math.min(...data.map((item) => item.price));
   const maxPrice = Math.max(...data.map((item) => item.price));
-  const domainMargin = (maxPrice - minPrice) * 0.05;
+  const domainMargin = (maxPrice - minPrice) * 0.1;
 
   const changeGranularity = async (e) => {
     const newGranularity = parseInt(e.target.value);
@@ -30,19 +30,34 @@ function RealtimeTradesPage() {
   };
 
   return (
-    <div>
-      <h1>BTC Price</h1>
-      <select value={granularity} onChange={changeGranularity}>
-        <option value="1">1 Second</option>
-        <option value="5">5 Seconds</option>
-        <option value="60">1 Minute</option>
-      </select>
-      <RealtimeTradesTimeSeries
-        data={data}
-        minPrice={minPrice}
-        maxPrice={maxPrice}
-        domainMargin={domainMargin}
-      />
+    <div className="container mt-4">
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <h1>BTC Price</h1>
+          <p>View real-time BTC prices with various granularities.</p>
+        </div>
+        <div className="col-md-6 d-flex align-items-center">
+          <select
+            className="form-control"
+            value={granularity}
+            onChange={changeGranularity}
+          >
+            <option value="1">1 Second</option>
+            <option value="5">5 Seconds</option>
+            <option value="60">1 Minute</option>
+          </select>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <RealtimeTradesTimeSeries
+            data={data}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            domainMargin={domainMargin}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -27,25 +27,23 @@ public class WebSocketService {
     @Scheduled(fixedDelay = 1000) // Every 1 second
     public void sendPriceAndVolumeBasedOnGranularity() {
         List<PriceAndVolumeDTO> data;
-        try {
-            switch (granularity) {
-                case 1:
-                    data = tradesService.getPriceAndVolumePerSecond();
-                    break;
-                case 5:
-                    data = tradesService.getPriceAndVolumePerFiveSeconds();
-                    break;
-                case 60:
-                    data = tradesService.getPriceAndVolumePerMinute();
-                    break;
-                default:
-                    data = Collections.emptyList();
-                    LOGGER.error("Invalid granularity: " + granularity);
 
-            }
-        } finally {
-            LOGGER.info("Sending data to /topic/trades, granularity: %d", granularity);
+        switch (granularity) {
+            case 1:
+                data = tradesService.getPriceAndVolumePerSecond();
+                break;
+            case 5:
+                data = tradesService.getPriceAndVolumePerFiveSeconds();
+                break;
+            case 60:
+                data = tradesService.getPriceAndVolumePerMinute();
+                break;
+            default:
+                data = Collections.emptyList();
+                LOGGER.error("Invalid granularity: " + granularity);
+
         }
+
         this.template.convertAndSend("/topic/trades", data);
     }
 

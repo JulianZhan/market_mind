@@ -7,6 +7,18 @@ const RealtimeTradesTimeSeries = ({
   maxPrice,
   domainMargin,
 }) => {
+  const formaYAxixtTick = (tickValue) => {
+    return tickValue.toFixed(3);
+  };
+
+  const formatXAxisTick = (timestamp) => {
+    const date = new Date(timestamp);
+    // format as MM:SS
+    return `${String(date.getHours()).padStart(2, "0")}:${String(
+      date.getMinutes()
+    ).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+  };
+
   return (
     <div>
       <LineChart
@@ -17,8 +29,12 @@ const RealtimeTradesTimeSeries = ({
         isAnimationActive={false} // Disable animation
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="tradeTimestamp" />
-        <YAxis domain={[minPrice - domainMargin, maxPrice + domainMargin]} />
+        <XAxis dataKey="tradeTimestamp" tickFormatter={formatXAxisTick} />
+        <YAxis
+          domain={[minPrice - domainMargin, maxPrice + domainMargin]}
+          tickFormatter={formaYAxixtTick}
+          tick={{ fontSize: 12 }} // Smaller font size for the y-axis
+        />
         <Legend />
         <Line
           type="monotone"
@@ -38,7 +54,7 @@ const RealtimeTradesTimeSeries = ({
         isAnimationActive={false} // Disable animation
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="tradeTimestamp" />
+        <XAxis dataKey="tradeTimestamp" tickFormatter={formatXAxisTick} />
         <YAxis />
         <Legend />
         <Line

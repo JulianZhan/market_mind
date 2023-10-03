@@ -1,5 +1,7 @@
 package com.market_mind.market_mind_web.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class PriceAndVolumeDTO {
@@ -8,9 +10,20 @@ public class PriceAndVolumeDTO {
     private LocalDateTime tradeTimestamp;
 
     public PriceAndVolumeDTO(Double price, Double volume, LocalDateTime tradeTimestamp) {
-        this.price = price;
-        this.volume = volume;
+        this.price = round(price);
+        this.volume = round(volume);
         this.tradeTimestamp = tradeTimestamp;
+    }
+
+    // Helper method to round values to two decimal places
+    private Double round(Double value) {
+        if (value == null) {
+            return null;
+        }
+        BigDecimal bd = new BigDecimal(Double.toString(value));
+        bd = bd.setScale(2, RoundingMode.HALF_UP); // Use HALF_UP mode to round towards "nearest neighbor" unless both
+                                                   // neighbors are equidistant, in which case round up.
+        return bd.doubleValue();
     }
 
     public Double getPrice() {
