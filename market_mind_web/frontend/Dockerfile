@@ -13,9 +13,6 @@ RUN npm install
 # Build the React app
 RUN npm run build
 
-# Expose port 3000 for the app to be accessible outside
-EXPOSE 3000
-
 # Use serve to serve the production build of your React app
 RUN npm install -g serve
 
