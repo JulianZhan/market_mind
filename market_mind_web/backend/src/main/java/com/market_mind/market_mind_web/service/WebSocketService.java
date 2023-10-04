@@ -1,6 +1,6 @@
 package com.market_mind.market_mind_web.service;
 
-import com.market_mind.market_mind_web.dto.PriceAndVolumeDTO;
+import com.market_mind.market_mind_web.dto.PriceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -26,17 +26,17 @@ public class WebSocketService {
 
     @Scheduled(fixedDelay = 1000) // Every 1 second
     public void sendPriceAndVolumeBasedOnGranularity() {
-        List<PriceAndVolumeDTO> data;
+        List<PriceDTO> data;
 
         switch (granularity) {
             case 1:
-                data = tradesService.getPriceAndVolumePerSecond();
+                data = tradesService.getPricePerSecond();
                 break;
             case 5:
-                data = tradesService.getPriceAndVolumePerFiveSeconds();
+                data = tradesService.getPricePerFiveSeconds();
                 break;
             case 60:
-                data = tradesService.getPriceAndVolumePerMinute();
+                data = tradesService.getPricePerMinute();
                 break;
             default:
                 data = Collections.emptyList();

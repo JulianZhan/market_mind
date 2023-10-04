@@ -44,27 +44,6 @@ const RealtimeTradesTimeSeries = ({
           dot={false}
         />
       </LineChart>
-
-      {/* Volume Chart */}
-      <LineChart
-        width={1000}
-        height={250}
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-        isAnimationActive={false} // Disable animation
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="tradeTimestamp" tickFormatter={formatXAxisTick} />
-        <YAxis />
-        <Legend />
-        <Line
-          type="monotone"
-          dataKey="volume"
-          stroke="#82ca9d"
-          activeDot={false}
-          dot={false}
-        />
-      </LineChart>
     </div>
   );
 };

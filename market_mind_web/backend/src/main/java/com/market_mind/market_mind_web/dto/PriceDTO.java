@@ -4,14 +4,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
-public class PriceAndVolumeDTO {
+public class PriceDTO {
     private Double price;
-    private Double volume;
     private LocalDateTime tradeTimestamp;
 
-    public PriceAndVolumeDTO(Double price, Double volume, LocalDateTime tradeTimestamp) {
+    public PriceDTO(Double price, LocalDateTime tradeTimestamp) {
         this.price = round(price);
-        this.volume = round(volume);
         this.tradeTimestamp = tradeTimestamp;
     }
 
@@ -28,10 +26,6 @@ public class PriceAndVolumeDTO {
 
     public Double getPrice() {
         return price;
-    }
-
-    public Double getVolume() {
-        return volume;
     }
 
     public LocalDateTime getTradeTimestamp() {
