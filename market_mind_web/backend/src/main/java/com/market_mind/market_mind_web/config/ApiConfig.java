@@ -20,6 +20,6 @@ public class ApiConfig {
 
     @Bean
     public String frontendOrigin() {
-        return frontendHost + ":3000";
+        return frontendHost;
     }
 }

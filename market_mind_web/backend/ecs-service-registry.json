@@ -7,6 +7,13 @@
           "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-qccmb3tbsvhdmstw"
        }
     ],
+    "loadBalancers": [
+      {
+          "targetGroupArn": "arn:aws:elasticloadbalancing:ap-southeast-2:145723653607:targetgroup/market-mind-backend/c24d7820533ad5ac",
+          "containerName": "market-mind-backend",
+          "containerPort": 8080
+      }
+   ],
     "launchType": "FARGATE",
     "platformVersion": "LATEST",
     "networkConfiguration": {
