@@ -7,6 +7,13 @@
           "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-pw2bvlk2b3wa5g67"
        }
     ],
+    "loadBalancers": [
+      {
+          "targetGroupArn": "arn:aws:elasticloadbalancing:ap-southeast-2:145723653607:targetgroup/market-mind-public-api/f8e0dc7c293fea38",
+          "containerName": "flask-api",
+          "containerPort": 5001
+      }
+   ],
     "launchType": "FARGATE",
     "platformVersion": "LATEST",
     "networkConfiguration": {
