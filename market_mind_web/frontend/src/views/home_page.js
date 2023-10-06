@@ -18,11 +18,16 @@ const HomePage = () => {
 
   useEffect(() => {
     let startDate = new Date(selectedEndDate);
-    const utcDate = new Date(
+    const utcStartDate = new Date(
       startDate.toLocaleString("en-US", { timeZone: "UTC" })
     );
-    const formattedStartDate = utcDate.toISOString().split("T")[0];
-    const formattedEndDate = selectedEndDate.toISOString().split("T")[0];
+    utcStartDate.setDate(utcStartDate.getDate() - timeLength);
+    const utcEndDate = new Date(
+      selectedEndDate.toLocaleString("en-US", { timeZone: "UTC" })
+    );
+
+    const formattedStartDate = utcStartDate.toISOString().split("T")[0];
+    const formattedEndDate = utcEndDate.toISOString().split("T")[0];
 
     fetchAlphaVantageData(formattedStartDate, formattedEndDate).then((data) =>
       setAlphaData(data)

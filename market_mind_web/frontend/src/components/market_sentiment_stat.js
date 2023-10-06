@@ -21,11 +21,11 @@ const AlphaVantageStat = ({
       {" "}
       {/* Centered content */}
       <h2>{title}</h2>
-      <h1 style={{ color: `rgb(${rgbColorSentiment})`, fontSize: "5rem" }}>
+      <h1 style={{ color: `rgb(${rgbColorSentiment})`, fontSize: "4.5rem" }}>
         {sentiment}
       </h1>{" "}
       {/* Custom RGB color and even larger text size for sentiment */}
-      <h2 style={{ fontSize: "4rem" }}>
+      <h2 style={{ fontSize: "3.5rem" }}>
         <b>Score:</b> {data?.avgScore}
       </h2>{" "}
       {/* Different RGB color and even larger text size for score */}
