@@ -12,7 +12,7 @@ const RedditTrend = ({ data, title }) => {
   return (
     <div style={{ textAlign: "center" }}>
       <h3>{title}</h3>
-      <LineChart width={600} height={300} data={data}>
+      <LineChart width={500} height={300} data={data}>
         <Line type="monotone" dataKey="anger" stroke="#FF7F11" />
         <Line type="monotone" dataKey="disgust" stroke="#0e3b43" />
         <Line type="monotone" dataKey="fear" stroke="#8884d8" />

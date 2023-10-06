@@ -16,16 +16,13 @@ const RedditBarChart = ({ data, title }) => {
     <div style={{ textAlign: "center" }}>
       <h3>{title}</h3>
       <BarChart
-        width={500}
+        width={600}
         height={300}
         data={dataArray}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        margin={{ top: 5, right: 10, left: 10, bottom: 40 }}
       >
-        <XAxis
-          dataKey="emotion"
-          tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
-        />
-        <YAxis />
+        <XAxis dataKey="emotion" tick={{ angle: -45, textAnchor: "end" }} />
+        <YAxis tick={{ fontSize: 12 }} />
         <Tooltip />
         <Bar dataKey="value">
           {dataArray.map((entry, index) => (
