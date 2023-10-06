@@ -18,18 +18,20 @@ const HomePage = () => {
 
   useEffect(() => {
     let startDate = new Date(selectedEndDate);
-    startDate.setDate(startDate.getDate() - timeLength);
-    startDate = startDate.toISOString().split("T")[0];
+    const utcDate = new Date(
+      startDate.toLocaleString("en-US", { timeZone: "UTC" })
+    );
+    const formattedStartDate = utcDate.toISOString().split("T")[0];
     const formattedEndDate = selectedEndDate.toISOString().split("T")[0];
 
-    fetchAlphaVantageData(startDate, formattedEndDate).then((data) =>
+    fetchAlphaVantageData(formattedStartDate, formattedEndDate).then((data) =>
       setAlphaData(data)
     );
     fetchAlphaVantageData(formattedEndDate, formattedEndDate).then((data) =>
       setAlphaStatData(data.length > 0 ? data[0] : [])
     );
 
-    fetchRedditData(startDate, formattedEndDate).then((data) =>
+    fetchRedditData(formattedStartDate, formattedEndDate).then((data) =>
       setRedditData(data)
     );
     fetchRedditData(formattedEndDate, formattedEndDate).then((data) =>

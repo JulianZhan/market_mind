@@ -16,7 +16,7 @@ const RedditBarChart = ({ data, title }) => {
     <div style={{ textAlign: "center" }}>
       <h3>{title}</h3>
       <BarChart
-        width={600}
+        width={500}
         height={300}
         data={dataArray}
         margin={{ top: 5, right: 10, left: 10, bottom: 40 }}
