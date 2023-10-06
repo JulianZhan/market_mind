@@ -141,7 +141,7 @@ def calculate_news_agg():
             )
             return (
                 session.query(
-                    func.date(AlphaVantageNewsWithSentiment.time_published).label(
+                    func.date(AlphaVantageNewsWithSentiment.created_at).label(
                         "date_recorded"
                     ),
                     func.avg(
@@ -157,8 +157,8 @@ def calculate_news_agg():
                         AlphaVantageNewsWithSentiment.overall_sentiment_score
                     ).label("std_score"),
                 )
-                .filter(AlphaVantageNewsWithSentiment.time_published >= three_days_ago)
-                .group_by(func.date(AlphaVantageNewsWithSentiment.time_published))
+                .filter(AlphaVantageNewsWithSentiment.created_at >= three_days_ago)
+                .group_by(func.date(AlphaVantageNewsWithSentiment.created_at))
             ).all()
         except Exception as e:
             logger.error(f"Failed to calculate news agg: {e}")

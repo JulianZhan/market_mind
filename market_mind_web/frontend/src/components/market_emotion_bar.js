@@ -21,7 +21,10 @@ const RedditBarChart = ({ data, title }) => {
         data={dataArray}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
-        <XAxis dataKey="emotion" />
+        <XAxis
+          dataKey="emotion"
+          tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
+        />
         <YAxis />
         <Tooltip />
         <Bar dataKey="value">
