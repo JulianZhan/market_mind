@@ -18,28 +18,21 @@ const HomePage = () => {
 
   useEffect(() => {
     let startDate = new Date(selectedEndDate);
-    const utcStartDate = new Date(
-      startDate.toLocaleString("en-US", { timeZone: "UTC" })
-    );
-    utcStartDate.setDate(utcStartDate.getDate() - timeLength);
-    const utcEndDate = new Date(
-      selectedEndDate.toLocaleString("en-US", { timeZone: "UTC" })
-    );
+    startDate.setDate(startDate.getDate() - timeLength);
+    const utcStartDate = startDate.toISOString().split("T")[0];
+    const utcEndDate = selectedEndDate.toISOString().split("T")[0];
 
-    const formattedStartDate = utcStartDate.toISOString().split("T")[0];
-    const formattedEndDate = utcEndDate.toISOString().split("T")[0];
-
-    fetchAlphaVantageData(formattedStartDate, formattedEndDate).then((data) =>
+    fetchAlphaVantageData(utcStartDate, utcEndDate).then((data) =>
       setAlphaData(data)
     );
-    fetchAlphaVantageData(formattedEndDate, formattedEndDate).then((data) =>
+    fetchAlphaVantageData(utcStartDate, utcEndDate).then((data) =>
       setAlphaStatData(data.length > 0 ? data[0] : [])
     );
 
-    fetchRedditData(formattedStartDate, formattedEndDate).then((data) =>
+    fetchRedditData(utcStartDate, utcEndDate).then((data) =>
       setRedditData(data)
     );
-    fetchRedditData(formattedEndDate, formattedEndDate).then((data) =>
+    fetchRedditData(utcStartDate, utcEndDate).then((data) =>
       setRedditBarData(data.length > 0 ? data[0] : [])
     );
   }, [selectedEndDate, timeLength]);
