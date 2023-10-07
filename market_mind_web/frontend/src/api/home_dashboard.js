@@ -10,7 +10,7 @@ export const fetchAlphaVantageData = async (startDate, endDate) => {
 
   return data.map((item) => ({
     ...item,
-    dateRecorded: adjustToLocalDate(item.dateRecorded),
+    dateRecorded: adjustToLocalDate(item.dateRecorded + "Z"),
   }));
 };
 
@@ -22,6 +22,6 @@ export const fetchRedditData = async (startDate, endDate) => {
 
   return data.map((item) => ({
     ...item,
-    dateRecorded: adjustToLocalDate(item.dateRecorded),
+    dateRecorded: adjustToLocalDate(item.dateRecorded + "Z"),
   }));
 };

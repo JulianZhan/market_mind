@@ -1,6 +1,7 @@
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import CONFIG from "../config";
+import { utcToZonedTime } from "date-fns-tz";
 const API_BASE_URL = CONFIG.API_BASE_URL;
 
 export const initiateWebSocketConnection = (onMessageReceived) => {
@@ -11,9 +12,13 @@ export const initiateWebSocketConnection = (onMessageReceived) => {
     onConnect: () => {
       stompClient.subscribe("/topic/trades", (message) => {
         const rawData = JSON.parse(message.body);
+        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const adjustedData = rawData.map((trade) => ({
           ...trade,
-          tradeTimestamp: trade.tradeTimestamp.toLocaleString(),
+          tradeTimestamp: utcToZonedTime(
+            trade.tradeTimestamp + "Z",
+            userTimeZone
+          ),
         }));
         onMessageReceived(adjustedData);
       });

@@ -1,4 +1,5 @@
 import React from "react";
+import { utcToZonedTime } from "date-fns-tz";
 import { LineChart, CartesianGrid, XAxis, YAxis, Legend, Line } from "recharts";
 
 const RealtimeTradesTimeSeries = ({
@@ -12,7 +13,10 @@ const RealtimeTradesTimeSeries = ({
   };
 
   const formatXAxisTick = (timestamp) => {
-    const date = new Date(timestamp);
+    let date = new Date(timestamp);
+    // Convert to local time zone
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    date = utcToZonedTime(date, userTimeZone);
     // format as MM:SS
     return `${String(date.getHours()).padStart(2, "0")}:${String(
       date.getMinutes()
