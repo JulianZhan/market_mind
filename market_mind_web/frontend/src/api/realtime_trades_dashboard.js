@@ -1,7 +1,6 @@
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import CONFIG from "../config";
-import { adjustToLocalTime } from "../utils/dateUtils";
 const API_BASE_URL = CONFIG.API_BASE_URL;
 
 export const initiateWebSocketConnection = (onMessageReceived) => {
@@ -12,8 +11,11 @@ export const initiateWebSocketConnection = (onMessageReceived) => {
     onConnect: () => {
       stompClient.subscribe("/topic/trades", (message) => {
         const rawData = JSON.parse(message.body);
-        rawData.tradeTimestamp = adjustToLocalTime(rawData.tradeTimestamp);
-        onMessageReceived(rawData);
+        const adjustedData = rawData.map((trade) => ({
+          ...trade,
+          tradeTimestamp: trade.tradeTimestamp.toLocaleString(),
+        }));
+        onMessageReceived(adjustedData);
       });
     },
   });
