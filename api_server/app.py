@@ -27,11 +27,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# set up flask app, api and socketio
 app = Flask(__name__)
 api = Api(app)
 socketio = SocketIO(app)
 
 
+# metrics definition for prometheus monitoring
 restful_api_request_latency = Histogram(
     "restful_api_request_latency_seconds",
     "Flask Request Latency",
@@ -55,11 +57,17 @@ socket_io_messages_published = Counter(
 
 @app.before_request
 def before_request():
+    """
+    prometheus metrics for flask api
+    """
     request.start_time = time.time()
 
 
 @app.after_request
 def increment_request_count(response):
+    """
+    prometheus metrics for flask api
+    """
     request_latency = time.time() - request.start_time
     restful_api_request_latency.labels(request.method, request.path).observe(
         request_latency
@@ -72,6 +80,9 @@ def increment_request_count(response):
 
 @app.route("/metrics")
 def metrics():
+    """
+    serve the prometheus metrics
+    """
     return make_wsgi_app()
 
 
@@ -81,14 +92,17 @@ class MarketSentiment(Resource):
             target_date = request.args.get("date")
             validate_date(target_date)
         except ValueError as e:
-            return jsonify({"message": "invalid date, please use YYYY-MM-DD format"})
+            return (
+                jsonify({"message": "invalid date, please use YYYY-MM-DD format"}),
+                400,
+            )
 
         try:
             news_sentiment = get_news_sentiment(target_date)
-            return jsonify({"message": "success", "data": news_sentiment})
+            return jsonify({"message": "success", "data": news_sentiment}), 200
         except Exception as e:
             logger.error(f"Error getting news sentiment: {e}")
-            return jsonify({"message": "error", "data": {}})
+            return jsonify({"message": "error", "data": {}}), 500
 
 
 class MarketEmotion(Resource):
@@ -97,13 +111,16 @@ class MarketEmotion(Resource):
             target_date = request.args.get("date")
             validate_date(target_date)
         except ValueError as e:
-            return jsonify({"message": "invalid date, please use YYYY-MM-DD format"})
+            return (
+                jsonify({"message": "invalid date, please use YYYY-MM-DD format"}),
+                400,
+            )
         try:
             reddit_emotion = get_reddit_emotion(target_date)
-            return jsonify({"message": "success", "data": reddit_emotion})
+            return jsonify({"message": "success", "data": reddit_emotion}), 200
         except Exception as e:
             logger.error(f"Error getting reddit emotion: {e}")
-            return jsonify({"message": "error", "data": {}})
+            return jsonify({"message": "error", "data": {}}), 500
 
 
 def kafka_consumer():
