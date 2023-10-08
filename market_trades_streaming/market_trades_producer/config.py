@@ -10,10 +10,10 @@ class Config:
     Config class to store environment variables
 
     Attributes:
-        FINNHUB_API_KEY (str): finnhub api key
-        KAFAK_SERVER (str): kafka server
-        KAFKA_PORT (str): kafka port
-        KAFKA_TOPIC_NAME (str): kafka topic name
+        FINNHUB_API_KEY (Optional[str]): finnhub api key
+        KAFAK_SERVER (Optional[str]): kafka server
+        KAFKA_PORT (Optional[str]): kafka port
+        KAFKA_TOPIC_NAME (Optional[str]): kafka topic name
     """
 
     FINNHUB_API_KEY: Optional[str] = os.getenv("FINNHUB_API_KEY")

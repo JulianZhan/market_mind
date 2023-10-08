@@ -1,46 +1,50 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode, current_timestamp, concat_ws
 from pyspark.sql.avro.functions import from_avro
+import pyspark.sql.dataframe
 import logging
 from config import Config
-from prometheus_client import start_http_server, Counter, Gauge, Summary
+from typing import Optional
+from prometheus_client import start_http_server, Counter, Summary
 
 # Metrics
 
-decode_time = Summary(
+decode_time: Summary = Summary(
     "pyspark_consumer_decode_time_seconds", "Time spent decoding a batch"
 )
-parse_time = Summary(
+parse_time: Summary = Summary(
     "pyspark_consumer_parse_time_seconds", "Time spent parsing a batch"
 )
-insert_time = Summary(
+insert_time: Summary = Summary(
     "pyspark_consumer_insert_time_seconds", "Time spent inserting a batch"
 )
-decode_errors = Counter(
+decode_errors: Summary = Counter(
     "pyspark_consumer_decode_errors", "Errors encountered while decoding Avro"
 )
-parse_errors = Counter(
+parse_errors: Summary = Counter(
     "pyspark_consumer_parse_errors", "Errors encountered while parsing"
 )
-database_errors = Counter(
+database_errors: Summary = Counter(
     "pyspark_consumer_database_errors", "Errors encountered while inserting into RDS"
 )
 
 
 @decode_time.time()
-def decode_avro_df(raw_df, trades_schema):
+def decode_avro_df(
+    raw_df: pyspark.sql.dataframe.DataFrame, trades_schema: str
+) -> Optional[pyspark.sql.dataframe.DataFrame]:
     """
     decode avro data from kafka
 
     Args:
         raw_df (pyspark.sql.dataframe.DataFrame): raw dataframe from kafka
-        trades_schema (avro.schema): avro schema
+        trades_schema (str): avro schema
 
     Returns:
         pyspark.sql.dataframe.DataFrame: decoded dataframe
     """
     try:
-        decoded_df = (
+        decoded_df: pyspark.sql.dataframe.DataFrame = (
             raw_df.withColumn("avro_data", from_avro(col("value"), trades_schema))
             .select("avro_data.*")
             .select(explode(col("data")), col("type"))
@@ -53,7 +57,9 @@ def decode_avro_df(raw_df, trades_schema):
 
 
 @parse_time.time()
-def parse_decoded_df(decoded_df):
+def parse_decoded_df(
+    decoded_df: pyspark.sql.dataframe.DataFrame,
+) -> Optional[pyspark.sql.dataframe.DataFrame]:
     """
     parse decoded dataframe, with columns renamed and timestamp converted to datetime
 
@@ -64,7 +70,7 @@ def parse_decoded_df(decoded_df):
         pyspark.sql.dataframe.DataFrame: parsed dataframe
     """
     try:
-        final_df = (
+        final_df: pyspark.sql.dataframe.DataFrame = (
             decoded_df.withColumnRenamed("c", "trade_conditions")
             .withColumnRenamed("p", "price")
             .withColumnRenamed("s", "symbol")
@@ -85,7 +91,7 @@ def parse_decoded_df(decoded_df):
 
 
 @insert_time.time()
-def insert_to_rds(batch_df, batch_id):
+def insert_to_rds(batch_df: pyspark.sql.dataframe.DataFrame, batch_id: int) -> None:
     """
     batch insert to RDS from pyspark dataframe
 
@@ -116,25 +122,25 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
     )
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     # define spark session
-    spark = (
+    spark: SparkSession = (
         SparkSession.builder.appName("trades_consumer").master("local[*]").getOrCreate()
     )
     # set log level
     spark.sparkContext.setLogLevel("ERROR")
     # define kafka and mysql connection details
-    kafka_topic_name = f"{Config.KAFKA_TOPIC_NAME}"
-    kafka_bootstrap_server = f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"
-    batch_size = "3000"
-    trades_schema = open("trades_schema.avsc", "r").read()
-    jdbc_url = (
+    kafka_topic_name: str = f"{Config.KAFKA_TOPIC_NAME}"
+    kafka_bootstrap_server: str = f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"
+    batch_size: str = "3000"
+    trades_schema: str = open("trades_schema.avsc", "r").read()
+    jdbc_url: str = (
         f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}"
     )
 
     # read streaming data from kafka
-    raw_df = (
+    raw_df: pyspark.sql.dataframe.DataFrame = (
         spark.readStream.format("kafka")
         .option("kafka.bootstrap.servers", kafka_bootstrap_server)
         .option("subscribe", kafka_topic_name)
@@ -144,9 +150,15 @@ if __name__ == "__main__":
     )
 
     # decode the avro data
-    decoded_df = decode_avro_df(raw_df, trades_schema)
+    decoded_df: Optional[pyspark.sql.dataframe.DataFrame] = decode_avro_df(
+        raw_df, trades_schema
+    )
     # parse the decoded data
-    final_df = parse_decoded_df(decoded_df)
-    # write to RDS, with batch insert
-    query = final_df.writeStream.foreachBatch(insert_to_rds).start()
-    query.awaitTermination()
+    if isinstance(decoded_df, pyspark.sql.dataframe.DataFrame):
+        final_df: Optional[pyspark.sql.dataframe.DataFrame] = parse_decoded_df(
+            decoded_df
+        )
+        if isinstance(final_df, pyspark.sql.dataframe.DataFrame):
+            # write to RDS, with batch insert
+            query = final_df.writeStream.foreachBatch(insert_to_rds).start()
+            query.awaitTermination()

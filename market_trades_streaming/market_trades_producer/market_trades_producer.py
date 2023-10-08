@@ -13,14 +13,16 @@ from typing import Optional, List, Union
 from prometheus_client import start_http_server, Counter, Gauge
 
 # Metrics definition
-messages_produced = Counter(
+messages_produced: Counter = Counter(
     "python_producer_produced_messages_total", "Total Produced Messages"
 )
-produce_failures = Counter("python_producer__failures_total", "Total Produce Failures")
-connection_errors = Counter(
+produce_failures: Counter = Counter(
+    "python_producer__failures_total", "Total Produce Failures"
+)
+connection_errors: Counter = Counter(
     "python_producer_connection_errors_total", "Total Connection Errors"
 )
-current_retries = Gauge("python_producer_current_retries", "Current Retries")
+current_retries: Gauge = Gauge("python_producer_current_retries", "Current Retries")
 
 
 # Set up logging
