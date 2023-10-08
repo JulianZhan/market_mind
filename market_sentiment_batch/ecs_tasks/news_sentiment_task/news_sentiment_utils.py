@@ -30,7 +30,8 @@ def get_news_sentiment_data(url: str) -> list:
     """
     res = requests.get(url)
     try:
-        json_data = res.json()  # Convert response to JSON
+        # convert response to json
+        json_data = res.json()
 
         if res.status_code != 200:
             logger.error(
@@ -100,11 +101,13 @@ def batch_insert_news_sentiment_data(data: list, batch_size: int):
                 session.execute(
                     insert(AlphaVantageNewsWithSentiment), news_sentiment_list
                 )
+            # if everything is successful, commit the session
             session.commit()
         except Exception as e:
             logger.error(
                 f"Failed to insert data into database, error: {e}, data: {data}"
             )
+            # if failed at any point, rollback the session
             session.rollback()
 
 
@@ -117,6 +120,7 @@ def save_news_sentiment_data_to_db(url: str, batch_size: int):
         url (str): url to get news sentiment data from, with query parameters
         batch_size (int): number of rows to insert into database in each batch
     """
+    # get news sentiment data from Alpha Vantage API
     data = get_news_sentiment_data(url)
 
     # if data is None, it implicates that no news items are found
@@ -136,6 +140,7 @@ def calculate_news_agg():
     """
     with Session() as session:
         try:
+            # a buffer of 3 days is used to catch up for the delay of news sentiment data pipeline
             three_days_ago = (datetime.utcnow() - timedelta(days=3)).isoformat(
                 timespec="seconds"
             )

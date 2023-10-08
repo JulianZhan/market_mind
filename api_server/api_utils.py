@@ -34,13 +34,21 @@ def decode_avro_message(message: dict, schema) -> dict:
     Returns:
         dict: decoded message
     """
+    # initialize a bytes reader convert the message to readable bytes stream
     bytes_reader = io.BytesIO(message)
+    # create a binary decoder to decode the message
     decoder = avro.io.BinaryDecoder(bytes_reader)
+    # create a datum reader to read the message
     reader = avro.io.DatumReader(schema)
+    # actual decoding
     return reader.read(decoder)
 
 
 def validate_date(date_text: str) -> bool:
+    """
+    try to convert the date string to date object
+    if failed, error will be raised
+    """
     datetime.date.fromisoformat(date_text)
 
 

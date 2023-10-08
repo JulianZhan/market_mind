@@ -40,10 +40,12 @@ def decode_avro_df(raw_df, trades_schema):
     """
     try:
         decoded_df = (
+            # select the avro data from the kafka message, using predefined trades_schema to decode data
             raw_df.withColumn("avro_data", from_avro(col("value"), trades_schema))
+            # select the decoded data which column name starts with "avro_data"
             .select("avro_data.*")
-            .select(explode(col("data")), col("type"))
-            .select("col.*")
+            # explode the data column, which contains a list of trade data
+            .select(explode(col("data")), col("type")).select("col.*")
         )
         return decoded_df
     except Exception as e:
@@ -64,6 +66,7 @@ def parse_decoded_df(decoded_df):
     """
     try:
         final_df = (
+            # rename the columns
             decoded_df.withColumnRenamed("c", "trade_conditions")
             .withColumnRenamed("p", "price")
             .withColumnRenamed("s", "symbol")

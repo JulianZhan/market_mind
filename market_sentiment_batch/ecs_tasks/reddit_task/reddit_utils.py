@@ -95,6 +95,7 @@ def batch_insert_reddit_comments_raw(data: list, batch_size: int) -> datetime:
         try:
             comments_list = []
             for post in data:
+                # this will replace the "MoreComments" object and continue to fetch the comments for "limit" times
                 post.comments.replace_more(limit=1)
                 for comment_data in post.comments:
                     comments_list.append({"comment": comment_data.body})
@@ -107,7 +108,7 @@ def batch_insert_reddit_comments_raw(data: list, batch_size: int) -> datetime:
 
 def fetch_comments_after_timestamp(model, inserted_at: datetime) -> list:
     """
-    fetch all model records with ID greater than the given ID.
+    fetch all model records with created_at after the given timestamp
 
     Args:
         model (sqlalchemy.ext.declarative.api.DeclarativeMeta): the model class
@@ -130,7 +131,7 @@ def fetch_comments_after_timestamp(model, inserted_at: datetime) -> list:
 
 def truncate_text_to_fit_bert(text, max_length=512):
     """
-    Tokenize and truncate the text to fit within BERT's token limit.
+    truncate the text to fit within BERT's token limit
 
     Args:
         text (str): The input text.
@@ -140,7 +141,8 @@ def truncate_text_to_fit_bert(text, max_length=512):
         str: The truncated text.
     """
     tokens = tokenizer.tokenize(text)
-    if len(tokens) > max_length - 2:  # -2 for [CLS] and [SEP] tokens
+    # -2 for [CLS] and [SEP] tokens
+    if len(tokens) > max_length - 2:
         tokens = tokens[: max_length - 2]
     truncated_text = tokenizer.convert_tokens_to_string(tokens)
     return truncated_text
@@ -261,6 +263,7 @@ def result_emotion_name_to_id(result: list) -> list:
     with Session() as session:
         try:
             emotions = session.query(Emotion).all()
+            # create a dictionary of emotion name to id
             emotion_name_to_id = {emotion.name: emotion.id for emotion in emotions}
             # convert emotion name to id
             return [

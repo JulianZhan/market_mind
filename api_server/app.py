@@ -140,13 +140,16 @@ def kafka_consumer():
     while True:
         # consumer will fetch the message received in the last 1 second from the kafka topic
         msg = consumer.poll(1.0)
-        socket_io_messages_received.inc()
+        # if no message received, continue
         if msg is None:
             continue
+        # if error in the message, log the error
         if msg.error():
             logger.error(f"Consumer error: {msg.error()}")
             continue
+        # if no error in the message, decode the message and emit to the socketio client
         else:
+            socket_io_messages_received.inc()
             # decode the avro message from kafka topic
             decoded_message = decode_avro_message(msg.value(), avro_schema)
             # emit the message to the socketio client
