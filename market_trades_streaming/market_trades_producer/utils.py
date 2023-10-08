@@ -1,10 +1,12 @@
 import io
+import finnhub
 import avro.schema
 import avro.io
+from typing import Union
 
 
 # validate if ticker exists in finnhub
-def ticker_validator(finnhub_client, ticker):
+def ticker_validator(finnhub_client: finnhub.Client, ticker: str) -> bool:
     """
     check if ticker exists in finnhub
 
@@ -22,13 +24,15 @@ def ticker_validator(finnhub_client, ticker):
 
 
 # encode message into avro format
-def avro_encode(data, schema):
+def avro_encode(
+    data: dict, schema: Union[avro.schema.Schema, avro.schema.RecordSchema]
+) -> bytes:
     """
     encode message into avro format
 
     Args:
         data (dict): message to encode
-        schema (avro.schema): avro schema
+        schema (Union[avro.schema.Schema, avro.schema.RecordSchema]): avro schema
 
     Returns:
         bytes: encoded message

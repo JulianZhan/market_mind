@@ -7,6 +7,13 @@
           "registryArn": "arn:aws:servicediscovery:ap-southeast-2:145723653607:service/srv-moofucf5chigf4bm"
        }
     ],
+    "loadBalancers": [
+      {
+          "targetGroupArn": "arn:aws:elasticloadbalancing:ap-southeast-2:145723653607:targetgroup/grafana-monitoring/9eef6ebdc5aa76d6",
+          "containerName": "grafana",
+          "containerPort": 3000
+      }
+   ],
     "launchType": "FARGATE",
     "platformVersion": "LATEST",
     "networkConfiguration": {

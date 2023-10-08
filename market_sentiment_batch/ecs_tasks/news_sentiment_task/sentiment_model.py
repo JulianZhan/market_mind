@@ -25,6 +25,7 @@ class AlphaVantageNewsWithSentiment(Base):
     source_domain = Column(String)
     overall_sentiment_score = Column(Float)
     overall_sentiment_label = Column(String)
+    created_at = Column(DateTime)
 
 
 class AlphaVantageAgg(Base):
