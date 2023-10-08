@@ -5,8 +5,7 @@ import logging
 from config import Config
 from prometheus_client import start_http_server, Counter, Gauge, Summary
 
-# Metrics
-
+# metrics definition for Prometheus monitoring
 decode_time = Summary(
     "pyspark_consumer_decode_time_seconds", "Time spent decoding a batch"
 )
@@ -110,6 +109,7 @@ def insert_to_rds(batch_df, batch_id):
 
 
 if __name__ == "__main__":
+    # start metrics server for prometheus monitoring
     start_http_server(5052)
 
     # set up logging

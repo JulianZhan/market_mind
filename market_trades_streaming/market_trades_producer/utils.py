@@ -4,7 +4,7 @@ import avro.io
 
 
 # validate if ticker exists in finnhub
-def ticker_validator(finnhub_client, ticker):
+def ticker_validator(finnhub_client, ticker: str) -> bool:
     """
     check if ticker exists in finnhub
 
@@ -22,7 +22,7 @@ def ticker_validator(finnhub_client, ticker):
 
 
 # encode message into avro format
-def avro_encode(data, schema):
+def avro_encode(data: dict, schema) -> bytes:
     """
     encode message into avro format
 
