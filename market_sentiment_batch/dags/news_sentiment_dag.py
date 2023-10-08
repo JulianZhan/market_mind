@@ -5,7 +5,7 @@ from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
 from airflow.operators.empty import EmptyOperator
 
 
-# Define the default_args dictionary
+# define the default_args dictionary for dag
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -34,6 +34,7 @@ task_finished = EmptyOperator(
     dag=dag,
 )
 
+# trigger the ECS task to actually run the data pipeline
 news_sentiment_task = EcsRunTaskOperator(
     task_id="news_sentiment_task",
     cluster="market-mind",
@@ -58,5 +59,5 @@ news_sentiment_task = EcsRunTaskOperator(
     dag=dag,
 )
 
-# Set up the order of the tasks
+# set up the order of the tasks
 (task_start >> news_sentiment_task >> task_finished)
