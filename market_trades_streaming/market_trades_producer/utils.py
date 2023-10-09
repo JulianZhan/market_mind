@@ -24,7 +24,7 @@ def ticker_validator(finnhub_client, ticker: str) -> bool:
 # encode message into avro format
 def avro_encode(data: dict, schema) -> bytes:
     """
-    encode message into avro format
+    encode message into predefined avro schema
 
     Args:
         data (dict): message to encode
@@ -34,11 +34,11 @@ def avro_encode(data: dict, schema) -> bytes:
         bytes: encoded message
     """
 
-    # specify schema
+    # specify avro schema
     writer = avro.io.DatumWriter(schema)
     # initialize bytes writer
     bytes_writer = io.BytesIO()
-    # initialize encoder
+    # initialize avro encoder
     encoder = avro.io.BinaryEncoder(bytes_writer)
     # write data
     writer.write(data, encoder)

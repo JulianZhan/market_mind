@@ -3,7 +3,7 @@ from pyspark.sql.functions import col, explode, current_timestamp, concat_ws
 from pyspark.sql.avro.functions import from_avro
 import logging
 from config import Config
-from prometheus_client import start_http_server, Counter, Gauge, Summary
+from prometheus_client import start_http_server, Counter, Summary
 
 # metrics definition for Prometheus monitoring
 decode_time = Summary(

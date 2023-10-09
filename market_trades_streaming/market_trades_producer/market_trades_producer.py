@@ -46,7 +46,7 @@ message_counter = 0
 
 def reset_retry_counter() -> None:
     """
-    initiate a thread to reset retry_counter every 3 hours
+    reset retry_counter every 3 hours
     """
     global retry_counter
     while True:

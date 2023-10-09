@@ -11,6 +11,7 @@ import logging
 database_url = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(database_url)
 Session = sessionmaker(bind=engine)
+
 # set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
