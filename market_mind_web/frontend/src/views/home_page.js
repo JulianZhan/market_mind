@@ -9,6 +9,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
+  /**
+   * Use useState to define setter for variables and init them with empty or default values.
+   */
   const [alphavantageData, setAlphaData] = useState([]);
   const [alphavantageStatData, setAlphaStatData] = useState([]);
   const [redditData, setRedditData] = useState([]);
@@ -17,6 +20,16 @@ const HomePage = () => {
   const [timeLength, setTimeLength] = useState(7); // default to 7 days
 
   useEffect(() => {
+    /**
+     * Use useEffect to fetch data from backend API and render to browser.
+     *
+     * When selectedEndDate or timeLength changes, useEffect will be triggered.
+     * After triggering, it will set the new data to the corresponding state.
+     * and fetch data from backend API and render to browser.
+     *
+     * @Param {Date} selectedEndDate - The selected end date.
+     * @Param {Number} timeLength - The time length.
+     */
     let startDate = new Date(selectedEndDate);
     startDate.setDate(startDate.getDate() - timeLength);
     const utcStartDate = startDate.toISOString().split("T")[0];
@@ -25,6 +38,7 @@ const HomePage = () => {
     fetchAlphaVantageData(utcStartDate, utcEndDate).then((data) =>
       setAlphaData(data)
     );
+    // if data is not empty, set the first item in the array as the data for the stat component
     fetchAlphaVantageData(utcStartDate, utcEndDate).then((data) =>
       setAlphaStatData(data.length > 0 ? data[0] : [])
     );
@@ -32,6 +46,7 @@ const HomePage = () => {
     fetchRedditData(utcStartDate, utcEndDate).then((data) =>
       setRedditData(data)
     );
+    // if data is not empty, set the first item in the array as the data for the bar chart component
     fetchRedditData(utcStartDate, utcEndDate).then((data) =>
       setRedditBarData(data.length > 0 ? data[0] : [])
     );
@@ -44,6 +59,7 @@ const HomePage = () => {
         <div className="dashboard-header text-center mb-4">
           <h1>Market Mind</h1>
           <p>The latest market sentiment from news and reddit!</p>
+          {/* Link to Real-time Dashboard */}
           <Link to="/realtime-trades">
             <button className="btn btn-primary">
               Go to Real-time Dashboard
@@ -51,6 +67,7 @@ const HomePage = () => {
           </Link>
         </div>
 
+        {/* Bootstrap grid system */}
         <div className="mb-4">
           <div className="form-row">
             <div className="col">
