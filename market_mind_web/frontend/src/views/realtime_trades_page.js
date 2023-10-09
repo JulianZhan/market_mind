@@ -7,13 +7,28 @@ import {
 import { Link } from "react-router-dom";
 
 function RealtimeTradesPage() {
+  /**
+   * Use useState to define setter for variables and init them with empty or default values.
+   */
   const [data, setData] = useState([]);
-  const [granularity, setGranularity] = useState(5);
+  const [granularity, setGranularity] = useState(5); // default to 5 seconds
 
   useEffect(() => {
+    /**
+     * Use useEffect to fetch data from backend API and render to browser.
+     * When granularity changes, useEffect will be triggered.
+     * After triggering, it will re-initiate the websocket connection and update the granularity on the server.
+     */
+
+    // initiate websocket connection, pass setData as the callback function
     const stompClient = initiateWebSocketConnection(setData);
+    // update granularity on the server
     updateGranularityOnServer(granularity);
 
+    /**
+     * This is a cleanup function that will be executed when the granularity changes.
+     * It will deactivate the stomp client.
+     */
     return () => {
       if (stompClient.connected) {
         stompClient.deactivate();
@@ -21,10 +36,16 @@ function RealtimeTradesPage() {
     };
   }, [granularity]);
 
+  // get the min and max price from the data array to make the chart more readable
   const minPrice = Math.min(...data.map((item) => item.price));
   const maxPrice = Math.max(...data.map((item) => item.price));
   const domainMargin = (maxPrice - minPrice) * 0.1;
 
+  /**
+   * This function is executed when the granularity is changed.
+   * It will update the granularity state and update the granularity on the server.
+   * @Param {Event} e - The event object.
+   */
   const changeGranularity = async (e) => {
     const newGranularity = parseInt(e.target.value);
     setGranularity(newGranularity);
