@@ -5,9 +5,15 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class PriceDTO {
+    /**
+     * DTO stands for Data Transfer Object. It is an object that carries data
+     * between processes. DTO provide more flexibility a layer of abstraction to
+     * manipulate model data and prepare data to be sent over the network.
+     */
     private Double price;
     private LocalDateTime tradeTimestamp;
 
+    // Constructor to initialize the DTO and round the price to two decimal
     public PriceDTO(Double price, LocalDateTime tradeTimestamp) {
         this.price = round(price);
         this.tradeTimestamp = tradeTimestamp;

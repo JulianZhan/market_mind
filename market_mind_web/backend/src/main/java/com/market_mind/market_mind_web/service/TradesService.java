@@ -8,13 +8,30 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.LocalDateTime;
 
+/**
+ * The @Service annotation indicates that an annotated class is a service class,
+ * which is used to implement business logic.
+ */
 @Service
 public class TradesService {
+    /**
+     * This class is used to implement business logic over
+     * TradesRepository.
+     */
 
+    /**
+     * The @Autowired annotation use to inject bean dependencies.
+     */
     @Autowired
     private TradesRepository tradesRepository;
+    // init default time length for data available for display
     private final int defaultTimeRange = 150;
 
+    /**
+     * The following methods are used to get data from TradesRepository.
+     * It calculates the start time based on the default time range and
+     * the multiplication of granularity.
+     */
     public List<PriceDTO> getPricePerSecond() {
         int timeRange = defaultTimeRange * 1;
         LocalDateTime now = LocalDateTime.now();
