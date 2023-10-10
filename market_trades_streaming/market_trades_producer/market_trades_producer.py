@@ -104,7 +104,9 @@ def on_error(ws: websocket.WebSocketApp, error: str) -> None:
         connection_errors.inc()
         current_retries.inc()
         ws.close()
-        logger.info(f"Retrying in {retry_interval} seconds")
+        logger.warning(
+            f"Retrying websocket connection, retry_counter: {retry_counter}, retry_interval: {retry_interval}"
+        )
         time.sleep(retry_interval)
         ws.run_forever()
     else:

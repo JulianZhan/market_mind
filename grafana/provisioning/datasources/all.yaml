@@ -1,15 +1,6 @@
 apiVersion: 1
 
 datasources:
-  - name: MySQL
-    type: mysql
-    access: proxy
-    url: ${RDS_HOSTNAME}:${RDS_PORT}
-    user: ${RDS_USER}
-    database: ${RDS_DB_NAME}
-    secureJsonData:
-      password: ${RDS_PASSWORD}
-
   - name: Prometheus
     type: prometheus
     access: proxy
