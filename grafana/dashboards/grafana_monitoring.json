@@ -19,7 +19,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
   "links": [
     {
       "icon": "external link",
@@ -94,7 +93,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -246,7 +246,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -405,7 +406,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -490,8 +492,8 @@
     ]
   },
   "timezone": "",
-  "title": "Grafana monitoring Copy",
+  "title": "Grafana monitoring",
   "uid": "de5f1d70-105e-4376-b8ea-53cad56b3637",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

@@ -1,485 +1,719 @@
-# apiVersion: 1
-# groups:
-#     - orgId: 1
-#       name: grafana
-#       folder: alert_rules
-#       interval: 1m
-#       rules:
-#         - uid: fe8a0bad-fc7d-4317-93f2-9f67a1d26299
-#           title: Grafana performance
-#           condition: D
-#           data:
-#             - refId: A
-#               relativeTimeRange:
-#                 from: 21600
-#                 to: 0
-#               datasourceUid: PBFA97CFB590B2093
-#               model:
-#                 datasource:
-#                     type: prometheus
-#                     uid: PBFA97CFB590B2093
-#                 expr: sum(go_goroutines{job="grafana"})
-#                 format: time_series
-#                 hide: false
-#                 interval: ""
-#                 intervalFactor: 4
-#                 intervalMs: 15000
-#                 legendFormat: go routines
-#                 maxDataPoints: 43200
-#                 refId: A
-#                 step: 8
-#                 target: select metric
-#                 type: timeserie
-#             - refId: B
-#               relativeTimeRange:
-#                 from: 21600
-#                 to: 0
-#               datasourceUid: PBFA97CFB590B2093
-#               model:
-#                 datasource:
-#                     type: prometheus
-#                     uid: PBFA97CFB590B2093
-#                 expr: sum(process_resident_memory_bytes{job="grafana"})
-#                 format: time_series
-#                 interval: ""
-#                 intervalFactor: 4
-#                 intervalMs: 15000
-#                 legendFormat: memory usage
-#                 maxDataPoints: 43200
-#                 refId: B
-#                 step: 8
-#             - refId: C
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params: []
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - C
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: A
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 reducer: last
-#                 refId: C
-#                 type: reduce
-#             - refId: D
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params:
-#                             - 299
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - D
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: C
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 refId: D
-#                 type: threshold
-#           dashboardUid: isFoa0z7k
-#           panelId: 7
-#           noDataState: NoData
-#           execErrState: Error
-#           for: 5m
-#           annotations:
-#             __dashboardUid__: isFoa0z7k
-#             __panelId__: "7"
-#           isPaused: false
-#     - orgId: 1
-#       name: logs on fargate
-#       folder: alert_rules
-#       interval: 1m
-#       rules:
-#         - uid: c8f7b775-e309-4d11-86ab-728343c9e607
-#           title: Incoming log events [count/sec] peak
-#           condition: C
-#           data:
-#             - refId: A
-#               relativeTimeRange:
-#                 from: 21600
-#                 to: 0
-#               datasourceUid: P034F075C744B399F
-#               model:
-#                 alias: ""
-#                 datasource:
-#                     uid: $datasource
-#                 dimensions:
-#                     LogGroupName:
-#                         - '*'
-#                 expression: REMOVE_EMPTY(SEARCH('{AWS/Logs,LogGroupName} MetricName="IncomingLogEvents"', 'Sum', 300))/300
-#                 id: ""
-#                 intervalMs: 1000
-#                 label: ""
-#                 matchExact: true
-#                 maxDataPoints: 43200
-#                 metricEditorMode: 1
-#                 metricName: IncomingLogEvents
-#                 metricQueryType: 0
-#                 namespace: AWS/Logs
-#                 period: "300"
-#                 refId: A
-#                 region: default
-#                 sqlExpression: ""
-#                 statistic: Sum
-#             - refId: B
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params: []
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - B
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: A
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 reducer: last
-#                 refId: B
-#                 type: reduce
-#             - refId: C
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params:
-#                             - 2
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - C
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: B
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 refId: C
-#                 type: threshold
-#           dashboardUid: 5lKoAHxZz
-#           panelId: 2
-#           noDataState: NoData
-#           execErrState: Error
-#           for: 5m
-#           annotations:
-#             __dashboardUid__: 5lKoAHxZz
-#             __panelId__: "2"
-#           isPaused: false
-#     - orgId: 1
-#       name: prometheus scraping time
-#       folder: alert_rules
-#       interval: 1m
-#       rules:
-#         - uid: ab9293ef-735f-4693-a321-c9c847685112
-#           title: Scrape Duration too long
-#           condition: C
-#           data:
-#             - refId: A
-#               relativeTimeRange:
-#                 from: 3600
-#                 to: 0
-#               datasourceUid: PBFA97CFB590B2093
-#               model:
-#                 datasource:
-#                     type: prometheus
-#                     uid: PBFA97CFB590B2093
-#                 expr: topk(5, max(scrape_duration_seconds) by (job))
-#                 format: time_series
-#                 interval: ""
-#                 intervalFactor: 2
-#                 intervalMs: 15000
-#                 legendFormat: '{{job}}'
-#                 maxDataPoints: 43200
-#                 metric: ""
-#                 refId: A
-#                 step: 20
-#             - refId: B
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params: []
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - B
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: A
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 reducer: last
-#                 refId: B
-#                 type: reduce
-#             - refId: C
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params:
-#                             - 10
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - C
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: B
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 refId: C
-#                 type: threshold
-#           dashboardUid: UDdpyzz7z
-#           panelId: 14
-#           noDataState: NoData
-#           execErrState: Error
-#           for: 5m
-#           annotations:
-#             __dashboardUid__: UDdpyzz7z
-#             __panelId__: "14"
-#           isPaused: false
-#     - orgId: 1
-#       name: pyspark_consumer
-#       folder: alert_rules
-#       interval: 1m
-#       rules:
-#         - uid: e680f6f6-2e5a-453c-903b-bdb659bbb44b
-#           title: Pyspark consumer insert to DB time too long
-#           condition: C
-#           data:
-#             - refId: A
-#               relativeTimeRange:
-#                 from: 21600
-#                 to: 0
-#               datasourceUid: PBFA97CFB590B2093
-#               model:
-#                 datasource:
-#                     type: prometheus
-#                     uid: PBFA97CFB590B2093
-#                 editorMode: builder
-#                 expr: rate(pyspark_consumer_insert_time_seconds_sum[$__rate_interval])
-#                 instant: false
-#                 interval: ""
-#                 intervalMs: 15000
-#                 maxDataPoints: 43200
-#                 range: true
-#                 refId: A
-#             - refId: B
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params: []
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - B
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: A
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 reducer: max
-#                 refId: B
-#                 type: reduce
-#             - refId: C
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params:
-#                             - 2
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - C
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: B
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 refId: C
-#                 type: threshold
-#           dashboardUid: bee02b02-b353-4937-b802-a0fa9a32713c
-#           panelId: 3
-#           noDataState: NoData
-#           execErrState: Error
-#           for: 5m
-#           annotations:
-#             __dashboardUid__: bee02b02-b353-4937-b802-a0fa9a32713c
-#             __panelId__: "3"
-#           isPaused: false
-#     - orgId: 1
-#       name: realtime_dashboard
-#       folder: alert_rules
-#       interval: 1m
-#       rules:
-#         - uid: e54c47f6-6c14-4284-8262-f1d1a83ffc5c
-#           title: realtime dashboard no data
-#           condition: C
-#           data:
-#             - refId: A
-#               relativeTimeRange:
-#                 from: 1800
-#                 to: 0
-#               datasourceUid: P211906C1C32DB77E
-#               model:
-#                 datasource:
-#                     type: mysql
-#                     uid: P211906C1C32DB77E
-#                 editorMode: code
-#                 format: table
-#                 intervalMs: 60000
-#                 maxDataPoints: 43200
-#                 rawQuery: true
-#                 rawSql: "select price, trade_timestamp \nfrom trades \nwhere symbol = 'BINANCE:BTCUSDT' \nand trade_timestamp between $__timeFrom() and $__timeTo() "
-#                 refId: A
-#                 sql:
-#                     columns:
-#                         - parameters: []
-#                           type: function
-#                     groupBy:
-#                         - property:
-#                             type: string
-#                           type: groupBy
-#                     limit: 50
-#             - refId: B
-#               relativeTimeRange:
-#                 from: 1800
-#                 to: 0
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params: []
-#                         type: gt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - B
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: A
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 reducer: count
-#                 refId: B
-#                 type: reduce
-#             - refId: C
-#               relativeTimeRange:
-#                 from: 1800
-#                 to: 0
-#               datasourceUid: __expr__
-#               model:
-#                 conditions:
-#                     - evaluator:
-#                         params:
-#                             - 1
-#                         type: lt
-#                       operator:
-#                         type: and
-#                       query:
-#                         params:
-#                             - C
-#                       reducer:
-#                         params: []
-#                         type: last
-#                       type: query
-#                 datasource:
-#                     type: __expr__
-#                     uid: __expr__
-#                 expression: B
-#                 hide: false
-#                 intervalMs: 1000
-#                 maxDataPoints: 43200
-#                 refId: C
-#                 type: threshold
-#           dashboardUid: f4f2c38c-c898-42a5-9e28-7ced8eb798d1
-#           panelId: 1
-#           noDataState: NoData
-#           execErrState: Error
-#           for: 5m
-#           annotations:
-#             __dashboardUid__: f4f2c38c-c898-42a5-9e28-7ced8eb798d1
-#             __panelId__: "1"
-#           isPaused: false
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: Alerting
+      folder: Alerting
+      interval: 1m
+      rules:
+        - uid: e54d3a82-235e-4fbc-8917-a384a2af9e56
+          title: Pyspark consumer insert to DB time per second
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                editorMode: builder
+                expr: rate(pyspark_consumer_insert_time_seconds_sum[$__rate_interval])
+                instant: false
+                interval: ""
+                intervalMs: 15000
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1.5
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: bee02b02-b353-4937-b802-a0fa9a32713c
+          panelId: 3
+          noDataState: Alerting
+          execErrState: Alerting
+          for: 5m
+          annotations:
+            __dashboardUid__: bee02b02-b353-4937-b802-a0fa9a32713c
+            __panelId__: "3"
+          isPaused: false
+        - uid: b09a55d7-d8cc-47eb-abc9-44161f5f4fc9
+          title: Airflow task fail
+          condition: D
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                editorMode: code
+                expr: rate(airflow_ti_finish_news_sentiment_dag_news_sentiment_task_failed[$__rate_interval])
+                instant: false
+                interval: ""
+                intervalMs: 15000
+                legendFormat: news_sentiment_fail
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                editorMode: code
+                expr: rate(airflow_ti_finish_reddit_dag_reddit_task_failed[$__rate_interval])
+                hide: false
+                instant: false
+                interval: ""
+                intervalMs: 15000
+                legendFormat: reddit_task_fail
+                maxDataPoints: 43200
+                range: true
+                refId: B
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: sum
+                refId: C
+                type: reduce
+            - refId: D
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - D
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: C
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: D
+                type: threshold
+          dashboardUid: bee02b02-b353-4937-b802-a0fa9a32713c
+          panelId: 7
+          noDataState: OK
+          execErrState: OK
+          for: 5m
+          annotations:
+            __dashboardUid__: bee02b02-b353-4937-b802-a0fa9a32713c
+            __panelId__: "7"
+          isPaused: false
+        - uid: a61e2e77-e5f7-430d-b958-6d9594588dfb
+          title: Spring boot max requests time
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                editorMode: builder
+                expr: http_server_requests_seconds_max
+                instant: false
+                interval: ""
+                intervalMs: 15000
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: bee02b02-b353-4937-b802-a0fa9a32713c
+          panelId: 10
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            __dashboardUid__: bee02b02-b353-4937-b802-a0fa9a32713c
+            __panelId__: "10"
+          isPaused: false
+        - uid: a8d8ec06-ed77-4b90-b32a-3dfc1829ce88
+          title: 'Python producer # messages per second'
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                editorMode: builder
+                expr: rate(python_producer_produced_messages_total[$__rate_interval])
+                instant: false
+                interval: ""
+                intervalMs: 15000
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1e-05
+                            - 0
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: bee02b02-b353-4937-b802-a0fa9a32713c
+          panelId: 2
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            __dashboardUid__: bee02b02-b353-4937-b802-a0fa9a32713c
+            __panelId__: "2"
+          isPaused: false
+        - uid: b1cfc4e8-4464-48e1-b810-f529912e36ef
+          title: Grafana performance
+          condition: D
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                expr: sum(go_goroutines{job="grafana"})
+                format: time_series
+                hide: false
+                interval: ""
+                intervalFactor: 4
+                intervalMs: 15000
+                legendFormat: go routines
+                maxDataPoints: 43200
+                refId: A
+                step: 8
+                target: select metric
+                type: timeserie
+            - refId: B
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                expr: sum(process_resident_memory_bytes{job="grafana"})
+                format: time_series
+                interval: ""
+                intervalFactor: 4
+                intervalMs: 15000
+                legendFormat: memory usage
+                maxDataPoints: 43200
+                refId: B
+                step: 8
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: C
+                type: reduce
+            - refId: D
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 400
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - D
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: C
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: D
+                type: threshold
+          dashboardUid: de5f1d70-105e-4376-b8ea-53cad56b3637
+          panelId: 7
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            __dashboardUid__: de5f1d70-105e-4376-b8ea-53cad56b3637
+            __panelId__: "7"
+          isPaused: false
+        - uid: edb41f3a-0697-4400-a6eb-ff0f6c9a880f
+          title: Scrape Duration
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 3600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                expr: topk(5, max(scrape_duration_seconds) by (job))
+                format: time_series
+                interval: ""
+                intervalFactor: 2
+                intervalMs: 15000
+                legendFormat: '{{job}}'
+                maxDataPoints: 43200
+                metric: ""
+                refId: A
+                step: 20
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 5
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: UDdpyzz7z
+          panelId: 14
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            __dashboardUid__: UDdpyzz7z
+            __panelId__: "14"
+          isPaused: false
+        - uid: f2880757-d326-4cc1-a21e-35fd126d2853
+          title: Query Durations
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 3600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PBFA97CFB590B2093
+                expr: prometheus_engine_query_duration_seconds{job="prometheus", quantile="0.99"}
+                format: time_series
+                interval: ""
+                intervalFactor: 2
+                intervalMs: 15000
+                legendFormat: '{{slice}}_p99'
+                maxDataPoints: 43200
+                refId: A
+                step: 20
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: UDdpyzz7z
+          panelId: 38
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            __dashboardUid__: UDdpyzz7z
+            __panelId__: "38"
+          isPaused: false
+        - uid: faf0ee90-b88e-4df4-8424-31cc48ea372b
+          title: EC2 CPU usage
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 86400
+                to: 0
+              datasourceUid: P034F075C744B399F
+              model:
+                alias: ""
+                datasource:
+                    type: cloudwatch
+                    uid: P034F075C744B399F
+                dimensions: {}
+                expression: ""
+                id: ""
+                intervalMs: 1000
+                label: ""
+                logGroups: []
+                matchExact: false
+                maxDataPoints: 43200
+                metricEditorMode: 0
+                metricName: CPUUtilization
+                metricQueryType: 0
+                namespace: AWS/EC2
+                period: ""
+                queryMode: Metrics
+                refId: A
+                region: ap-southeast-2
+                sqlExpression: ""
+                statistic: Average
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 80
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: 5lKoAHxZz
+          panelId: 24
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            __dashboardUid__: 5lKoAHxZz
+            __panelId__: "24"
+          isPaused: false
