@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode, current_timestamp, concat_ws
+from pyspark.sql.functions import col, explode, current_timestamp, concat_ws, expr
 from pyspark.sql.avro.functions import from_avro
 import logging
 from config import Config
@@ -45,7 +45,7 @@ def decode_avro_df(raw_df, trades_schema):
             # select the decoded data which column name starts with "avro_data"
             .select("avro_data.*")
             # explode the data column, which contains a list of trade data
-            .select(explode(col("data")), col("type")).select("col.*")
+            .select(explode(col("data"))).select("col.*")
         )
         return decoded_df
     except Exception as e:
@@ -69,13 +69,17 @@ def parse_decoded_df(decoded_df):
             # rename the columns
             decoded_df.withColumnRenamed("c", "trade_conditions")
             .withColumnRenamed("p", "price")
-            .withColumnRenamed("s", "symbol")
+            .withColumnRenamed("pair", "symbol")
             .withColumnRenamed("t", "trade_timestamp")
-            .withColumnRenamed("v", "volume")
+            .withColumnRenamed("s", "volume")
             .withColumn(
                 "trade_timestamp", (col("trade_timestamp") / 1000).cast("timestamp")
             )
             .withColumn("created_at", current_timestamp())
+            .withColumn(
+                "trade_conditions",
+                expr("transform(trade_conditions, x -> cast(x as string))"),
+            )
             .withColumn("trade_conditions", concat_ws(",", col("trade_conditions")))
         )
         return final_df

@@ -9,13 +9,13 @@ class Config:
     Config class to store all the environment variables
 
     Attributes:
-        FINNHUB_API_KEY: str
+        POLYGON_API_KEY: str
         KAFAK_SERVER: str
         KAFKA_PORT: str
         KAFKA_TOPIC_NAME: str
     """
 
-    FINNHUB_API_KEY: str = os.getenv("FINNHUB_API_KEY")
+    POLYGON_API_KEY: str = os.getenv("POLYGON_API_KEY")
 
     KAFAK_SERVER: str = os.getenv("KAFKA_SERVER")
     KAFKA_PORT: str = os.getenv("KAFKA_PORT")

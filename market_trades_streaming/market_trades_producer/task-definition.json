@@ -38,8 +38,8 @@
                 "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/KAFKA_TOPIC_NAME"
               },
               {
-                "name": "FINNHUB_API_KEY",
-                "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/FINNHUB_API_KEY"
+                "name": "POLYGON_API_KEY",
+                "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/POLYGON_API_KEY"
               }
             ],
             "logConfiguration": {

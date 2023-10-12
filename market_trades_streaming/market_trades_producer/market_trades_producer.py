@@ -1,10 +1,9 @@
-import finnhub
 import json
 import websocket
 import avro.schema
 import avro.io
 from confluent_kafka import Producer
-from utils import ticker_validator, avro_encode
+from utils import avro_encode
 import logging
 from config import Config
 import time
@@ -36,10 +35,9 @@ retry_counter = 0
 retry_interval = 20
 
 # global variables for Kafka producer and websocket connection
-finnhub_client = finnhub.Client(api_key=Config.FINNHUB_API_KEY)
 producer = Producer({"bootstrap.servers": f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"})
 avro_schema = avro.schema.parse(open("trades_schema.avsc").read())
-tickers = ["BINANCE:BTCUSDT"]
+tickers = "XT.BTC-USD"
 batch_size = 1000
 message_counter = 0
 
@@ -57,7 +55,7 @@ def reset_retry_counter() -> None:
         logger.info(f"Resetting retry_counter. retry_counter: {retry_counter}")
 
 
-def on_message(ws: websocket.WebSocketApp, message: str) -> None:
+def on_message(ws: websocket.WebSocketApp, messages: str) -> None:
     """
     produce message to kafka when message is received from websocket connection
 
@@ -66,27 +64,23 @@ def on_message(ws: websocket.WebSocketApp, message: str) -> None:
         message (str): message received from websocket connection
     """
     global message_counter
-    message = json.loads(message)
-    if "data" in message:
-        avro_message = avro_encode(
-            {"data": message["data"], "type": message["type"]}, avro_schema
-        )
-        try:
-            producer.produce(topic=Config.KAFKA_TOPIC_NAME, value=avro_message)
-            messages_produced.inc()
-            message_counter += 1
-            if message_counter >= batch_size:
-                # flush producer after every batch_size messages, kafka will wait for all messages to be sent before next batch
-                producer.flush()
-                message_counter = 0
-        except Exception as e:
-            logger.error(f"Failed to send message to kafka: {e}, message: {message}")
-            produce_failures.inc()
-
-    elif message["type"] == "ping":
-        logger.info(f"Received ping message: {message}")
-    else:
-        logger.warning(f"Unknown message type: {message}")
+    messages = json.loads(messages)
+    try:
+        for message in messages:
+            if message["ev"] == "XT" and message["x"] == 1:
+                avro_message = avro_encode({"data": message}, avro_schema)
+                producer.produce(topic=Config.KAFKA_TOPIC_NAME, value=avro_message)
+                messages_produced.inc()
+                message_counter += 1
+                if message_counter >= batch_size:
+                    # flush producer after every batch_size messages, kafka will wait for all messages to be sent before next batch
+                    producer.flush()
+                    message_counter = 0
+            elif message["ev"] != "XT":
+                logger.info(f"Message is not a trade message, message: {message}")
+    except Exception as e:
+        logger.error(f"Failed to send message to kafka: {e}, message: {message}")
+        # produce_failures.inc()
 
 
 def on_error(ws: websocket.WebSocketApp, error: str) -> None:
@@ -139,13 +133,14 @@ def on_open(ws: websocket.WebSocketApp) -> None:
     Args:
         ws (websocket): websocket connection
     """
-    for ticker in tickers:
-        if ticker_validator(finnhub_client, ticker) == True:
-            # subscribe to ticker, if ticker exists
-            ws.send(f'{{"type":"subscribe","symbol":"{ticker}"}}')
-            logger.info(f"Subscribed to {ticker} successfully")
-        else:
-            logger.warning(f"Susbscription to {ticker} failed, ticker does not exist")
+    try:
+        ws.send(json.dumps({"action": "auth", "params": Config.POLYGON_API_KEY}))
+        ws.send(json.dumps({"action": "subscribe", "params": tickers}))
+
+        logger.info(f"Subscribed to {tickers} successfully")
+
+    except Exception as e:
+        logger.warning(f"Susbscription to {tickers} failed, error: {e}")
 
 
 if __name__ == "__main__":
@@ -158,7 +153,7 @@ if __name__ == "__main__":
     # open websocket connection
     websocket.enableTrace(True)
     ws = websocket.WebSocketApp(
-        f"wss://ws.finnhub.io?token={Config.FINNHUB_API_KEY}",
+        "wss://socket.polygon.io/crypto",
         on_message=on_message,
         on_close=on_close,
     )
