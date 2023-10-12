@@ -151,7 +151,7 @@ if __name__ == "__main__":
     reset_thread.start()
 
     # open websocket connection
-    websocket.enableTrace(True)
+    websocket.enableTrace(False)
     ws = websocket.WebSocketApp(
         "wss://socket.polygon.io/crypto",
         on_message=on_message,
