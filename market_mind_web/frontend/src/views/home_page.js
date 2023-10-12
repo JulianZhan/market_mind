@@ -77,6 +77,7 @@ const HomePage = () => {
                 selected={selectedEndDate}
                 onChange={(date) => setSelectedEndDate(date)}
                 dateFormat="yyyy-MM-dd"
+                minDate={new Date("2023-10-03")}
               />
             </div>
             <div className="col">

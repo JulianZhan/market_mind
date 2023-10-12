@@ -12,6 +12,7 @@ function RealtimeTradesPage() {
    */
   const [data, setData] = useState([]);
   const [granularity, setGranularity] = useState(5); // default to 5 seconds
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     /**
@@ -21,7 +22,9 @@ function RealtimeTradesPage() {
      */
 
     // initiate websocket connection, pass setData as the callback function
-    const stompClient = initiateWebSocketConnection(setData);
+    const stompClient = initiateWebSocketConnection(setData, () =>
+      setIsLoading(false)
+    );
     // update granularity on the server
     updateGranularityOnServer(granularity);
 
@@ -78,12 +81,18 @@ function RealtimeTradesPage() {
         </div>
         <div className="row">
           <div className="col">
-            <RealtimeTradesTimeSeries
-              data={data}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              domainMargin={domainMargin}
-            />
+            {isLoading ? (
+              <div className="loading">
+                <p>Establishing connection...</p>
+              </div>
+            ) : (
+              <RealtimeTradesTimeSeries
+                data={data}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                domainMargin={domainMargin}
+              />
+            )}
           </div>
         </div>
       </div>

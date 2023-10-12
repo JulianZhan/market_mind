@@ -4,7 +4,7 @@ import CONFIG from "../config";
 import { utcToZonedTime } from "date-fns-tz";
 const API_BASE_URL = CONFIG.API_BASE_URL;
 
-export const initiateWebSocketConnection = (onMessageReceived) => {
+export const initiateWebSocketConnection = (onMessageReceived, onConnected) => {
   /**
    * This function initiates a websocket connection to the server.
    * @Param {Function} onMessageReceived - A callback function that is executed
@@ -33,6 +33,7 @@ export const initiateWebSocketConnection = (onMessageReceived) => {
      * then, it transforms the data received from the server to the user's timezone.
      */
     onConnect: () => {
+      onConnected();
       stompClient.subscribe("/topic/trades", (message) => {
         const rawData = JSON.parse(message.body);
         const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
