@@ -25,7 +25,7 @@ public class TradesService {
     @Autowired
     private TradesRepository tradesRepository;
     // init default time length for data available for display
-    private final int defaultTimeRange = 150;
+    private final int defaultTimeRange = 100;
 
     /**
      * The following methods are used to get data from TradesRepository.
