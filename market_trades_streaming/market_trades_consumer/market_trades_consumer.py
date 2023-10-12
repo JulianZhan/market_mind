@@ -45,7 +45,7 @@ def decode_avro_df(raw_df, trades_schema):
             # select the decoded data which column name starts with "avro_data"
             .select("avro_data.*")
             # explode the data column, which contains a list of trade data
-            .select(explode(col("data"))).select("col.*")
+            .select("data.c", "data.p", "data.pair", "data.t", "data.s")
         )
         return decoded_df
     except Exception as e:
