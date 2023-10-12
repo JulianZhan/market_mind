@@ -33,7 +33,7 @@ const RedditTrend = ({ data, title }) => {
         <Line type="monotone" dataKey="neutral" stroke="#6FD08C" />
         <CartesianGrid stroke="#ccc" />
         <XAxis dataKey="dateRecorded" />
-        <YAxis />
+        <YAxis label={{ value: "Score", angle: -90, position: "insideLeft" }} />
         <Tooltip />
       </LineChart>
     </div>

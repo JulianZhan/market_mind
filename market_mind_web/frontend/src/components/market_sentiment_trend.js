@@ -23,7 +23,7 @@ const AlphaVantageTrend = ({ data, dataKey, title }) => {
         <Line type="monotone" dataKey={dataKey} stroke="#8884d8" />
         <CartesianGrid stroke="#ccc" />
         <XAxis dataKey="dateRecorded" />
-        <YAxis />
+        <YAxis label={{ value: "Score", angle: -90, position: "insideLeft" }} />
         <Tooltip />
       </LineChart>
     </div>
