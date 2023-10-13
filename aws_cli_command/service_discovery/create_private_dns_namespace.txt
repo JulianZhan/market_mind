@@ -1,0 +1,3 @@
+aws servicediscovery create-private-dns-namespace \
+      --name {dns_namespace_name} \
+      --vpc {vpc_id}

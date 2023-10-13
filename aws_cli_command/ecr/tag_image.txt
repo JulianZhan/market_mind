@@ -1,0 +1,1 @@
+docker tag {image_name}:{image_version} public.ecr.aws/k5r8z9q8/{image_name}:{image_version}

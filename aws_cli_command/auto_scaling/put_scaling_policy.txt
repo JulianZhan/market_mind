@@ -1,0 +1,7 @@
+aws application-autoscaling put-scaling-policy \
+    --policy-name cpu-target-tracking \
+    --service-namespace ecs \
+    --scalable-dimension ecs:service:DesiredCount \
+    --resource-id service/market-mind/{service name} \
+    --policy-type TargetTrackingScaling \
+    --target-tracking-scaling-policy-configuration file://cpu-policy.json
