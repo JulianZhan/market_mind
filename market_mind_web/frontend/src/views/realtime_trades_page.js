@@ -77,6 +77,9 @@ function RealtimeTradesPage() {
               <option value="5">5 Seconds</option>
               <option value="60">1 Minute</option>
             </select>
+            <Link to="/">
+              <button className="btn btn-primary btn-md">Back to Home</button>
+            </Link>
           </div>
         </div>
         <div className="row">
@@ -93,11 +96,6 @@ function RealtimeTradesPage() {
                 domainMargin={domainMargin}
               />
             )}
-            <div className="text-center mt-4">
-              <Link to="/" className="btn btn-primary btn-lg">
-                Back to Home
-              </Link>
-            </div>
           </div>
         </div>
       </div>

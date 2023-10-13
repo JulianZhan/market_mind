@@ -13,7 +13,7 @@ const ApiDocumentationPage = () => {
         <div className="container mt-5">
           <ApiDocumentation apiUrl={apiUrl} wsUrl={wsUrl} />
           <div className="text-center mt-4">
-            <Link to="/" className="btn btn-primary btn-lg">
+            <Link to="/" className="btn btn-primary btn-md">
               Back to Home
             </Link>
           </div>
