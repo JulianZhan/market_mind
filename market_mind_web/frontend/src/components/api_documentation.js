@@ -95,8 +95,8 @@ const ApiDocumentation = ({ apiUrl, wsUrl }) => {
       </div>
 
       {/* Real-time Data */}
-      <div className="api-section">
-        <h3>Real-time Data via WebSockets</h3>
+      <div className="api-section card mb-4 p-4 shadow-sm">
+        <h3 className="border-bottom pb-2">Real-time Data via WebSockets</h3>
         <p>
           <strong>Description:</strong> Receive real-time market trade data via
           WebSockets.

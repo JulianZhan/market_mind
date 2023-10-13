@@ -68,6 +68,9 @@ const HomePage = () => {
           <Link to="/api-documentation">
             <button className="btn btn-secondary">API Documentation</button>
           </Link>
+          <Link to="/about">
+            <button className="btn btn-secondary">About</button>
+          </Link>
         </div>
 
         {/* Bootstrap grid system */}
@@ -80,7 +83,7 @@ const HomePage = () => {
                 selected={selectedEndDate}
                 onChange={(date) => setSelectedEndDate(date)}
                 dateFormat="yyyy-MM-dd"
-                minDate={new Date("2023-10-03")}
+                minDate={new Date("2023-10-10")}
               />
             </div>
             <div className="col">
