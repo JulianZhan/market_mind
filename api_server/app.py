@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_restful import Resource, Api
 from flask_socketio import SocketIO
 from confluent_kafka import Consumer
@@ -92,17 +92,19 @@ class MarketSentiment(Resource):
             target_date = request.args.get("date")
             validate_date(target_date)
         except ValueError as e:
-            return (
+            return make_response(
                 jsonify({"message": "invalid date, please use YYYY-MM-DD format"}),
                 400,
             )
 
         try:
             news_sentiment = get_news_sentiment(target_date)
-            return jsonify({"message": "success", "data": news_sentiment}), 200
+            return make_response(
+                jsonify({"message": "success", "data": news_sentiment}), 200
+            )
         except Exception as e:
             logger.error(f"Error getting news sentiment: {e}")
-            return jsonify({"message": "error", "data": {}}), 500
+            return make_response(jsonify({"message": "error", "data": {}}), 500)
 
 
 class MarketEmotion(Resource):
@@ -111,16 +113,18 @@ class MarketEmotion(Resource):
             target_date = request.args.get("date")
             validate_date(target_date)
         except ValueError as e:
-            return (
+            return make_response(
                 jsonify({"message": "invalid date, please use YYYY-MM-DD format"}),
                 400,
             )
         try:
             reddit_emotion = get_reddit_emotion(target_date)
-            return jsonify({"message": "success", "data": reddit_emotion}), 200
+            return make_response(
+                jsonify({"message": "success", "data": reddit_emotion}), 200
+            )
         except Exception as e:
             logger.error(f"Error getting reddit emotion: {e}")
-            return jsonify({"message": "error", "data": {}}), 500
+            return make_response(jsonify({"message": "error", "data": {}}), 500)
 
 
 def kafka_consumer():

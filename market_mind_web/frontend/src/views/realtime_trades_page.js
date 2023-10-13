@@ -61,8 +61,11 @@ function RealtimeTradesPage() {
       <div className="container mt-4">
         <div className="row mb-4">
           <div className="col-md-6">
-            <h1>BTC Price</h1>
-            <p>View real-time BTC prices with various granularities.</p>
+            <h1>Bitcoin Price</h1>
+            <p>
+              View realtime Bitcoin prices with various granularities at
+              Coinbase exchange.
+            </p>
           </div>
           <div className="col-md-6 d-flex align-items-center">
             <select

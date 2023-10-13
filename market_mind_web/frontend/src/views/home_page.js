@@ -62,8 +62,11 @@ const HomePage = () => {
           {/* Link to Real-time Dashboard */}
           <Link to="/realtime-trades">
             <button className="btn btn-primary">
-              Go to Real-time Dashboard
+              Go to Realtime trades Dashboard
             </button>
+          </Link>
+          <Link to="/api-documentation">
+            <button className="btn btn-secondary">API Documentation</button>
           </Link>
         </div>
 
