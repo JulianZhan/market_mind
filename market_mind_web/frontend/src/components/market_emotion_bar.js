@@ -39,12 +39,12 @@ const RedditBarChart = ({ data, title }) => {
         width={500}
         height={300}
         data={dataArray}
-        margin={{ top: 5, right: 0, left: 20, bottom: 40 }}
+        margin={{ top: 5, right: 10, left: 10, bottom: 40 }}
       >
         <XAxis dataKey="emotion" tick={{ angle: -45, textAnchor: "end" }} />
         <YAxis
           tick={{ fontSize: 12 }}
-          label={{ value: "Score", angle: -90, offset: -20 }}
+          label={{ value: "Score", angle: -90, position: "insideLeft" }}
         />
         <Tooltip />
         <Bar dataKey="value">

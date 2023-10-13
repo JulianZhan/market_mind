@@ -16,7 +16,7 @@ const RealtimeTradesTimeSeries = ({
      * @Param {Number} tickValue - The value of the tick.
      * @Return {String} - A formatted string of the tick value.
      */
-    return tickValue.toFixed(3);
+    return tickValue.toFixed(2);
   };
 
   const formatXAxisTick = (timestamp) => {
@@ -48,7 +48,7 @@ const RealtimeTradesTimeSeries = ({
         width={1000}
         height={250}
         data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        margin={{ top: 5, right: 60, left: 60, bottom: 5 }}
         isAnimationActive={false}
       >
         <CartesianGrid strokeDasharray="3 3" />
@@ -57,6 +57,12 @@ const RealtimeTradesTimeSeries = ({
           domain={[minPrice - domainMargin, maxPrice + domainMargin]}
           tickFormatter={formaYAxixtTick}
           tick={{ fontSize: 12 }}
+          label={{
+            value: "USD",
+            angle: -90,
+            position: "insideLeft",
+            offset: -40,
+          }}
         />
         <Legend />
         <Line
