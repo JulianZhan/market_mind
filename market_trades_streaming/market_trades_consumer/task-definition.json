@@ -7,8 +7,8 @@
         "cpuArchitecture": "ARM64"
     },
     "family": "pyspark-consumer",
-    "memory": "2 GB",
-    "cpu": ".5 vCPU",
+    "memory": "6 GB",
+    "cpu": "1 vCPU",
     "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "containerDefinitions": [
