@@ -3,6 +3,7 @@ import boto3
 from sagemaker.huggingface.model import HuggingFaceModel
 from sagemaker.serverless import ServerlessInferenceConfig
 
+# set up aws credentials
 boto3.setup_default_session(profile_name="market-mind-julian")
 session = boto3.Session(profile_name="market-mind-julian")
 sess = sagemaker.Session(boto_session=session)
@@ -13,6 +14,7 @@ if sagemaker_session_bucket is None and sess is not None:
     # set to default bucket if a bucket name is not given
     sagemaker_session_bucket = sess.default_bucket()
 
+# get role with permissions to create an Endpoint
 try:
     role = sagemaker.get_execution_role()
 except ValueError:
@@ -41,7 +43,7 @@ huggingface_model = HuggingFaceModel(
     py_version="py39",  # python version used
 )
 
-# Specify MemorySizeInMB and MaxConcurrency in the serverless config object
+# set up serverless inference configuration
 serverless_config = ServerlessInferenceConfig(
     memory_size_in_mb=3072,
     max_concurrency=3,
@@ -50,7 +52,7 @@ serverless_config = ServerlessInferenceConfig(
 # deploy the endpoint endpoint
 predictor = huggingface_model.deploy(serverless_inference_config=serverless_config)
 
-
+# test the endpoint
 res = predictor.predict(
     data={"inputs": ["good", "bad", "okay"], "parameters": {"top_k": None}}
 )

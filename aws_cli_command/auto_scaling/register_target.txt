@@ -1,0 +1,6 @@
+aws application-autoscaling register-scalable-target \
+    --service-namespace ecs \
+    --scalable-dimension ecs:service:DesiredCount \
+    --resource-id service/market-mind/{service name} \
+    --min-capacity 1 \
+    --max-capacity 10

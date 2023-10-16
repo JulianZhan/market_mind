@@ -7,10 +7,11 @@ from sentiment_model import AlphaVantageNewsWithSentiment, AlphaVantageAgg
 import logging
 
 
-# Connect to the database
+# connect to the database
 database_url = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(database_url)
 Session = sessionmaker(bind=engine)
+
 # set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -18,7 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_news_sentiment_data(url):
+def get_news_sentiment_data(url: str) -> list:
     """
     get news sentiment data from Alpha Vantage API
 
@@ -30,7 +31,8 @@ def get_news_sentiment_data(url):
     """
     res = requests.get(url)
     try:
-        json_data = res.json()  # Convert response to JSON
+        # convert response to json
+        json_data = res.json()
 
         if res.status_code != 200:
             logger.error(
@@ -49,7 +51,7 @@ def get_news_sentiment_data(url):
         return None
 
 
-def parse_news_sentiment_data(data):
+def parse_news_sentiment_data(data: dict) -> dict:
     """
     parse data to dictionary format for database insertion
 
@@ -75,7 +77,7 @@ def parse_news_sentiment_data(data):
     return news_sentiment
 
 
-def batch_insert_news_sentiment_data(data, batch_size):
+def batch_insert_news_sentiment_data(data: list, batch_size: int):
     """
     insert news sentiment data into database in batches
 
@@ -100,15 +102,17 @@ def batch_insert_news_sentiment_data(data, batch_size):
                 session.execute(
                     insert(AlphaVantageNewsWithSentiment), news_sentiment_list
                 )
+            # if everything is successful, commit the session
             session.commit()
         except Exception as e:
             logger.error(
                 f"Failed to insert data into database, error: {e}, data: {data}"
             )
+            # if failed at any point, rollback the session
             session.rollback()
 
 
-def save_news_sentiment_data_to_db(url, batch_size):
+def save_news_sentiment_data_to_db(url: str, batch_size: int):
     """
     combine get_news_sentiment_data and batch_insert_news_sentiment_data functions
     save news sentiment data to database
@@ -117,6 +121,7 @@ def save_news_sentiment_data_to_db(url, batch_size):
         url (str): url to get news sentiment data from, with query parameters
         batch_size (int): number of rows to insert into database in each batch
     """
+    # get news sentiment data from Alpha Vantage API
     data = get_news_sentiment_data(url)
 
     # if data is None, it implicates that no news items are found
@@ -136,6 +141,7 @@ def calculate_news_agg():
     """
     with Session() as session:
         try:
+            # a buffer of 3 days is used to catch up for the delay of news sentiment data pipeline
             three_days_ago = (datetime.utcnow() - timedelta(days=3)).isoformat(
                 timespec="seconds"
             )

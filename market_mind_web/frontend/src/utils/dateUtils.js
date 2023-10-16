@@ -1,6 +1,10 @@
 export const adjustToLocalDate = (utcDate) => {
-  console.log("utcDate: ", utcDate);
+  /**
+   * This function converts a UTC date string to a local date string.
+   *
+   * @Param {String} utcDate - A UTC date string.
+   * @Return {String} - A local date string.
+   */
   let localDate = new Date(utcDate);
-  console.log("localDate: ", localDate);
   return localDate.toLocaleDateString();
 };

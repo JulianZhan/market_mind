@@ -6,9 +6,22 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
+/**
+ * The @Table annotation is used to specify the database table to be used for
+ * mapping.
+ * The @Entity annotation is used to specify that the class is an entity and is
+ * mapped to a database table.
+ */
 @Table(name = "alpha_vantage_agg")
 @Entity
 public class AlphaVantageAggModel {
+    /**
+     * This class is used to represent the data from the alpha_vantage_agg table
+     */
+
+    // The @Id annotation is used to specify the primary key of an entity.
+    // The @GeneratedValue annotation is used to specify how the primary key should
+    // be generated.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +46,10 @@ public class AlphaVantageAggModel {
         if (value == null) {
             return null;
         }
+        // The BigDecimal class provides operations for arithmetic, scale
         BigDecimal bd = new BigDecimal(Double.toString(value));
+        // setScale() method rounds the value to the given number of digits after the
+        // decimal point.
         bd = bd.setScale(2, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }

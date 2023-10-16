@@ -1,23 +1,22 @@
 from dotenv import load_dotenv
 import os
-from typing import Optional
 
 load_dotenv()
 
 
 class Config:
     """
-    Config class to store environment variables
+    Config class to store all the environment variables
 
     Attributes:
-        FINNHUB_API_KEY (Optional[str]): finnhub api key
-        KAFAK_SERVER (Optional[str]): kafka server
-        KAFKA_PORT (Optional[str]): kafka port
-        KAFKA_TOPIC_NAME (Optional[str]): kafka topic name
+        POLYGON_API_KEY: str
+        KAFAK_SERVER: str
+        KAFKA_PORT: str
+        KAFKA_TOPIC_NAME: str
     """
 
-    FINNHUB_API_KEY: Optional[str] = os.getenv("FINNHUB_API_KEY")
+    POLYGON_API_KEY: str = os.getenv("POLYGON_API_KEY")
 
-    KAFAK_SERVER: Optional[str] = os.getenv("KAFKA_SERVER")
-    KAFKA_PORT: Optional[str] = os.getenv("KAFKA_PORT")
-    KAFKA_TOPIC_NAME: Optional[str] = os.getenv("KAFKA_TOPIC_NAME")
+    KAFAK_SERVER: str = os.getenv("KAFKA_SERVER")
+    KAFKA_PORT: str = os.getenv("KAFKA_PORT")
+    KAFKA_TOPIC_NAME: str = os.getenv("KAFKA_TOPIC_NAME")

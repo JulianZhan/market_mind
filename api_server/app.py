@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_restful import Resource, Api
 from flask_socketio import SocketIO
 from confluent_kafka import Consumer
@@ -27,11 +27,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# set up flask app, api and socketio
 app = Flask(__name__)
 api = Api(app)
 socketio = SocketIO(app)
 
 
+# metrics definition for prometheus monitoring
 restful_api_request_latency = Histogram(
     "restful_api_request_latency_seconds",
     "Flask Request Latency",
@@ -55,11 +57,17 @@ socket_io_messages_published = Counter(
 
 @app.before_request
 def before_request():
+    """
+    prometheus metrics for flask api
+    """
     request.start_time = time.time()
 
 
 @app.after_request
 def increment_request_count(response):
+    """
+    prometheus metrics for flask api
+    """
     request_latency = time.time() - request.start_time
     restful_api_request_latency.labels(request.method, request.path).observe(
         request_latency
@@ -72,6 +80,9 @@ def increment_request_count(response):
 
 @app.route("/metrics")
 def metrics():
+    """
+    serve the prometheus metrics
+    """
     return make_wsgi_app()
 
 
@@ -81,14 +92,19 @@ class MarketSentiment(Resource):
             target_date = request.args.get("date")
             validate_date(target_date)
         except ValueError as e:
-            return jsonify({"message": "invalid date, please use YYYY-MM-DD format"})
+            return make_response(
+                jsonify({"message": "invalid date, please use YYYY-MM-DD format"}),
+                400,
+            )
 
         try:
             news_sentiment = get_news_sentiment(target_date)
-            return jsonify({"message": "success", "data": news_sentiment})
+            return make_response(
+                jsonify({"message": "success", "data": news_sentiment}), 200
+            )
         except Exception as e:
             logger.error(f"Error getting news sentiment: {e}")
-            return jsonify({"message": "error", "data": {}})
+            return make_response(jsonify({"message": "error", "data": {}}), 500)
 
 
 class MarketEmotion(Resource):
@@ -97,13 +113,18 @@ class MarketEmotion(Resource):
             target_date = request.args.get("date")
             validate_date(target_date)
         except ValueError as e:
-            return jsonify({"message": "invalid date, please use YYYY-MM-DD format"})
+            return make_response(
+                jsonify({"message": "invalid date, please use YYYY-MM-DD format"}),
+                400,
+            )
         try:
             reddit_emotion = get_reddit_emotion(target_date)
-            return jsonify({"message": "success", "data": reddit_emotion})
+            return make_response(
+                jsonify({"message": "success", "data": reddit_emotion}), 200
+            )
         except Exception as e:
             logger.error(f"Error getting reddit emotion: {e}")
-            return jsonify({"message": "error", "data": {}})
+            return make_response(jsonify({"message": "error", "data": {}}), 500)
 
 
 def kafka_consumer():
@@ -123,13 +144,16 @@ def kafka_consumer():
     while True:
         # consumer will fetch the message received in the last 1 second from the kafka topic
         msg = consumer.poll(1.0)
-        socket_io_messages_received.inc()
+        # if no message received, continue
         if msg is None:
             continue
+        # if error in the message, log the error
         if msg.error():
             logger.error(f"Consumer error: {msg.error()}")
             continue
+        # if no error in the message, decode the message and emit to the socketio client
         else:
+            socket_io_messages_received.inc()
             # decode the avro message from kafka topic
             decoded_message = decode_avro_message(msg.value(), avro_schema)
             # emit the message to the socketio client

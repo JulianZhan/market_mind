@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Connect to the database
+# connect to the database
 DATABASE_URL = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
@@ -23,7 +23,7 @@ Session = sessionmaker(bind=engine)
 avro_schema = avro.schema.parse(open("trades_schema.avsc", "r").read())
 
 
-def decode_avro_message(message, schema):
+def decode_avro_message(message: dict, schema) -> dict:
     """
     decode the avro message from kafka
 
@@ -34,17 +34,25 @@ def decode_avro_message(message, schema):
     Returns:
         dict: decoded message
     """
+    # initialize a bytes reader convert the message to readable bytes stream
     bytes_reader = io.BytesIO(message)
+    # create a binary decoder to decode the message
     decoder = avro.io.BinaryDecoder(bytes_reader)
+    # create a datum reader to read the message
     reader = avro.io.DatumReader(schema)
+    # actual decoding
     return reader.read(decoder)
 
 
-def validate_date(date_text):
+def validate_date(date_text: str) -> bool:
+    """
+    try to convert the date string to date object
+    if failed, error will be raised
+    """
     datetime.date.fromisoformat(date_text)
 
 
-def get_news_sentiment(target_date):
+def get_news_sentiment(target_date: str) -> dict:
     """
     get the news sentiment for the target date
 
@@ -84,7 +92,7 @@ def get_news_sentiment(target_date):
         return news_sentiment_dict
 
 
-def get_reddit_emotion(target_date):
+def get_reddit_emotion(target_date: str) -> dict:
     """
     get reddit emotion for the target date
 

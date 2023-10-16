@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Connect to the database
+# connect to the database
 DATABASE_URL = f"mysql+mysqlconnector://{Config.RDS_USER}:{Config.RDS_PASSWORD}@{Config.RDS_HOSTNAME}/{Config.RDS_DB_NAME}"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
@@ -41,11 +41,18 @@ reddit = praw.Reddit(
 )
 
 
-def get_new_reddit_comments(subreddit_name, limit):
+def get_new_reddit_comments(subreddit_name: str, limit: int):
+    """
+    scrape new reddit comments from a subreddit
+
+    Args:
+        subreddit_name (str)
+        limit (int)
+    """
     return reddit.subreddit(subreddit_name).new(limit=limit)
 
 
-def generic_batch_insert(session, model, data, batch_size):
+def generic_batch_insert(session, model, data: list, batch_size: int) -> datetime:
     """
     generic batch insert function
 
@@ -72,7 +79,7 @@ def generic_batch_insert(session, model, data, batch_size):
         return None
 
 
-def batch_insert_reddit_comments_raw(data, batch_size):
+def batch_insert_reddit_comments_raw(data: list, batch_size: int) -> datetime:
     """
     insert reddit comments into database in batches
 
@@ -88,6 +95,7 @@ def batch_insert_reddit_comments_raw(data, batch_size):
         try:
             comments_list = []
             for post in data:
+                # this will replace the "MoreComments" object and continue to fetch the comments for "limit" times
                 post.comments.replace_more(limit=1)
                 for comment_data in post.comments:
                     comments_list.append({"comment": comment_data.body})
@@ -98,9 +106,9 @@ def batch_insert_reddit_comments_raw(data, batch_size):
             logger.error(f"Failed to insert data: {e}")
 
 
-def fetch_comments_after_timestamp(model, inserted_at):
+def fetch_comments_after_timestamp(model, inserted_at: datetime) -> list:
     """
-    Fetch all model records with ID greater than the given ID.
+    fetch all model records with created_at after the given timestamp
 
     Args:
         model (sqlalchemy.ext.declarative.api.DeclarativeMeta): the model class
@@ -111,7 +119,7 @@ def fetch_comments_after_timestamp(model, inserted_at):
     """
     with Session() as session:
         try:
-            # Query the model table for all entries with ID greater than first_inserted_id
+            # query the model table for records created after the given timestamp
             comments = (
                 session.query(model).filter(model.created_at >= inserted_at).all()
             )
@@ -123,7 +131,7 @@ def fetch_comments_after_timestamp(model, inserted_at):
 
 def truncate_text_to_fit_bert(text, max_length=512):
     """
-    Tokenize and truncate the text to fit within BERT's token limit.
+    truncate the text to fit within BERT's token limit
 
     Args:
         text (str): The input text.
@@ -133,13 +141,14 @@ def truncate_text_to_fit_bert(text, max_length=512):
         str: The truncated text.
     """
     tokens = tokenizer.tokenize(text)
-    if len(tokens) > max_length - 2:  # -2 for [CLS] and [SEP] tokens
+    # -2 for [CLS] and [SEP] tokens
+    if len(tokens) > max_length - 2:
         tokens = tokens[: max_length - 2]
     truncated_text = tokenizer.convert_tokens_to_string(tokens)
     return truncated_text
 
 
-def clean_comment(text):
+def clean_comment(text: str) -> str:
     """
     clean the reddit comment text
 
@@ -171,7 +180,7 @@ def clean_comment(text):
         return ""
 
 
-def batch_insert_reddit_comments_clean(data, batch_size):
+def batch_insert_reddit_comments_clean(data: list, batch_size: int) -> datetime:
     """
     clean and insert reddit comments into database in batches
 
@@ -195,7 +204,14 @@ def batch_insert_reddit_comments_clean(data, batch_size):
             logger.error(f"Failed to insert data: {e}")
 
 
-def invoke_sagemaker_endpoint(data):
+def invoke_sagemaker_endpoint(data: list):
+    """
+    pass the data to the sagemaker endpoint for serverless inference
+
+    Args:
+        data (list): reddit comments in list format
+    """
+
     client = boto3.client("sagemaker-runtime")
     response = client.invoke_endpoint(
         EndpointName=Config.MODEL_ENDPOINT,
@@ -207,7 +223,7 @@ def invoke_sagemaker_endpoint(data):
     return result
 
 
-def batch_predict_emotion(data, batch_size):
+def batch_predict_emotion(data: list, batch_size: int) -> list:
     """
     batch predict emotion for clean reddit comments
 
@@ -234,7 +250,7 @@ def batch_predict_emotion(data, batch_size):
         )
 
 
-def result_emotion_name_to_id(result):
+def result_emotion_name_to_id(result: list) -> list:
     """
     convert emotion name to emotion id
 
@@ -247,7 +263,9 @@ def result_emotion_name_to_id(result):
     with Session() as session:
         try:
             emotions = session.query(Emotion).all()
+            # create a dictionary of emotion name to id
             emotion_name_to_id = {emotion.name: emotion.id for emotion in emotions}
+            # convert emotion name to id
             return [
                 (
                     comment_id,
@@ -265,7 +283,7 @@ def result_emotion_name_to_id(result):
             logger.error(f"Failed to convert emotion name to id: {e}")
 
 
-def batch_insert_reddit_comments_emotion(data, batch_size):
+def batch_insert_reddit_comments_emotion(data: list, batch_size: int) -> datetime:
     """
     batch insert reddit comments emotion
 
@@ -282,6 +300,7 @@ def batch_insert_reddit_comments_emotion(data, batch_size):
         try:
             emotion_list = []
             for comment_id, predictions in data:
+                # transform the data to the format
                 for prediction in predictions:
                     emotion_list.append(
                         {
@@ -297,7 +316,7 @@ def batch_insert_reddit_comments_emotion(data, batch_size):
             logger.error(f"Failed to insert data: {e}")
 
 
-def calculate_reddit_agg():
+def calculate_reddit_agg() -> list:
     """
     calculate reddit agg from reddit comment emotion
 
@@ -309,6 +328,7 @@ def calculate_reddit_agg():
             three_days_ago = (datetime.utcnow() - timedelta(days=3)).isoformat(
                 timespec="seconds"
             )
+            # calculate the average score for each emotion for each day
             return (
                 session.query(
                     func.date(RedditCommentEmotion.created_at).label("date_recorded"),
@@ -359,14 +379,35 @@ def insert_reddit_agg_to_db(reddit_agg):
             logger.error(f"Failed to save reddit agg to db: {e}")
 
 
-def get_reddit_comments_to_rds(subreddit_name, post_limit, batch_size):
+def get_reddit_comments_to_rds(subreddit_name: str, post_limit: int, batch_size: int):
+    """
+    data pipeline to get reddit comments from praw api to rds
+
+    Args:
+        subreddit_name (str)
+        post_limit (int)
+        batch_size (int)
+
+    Returns:
+        datetime: the timestamp of the first inserted row
+    """
     data = get_new_reddit_comments(subreddit_name, post_limit)
     first_inserted_at = batch_insert_reddit_comments_raw(data, batch_size)
     logger.info("Data inserted into database frin reddit praw api")
     return first_inserted_at
 
 
-def get_reddit_comments_raw_to_clean(first_inserted_at, batch_size):
+def get_reddit_comments_raw_to_clean(first_inserted_at: datetime, batch_size: int):
+    """
+    data pipeline to get reddit raw comments from rds to clean comments and insert back to rds
+
+    Args:
+        first_inserted_at (datetime)
+        batch_size (int)
+
+    Returns:
+        datetime: the timestamp of the first inserted row
+    """
     logger.info(f"Try to get comments raw after timestamp: {first_inserted_at}")
     comments = fetch_comments_after_timestamp(RedditCommentRaw, first_inserted_at)
     first_inserted_at = batch_insert_reddit_comments_clean(comments, batch_size)
@@ -375,8 +416,21 @@ def get_reddit_comments_raw_to_clean(first_inserted_at, batch_size):
 
 
 def get_reddit_comments_clean_to_emotion(
-    first_inserted_at, batch_size_for_prediction, batch_size_for_insert
+    first_inserted_at: datetime,
+    batch_size_for_prediction: int,
+    batch_size_for_insert: int,
 ):
+    """
+    data pipeline to get reddit clean comments from rds to predict emotion and insert back to rds
+
+    Args:
+        first_inserted_at (datetime)
+        batch_size_for_prediction (int)
+        batch_size_for_insert (int)
+
+    Returns:
+        datetime: the timestamp of the first inserted row
+    """
     logger.info(f"Try to get comments clean after timestamp: {first_inserted_at}")
     comments = fetch_comments_after_timestamp(RedditCommentClean, first_inserted_at)
     logger.info(f"Number of comments to predict: {len(comments)}")
@@ -394,7 +448,7 @@ def get_reddit_comments_clean_to_emotion(
 
 def get_reddit_agg_to_db():
     """
-    get reddit agg
+    data pipeline to calculate reddit agg and save to db
     """
     reddit_agg = calculate_reddit_agg()
     logger.info(f"Number of reddit agg: {len(reddit_agg)}")

@@ -7,25 +7,25 @@ load_dotenv()
 
 class Config:
     """
-    Config class to store environment variables
+    Config class to store all the environment variables
 
     Attributes:
-        KAFAK_SERVER (Optional[str]): kafka server
-        KAFKA_PORT (Optional[str]): kafka port
-        KAFKA_TOPIC_NAME (Optional[str]): kafka topic name
-        RDS_HOSTNAME (Optional[str]): RDS hostname
-        RDS_USER (Optional[str]): RDS username
-        RDS_PASSWORD (Optional[str]): RDS password
-        RDS_DB_NAME (Optional[str]): RDS database name
-        RDS_PORT (Optional[str]): RDS port
+        KAFAK_SERVER: str
+        KAFKA_PORT: str
+        KAFKA_TOPIC_NAME: str
+        RDS_HOSTNAME: str
+        RDS_USER: str
+        RDS_PASSWORD: str
+        RDS_DB_NAME: str
+        RDS_PORT: str
     """
 
-    KAFAK_SERVER: Optional[str] = os.getenv("KAFKA_SERVER")
-    KAFKA_PORT: Optional[str] = os.getenv("KAFKA_PORT")
-    KAFKA_TOPIC_NAME: Optional[str] = os.getenv("KAFKA_TOPIC_NAME")
+    KAFAK_SERVER: str = os.getenv("KAFKA_SERVER")
+    KAFKA_PORT: str = os.getenv("KAFKA_PORT")
+    KAFKA_TOPIC_NAME: str = os.getenv("KAFKA_TOPIC_NAME")
 
-    RDS_HOSTNAME: Optional[str] = os.getenv("RDS_HOSTNAME")
-    RDS_USER: Optional[str] = os.getenv("RDS_USER")
-    RDS_PASSWORD: Optional[str] = os.getenv("RDS_PASSWORD")
-    RDS_DB_NAME: Optional[str] = os.getenv("RDS_DB_NAME")
-    RDS_PORT: Optional[str] = os.getenv("RDS_PORT")
+    RDS_HOSTNAME: str = os.getenv("RDS_HOSTNAME")
+    RDS_USER: str = os.getenv("RDS_USER")
+    RDS_PASSWORD: str = os.getenv("RDS_PASSWORD")
+    RDS_DB_NAME: str = os.getenv("RDS_DB_NAME")
+    RDS_PORT: str = os.getenv("RDS_PORT")
