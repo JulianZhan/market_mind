@@ -10,13 +10,13 @@ class Config:
 
     Attributes:
         POLYGON_API_KEY: str
-        KAFAK_SERVER: str
+        KAFKA_SERVER: str
         KAFKA_PORT: str
         KAFKA_TOPIC_NAME: str
     """
 
     POLYGON_API_KEY: str = os.getenv("POLYGON_API_KEY")
 
-    KAFAK_SERVER: str = os.getenv("KAFKA_SERVER")
+    KAFKA_SERVER: str = os.getenv("KAFKA_SERVER")
     KAFKA_PORT: str = os.getenv("KAFKA_PORT")
     KAFKA_TOPIC_NAME: str = os.getenv("KAFKA_TOPIC_NAME")

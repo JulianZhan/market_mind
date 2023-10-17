@@ -35,7 +35,7 @@ retry_counter = 0
 retry_interval = 20
 
 # global variables for Kafka producer and websocket connection
-producer = Producer({"bootstrap.servers": f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"})
+producer = Producer({"bootstrap.servers": f"{Config.KAFKA_SERVER}:{Config.KAFKA_PORT}"})
 avro_schema = avro.schema.parse(open("trades_schema.avsc").read())
 tickers = "XT.BTC-USD"
 batch_size = 1000
@@ -80,7 +80,7 @@ def on_message(ws: websocket.WebSocketApp, messages: str) -> None:
                 logger.info(f"Message is not a trade message, message: {message}")
     except Exception as e:
         logger.error(f"Failed to send message to kafka: {e}, message: {message}")
-        # produce_failures.inc()
+        produce_failures.inc()
 
 
 def on_error(ws: websocket.WebSocketApp, error: str) -> None:
@@ -88,7 +88,7 @@ def on_error(ws: websocket.WebSocketApp, error: str) -> None:
     retry websocket connection when error occurs
 
     Args:
-        ws (websocket.WebSocketApp): _description_
+        ws (websocket.WebSocketApp): websocket connection
         error (str): error message
     """
     logger.error(f"### error ###: {error}")
@@ -128,7 +128,7 @@ def on_close(
 
 def on_open(ws: websocket.WebSocketApp) -> None:
     """
-    when websocket connection is opened, check if tickers exist and subscribe to them
+    when websocket connection is opened, send authentication message and subscribe to tickers
 
     Args:
         ws (websocket): websocket connection
@@ -146,7 +146,8 @@ def on_open(ws: websocket.WebSocketApp) -> None:
 if __name__ == "__main__":
     # start metrics server for prometheus monitoring
     start_http_server(5051)
-    # start thread to reset retry_counter for every 3 hours
+    # start a daemon thread to reset retry_counter for every 3 hours
+    # daemon thread will exit when main thread exits
     reset_thread = threading.Thread(target=reset_retry_counter, daemon=True)
     reset_thread.start()
 
