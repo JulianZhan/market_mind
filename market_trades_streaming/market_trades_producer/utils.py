@@ -10,7 +10,7 @@ def avro_encode(data: dict, schema) -> bytes:
 
     Args:
         data (dict): message to encode
-        schema (avro.schema): avro schema
+        schema (Union[avro.schema.Schema, avro.schema.RecordSchema]): avro schema
 
     Returns:
         bytes: encoded message
