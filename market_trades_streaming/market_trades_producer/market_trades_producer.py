@@ -26,12 +26,14 @@ connection_errors = Counter(
     "python_producer_connection_errors_total", "Total Connection Errors"
 )
 current_retries = Gauge("python_producer_current_retries", "Current Retries")
+metrics_port = 5051
 
 
 # global variables for retry connection logic
 max_retries = 5
-retry_counter = 0
+retry_counter = 0  # start from 0
 retry_interval = 20
+reset_retry_counter_interval = 18000  # 3 hours
 
 # global variables for Kafka producer
 producer = Producer({"bootstrap.servers": f"{Config.KAFKA_SERVER}:{Config.KAFKA_PORT}"})
@@ -41,6 +43,7 @@ message_counter = 0
 # global variables for api data handling
 avro_schema = avro.schema.parse(open("trades_schema.avsc").read())
 tickers = "XT.BTC-USD"
+ws_close_timeout = 5
 
 
 def reset_retry_counter() -> None:
@@ -50,9 +53,9 @@ def reset_retry_counter() -> None:
     # use global variable
     global retry_counter
     while True:
-        # sleep for 3 hour and reset retry_counter
-        time.sleep(18000)
-        retry_counter = 0
+        # sleep and reset retry_counter
+        time.sleep(reset_retry_counter_interval)
+        retry_counter = 0  # reset retry_counter
         current_retries.set(0)
         logger.info(f"Resetting retry_counter. retry_counter: {retry_counter}")
 
@@ -127,7 +130,7 @@ def on_close(
         close_msg (Optional[str])
     """
     logger.info("### closing websocket ###")
-    producer.flush(timeout=5)
+    producer.flush(timeout=ws_close_timeout)
     logger.info("### closed ###")
 
 
@@ -150,7 +153,7 @@ def on_open(ws: websocket.WebSocketApp) -> None:
 
 if __name__ == "__main__":
     # start metrics server for prometheus monitoring
-    start_http_server(5051)
+    start_http_server(metrics_port)
     # start a daemon thread to reset retry_counter for every 3 hours
     # daemon thread will exit when main thread exits
     reset_thread = threading.Thread(target=reset_retry_counter, daemon=True)
