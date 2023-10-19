@@ -10,7 +10,7 @@ class Config:
     Config class to store all the environment variables
 
     Attributes:
-        KAFAK_SERVER: str
+        KAFKA_SERVER: str
         KAFKA_PORT: str
         KAFKA_TOPIC_NAME: str
         RDS_HOSTNAME: str
@@ -20,7 +20,7 @@ class Config:
         RDS_PORT: str
     """
 
-    KAFAK_SERVER: str = os.getenv("KAFKA_SERVER")
+    KAFKA_SERVER: str = os.getenv("KAFKA_SERVER")
     KAFKA_PORT: str = os.getenv("KAFKA_PORT")
     KAFKA_TOPIC_NAME: str = os.getenv("KAFKA_TOPIC_NAME")
 
