@@ -4,10 +4,10 @@ import pytest
 
 
 def test_avro_encode():
-    # Define schema
+    """
+    test if avro_encode returns bytes when given a valid schema and data
+    """
     schema = avro.schema.parse(open("trades_schema.avsc").read())
-
-    # Define data matching the schema
     data = {
         "data": {
             "c": [1],
@@ -22,19 +22,19 @@ def test_avro_encode():
         }
     }
 
-    # Call avro_encode
     result = avro_encode(data, schema)
 
-    # Assert result is bytes
     assert isinstance(result, bytes)
 
 
 def test_encoding_with_incorrect_data_type():
+    """
+    test if avro_encode raises an exception when given an invalid schema and data
+    """
     schema = avro.schema.parse(open("trades_schema.avsc").read())
-    # Define data matching the schema
     data = {
         "data": {
-            "c": "should be a list",
+            "c": "should be a list",  # should be a list, not a string
             "ev": "SampleEvent",
             "i": "SampleTradeID",
             "p": 123.45,
@@ -45,5 +45,7 @@ def test_encoding_with_incorrect_data_type():
             "x": 1,
         }
     }
+
+    # assert that an exception is raised
     with pytest.raises(Exception):
         avro_encode(data, schema)

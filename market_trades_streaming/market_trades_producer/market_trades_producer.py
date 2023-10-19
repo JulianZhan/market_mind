@@ -68,6 +68,9 @@ def on_message(ws: websocket.WebSocketApp, messages: str) -> None:
     messages = json.loads(messages)
     try:
         for message in messages:
+            # for each message, check if it is a valid trade message
+            # XT means crypto trade message
+            # x = 1 means exchange is coinbase
             if message["ev"] == "XT" and message["x"] == 1:
                 avro_message = avro_encode({"data": message}, avro_schema)
                 producer.produce(topic=Config.KAFKA_TOPIC_NAME, value=avro_message)
