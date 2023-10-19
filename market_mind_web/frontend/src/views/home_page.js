@@ -39,7 +39,7 @@ const HomePage = () => {
       setAlphaData(data)
     );
     // if data is not empty, set the first item in the array as the data for the stat component
-    fetchAlphaVantageData(utcStartDate, utcEndDate).then((data) =>
+    fetchAlphaVantageData(utcEndDate, utcEndDate).then((data) =>
       setAlphaStatData(data.length > 0 ? data[0] : [])
     );
 
@@ -47,7 +47,7 @@ const HomePage = () => {
       setRedditData(data)
     );
     // if data is not empty, set the first item in the array as the data for the bar chart component
-    fetchRedditData(utcStartDate, utcEndDate).then((data) =>
+    fetchRedditData(utcEndDate, utcEndDate).then((data) =>
       setRedditBarData(data.length > 0 ? data[0] : [])
     );
   }, [selectedEndDate, timeLength]);
