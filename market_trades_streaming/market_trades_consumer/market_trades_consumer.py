@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode, current_timestamp, concat_ws, expr
+from pyspark.sql.functions import col, current_timestamp, concat_ws, expr
 from pyspark.sql.avro.functions import from_avro
 import logging
 from config import Config
