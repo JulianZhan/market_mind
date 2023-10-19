@@ -27,12 +27,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# set up flask app, api and socketio
-app = Flask(__name__)
-api = Api(app)
-socketio = SocketIO(app)
-
-
 # metrics definition for prometheus monitoring
 restful_api_request_latency = Histogram(
     "restful_api_request_latency_seconds",
@@ -53,6 +47,19 @@ socket_io_messages_received = Counter(
 socket_io_messages_published = Counter(
     "socket_io_messages_published", "Number of messages published by socketio"
 )
+
+# global variables for kafka consumer
+kafka_consumer_settings = {
+    "bootstrap.servers": f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}",
+    "group.id": "market_trades_streaming_serving",
+    "auto.offset.reset": "latest",
+}
+
+
+# set up flask app, api and socketio
+app = Flask(__name__)
+api = Api(app)
+socketio = SocketIO(app)
 
 
 @app.before_request
@@ -133,17 +140,12 @@ def kafka_consumer():
     """
 
     # set up kafka consumer
-    consumer = Consumer(
-        {
-            "bootstrap.servers": f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}",
-            "group.id": "market_trades_streaming_serving",
-            "auto.offset.reset": "latest",
-        }
-    )
+    consumer = Consumer(kafka_consumer_settings)
     consumer.subscribe([Config.KAFKA_TOPIC_NAME])
+    poll_interval = 1.0
     while True:
-        # consumer will fetch the message received in the last 1 second from the kafka topic
-        msg = consumer.poll(1.0)
+        # consumer will fetch the message received in the last {poll_interval} second from the kafka topic
+        msg = consumer.poll(poll_interval)
         # if no message received, continue
         if msg is None:
             continue
