@@ -46,6 +46,7 @@ def reset_retry_counter() -> None:
     """
     reset retry_counter every 3 hours
     """
+    # use global variable
     global retry_counter
     while True:
         # sleep for 3 hour and reset retry_counter
