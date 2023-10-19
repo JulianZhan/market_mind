@@ -11,6 +11,12 @@ import threading
 from typing import Optional
 from prometheus_client import start_http_server, Counter, Gauge
 
+# set up logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
+
 # metrics definition for prometheus monitoring
 messages_produced = Counter(
     "python_producer_produced_messages_total", "Total Produced Messages"
@@ -22,24 +28,19 @@ connection_errors = Counter(
 current_retries = Gauge("python_producer_current_retries", "Current Retries")
 
 
-# set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger(__name__)
-
-
-# global variables for retry logic
+# global variables for retry connection logic
 max_retries = 5
 retry_counter = 0
 retry_interval = 20
 
-# global variables for Kafka producer and websocket connection
+# global variables for Kafka producer
 producer = Producer({"bootstrap.servers": f"{Config.KAFKA_SERVER}:{Config.KAFKA_PORT}"})
-avro_schema = avro.schema.parse(open("trades_schema.avsc").read())
-tickers = "XT.BTC-USD"
 batch_size = 1000
 message_counter = 0
+
+# global variables for api data handling
+avro_schema = avro.schema.parse(open("trades_schema.avsc").read())
+tickers = "XT.BTC-USD"
 
 
 def reset_retry_counter() -> None:
