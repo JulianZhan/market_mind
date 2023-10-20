@@ -31,12 +31,12 @@ score_definition = {
 }
 
 
-def decode_avro_message(message: dict, schema) -> dict:
+def decode_avro_message(message, schema) -> dict:
     """
     decode the avro message from kafka
 
     Args:
-        message (dict): message from kafka
+        message: message from kafka
         schema (avro.schema): avro schema
 
     Returns:
