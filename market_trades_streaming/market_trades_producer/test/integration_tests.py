@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock, ANY
+from unittest.mock import patch, ANY, Mock
 import json
 from market_trades_producer import (
     on_message,
@@ -16,10 +16,10 @@ def test_on_message_successful():
     """
     test on_message function with a valid message
     """
-    mock_ws = MagicMock()
-    mock_producer = MagicMock()
-    mock_producer.produce = MagicMock()
-    mock_producer.flush = MagicMock()
+    mock_ws = Mock()
+    mock_producer = Mock()
+    mock_producer.produce = Mock()
+    mock_producer.flush = Mock()
     message_data = [{"ev": "XT", "x": 1}]
 
     # replace producer with mock_producer
@@ -38,10 +38,10 @@ def test_on_message_non_xt_message():
     """
     test on_message function with a non XT message
     """
-    mock_ws = MagicMock()
-    mock_producer = MagicMock()
-    mock_producer.produce = MagicMock()
-    mock_producer.flush = MagicMock()
+    mock_ws = Mock()
+    mock_producer = Mock()
+    mock_producer.produce = Mock()
+    mock_producer.flush = Mock()
     message_data = [{"ev": "NonXT", "x": 1}]
 
     # replace producer with mock_producer
@@ -56,9 +56,9 @@ def test_on_error():
     """
     test situation where on_error os callend and run_forever should be triggered to retry connection
     """
-    mock_ws = MagicMock()
-    mock_ws.close = MagicMock()
-    mock_ws.run_forever = MagicMock()
+    mock_ws = Mock()
+    mock_ws.close = Mock()
+    mock_ws.run_forever = Mock()
 
     on_error(mock_ws, "Sample error")
 
@@ -70,9 +70,9 @@ def test_on_close():
     """
     test situation where on_close is called and producer should implement flush
     """
-    mock_ws = MagicMock()
-    mock_producer = MagicMock()
-    mock_producer.flush = MagicMock()
+    mock_ws = Mock()
+    mock_producer = Mock()
+    mock_producer.flush = Mock()
 
     # replace producer with mock_producer
     with patch("market_trades_producer.producer", mock_producer):
@@ -86,8 +86,8 @@ def test_on_open():
     test situation where on_open is called
     and websocket should send subscribe message and auth message
     """
-    mock_ws = MagicMock()
-    mock_ws.send = MagicMock()
+    mock_ws = Mock()
+    mock_ws.send = Mock()
 
     on_open(mock_ws)
 
