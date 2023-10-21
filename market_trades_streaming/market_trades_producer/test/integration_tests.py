@@ -22,6 +22,7 @@ def test_on_message_successful():
     mock_producer.flush = Mock()
     message_data = [{"ev": "XT", "x": 1}]
 
+    # use patch as context manager
     # replace producer with mock_producer
     with patch("market_trades_producer.producer", mock_producer):
         on_message(mock_ws, json.dumps(message_data))
