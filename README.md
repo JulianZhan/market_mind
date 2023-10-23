@@ -5,6 +5,7 @@ Market Mind collects data from Alpha Vantage API for financial news and news sen
 
 
 ## Architecture
+### Overall Architecture
 ![Overall Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/overall_architecture.jpg)
 
 The diagram above provides architecture of Market Mind's web appplication and data pipelines. 
@@ -25,9 +26,17 @@ Web Backend - Spring Boot with Java is used as web backend to provide data for f
 Web Frontend - React is used as web frontend to provide data visualization and user interaction. The combination of React and Spring Boot is popular and resourceful in terms of documentation. 
 
 
-
+### Content Delivery Architecture
 ![Content Delivery Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/content_delivery_architecture.jpg)
 
+The diagram above provides architecture of how Market Mind's web application is delivered to users. When users or admins send requests through url, the requests first received by Route 53, which is a DNS service. Route 53 then routes the requests to different servers based on the subdomains. For frontend web page, Route 53 routes the requests to CloudFront, which is a CDN service shielding before S3. 
+For API, Grafana, Airflow, and Market Mind Backend, Route 53 routes the requests to Application Load Balancer. Application Load Balancer then routes the requests to different servers on ECS Fargate based on the subdomains. 
+
+Moreover, Auto Scaling Group is used to scale out and in to adjust the number of servers based on the CPU utilization for API and Market Mind Backend. 
+
+
+### Servers Monitoring Architecture
 ![Servers Monitoring Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/servers_monitoring_architecture.jpg)
 
+### Airflow Batch Pipelines Architecture
 ![Airflow Batch Pipelines Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/airflow_batch_pipelines_architecture.jpg)
