@@ -5,7 +5,7 @@ Market Mind collects data from Alpha Vantage API for financial news and news sen
 
 
 ## Architecture
-![Overall Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/over_architecture.jpg)
+![Overall Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/overall_architecture.jpg)
 
 The diagram above provides architecture of Market Mind's web appplication and data pipelines. 
 
