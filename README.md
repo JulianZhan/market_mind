@@ -1,6 +1,10 @@
 # Market Mind
-Market Mind dedicates to provide latest market sentiment and emotion analysis, with realtime streaming BTC price, for users to make better investment decisions.
-Market Mind collects data from Alpha Vantage API for financial news and news sentiment analysis. For market emotion, PRAW is used for crawling Reddit comments at CryptoCurrency subreddit, and LLM is utilized for market emotion analysis. Moreover, Market Mind provides realtime streaming BTC price from Polygon.io API.
+Market Mind provides a comprehensive solution for investors by offering latest market sentiment, emotion analysis, and real-time BTC price streaming.
+
+## Features:
+**Real-time BTC Price** Streaming from Polygon.io API. \
+**Market Sentiment Analysis** from Alpha Vantage API. \
+**Market Emotion Analysis** by crawling Reddit comments in the CryptoCurrency subreddit using PRAW, and processing with LLM. 
 
 
 
@@ -8,32 +12,36 @@ Market Mind collects data from Alpha Vantage API for financial news and news sen
 ### Overall Architecture
 ![Overall Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/overall_architecture.jpg)
 
-The diagram above provides architecture of Market Mind's web appplication and data pipelines. 
+Here's a brief overview of Market Mind's architecture:
 
-All servers are containerized into Docker containers, which are managed and deployed mainy through AWS ECS and Fargate as Docker hosting solution.
+**Containerization**: All services are packaged within Docker containers, mainly managed and deployed via AWS ECS and Fargate.
 
-Market trades - Polygon.io API is used to stream BTC price data, which is then received by a Python producer and sent to message broker - Kafka. On the other side, Spark Structured Streaming is used to process the data and send to RDS MySQL for storage to achieve realtime streaming.
+**Market Trades**: Polygon.io API streams BTC price data. This data is collected by a Python producer, sent to Kafka, processed by PySpark Structured Streaming, and finally stored in RDS MySQL.
 
-Market sentiment and emotion - Alpha Vantage API is used as market sentiment data source, and Reddit comments are crawled by PRAW and analyzed by LLM for market emotion. The market sentiment and emotion data is then sent to RDS MySQL for storage.
-The sentiment and emotion batch pipelines are orchestrated by Airflow, which is deployed with docker-compose on an EC2 instance for easy deployment and management. Airflow is purely used for scheduling and orchestrating the batch pipelines daily, and the real computation is done by ECS Fargate containers. To achieve emotion analysis, LLM is deployed on SageMaker and called by ECS Fargate containers for serverless inference.
 
-Database - RDS MySQL is choosed because of its schema-on-read feature, which provides strong data consistency, and cost-effectiveness. For scalability, RDS MySQL is also highly scalable with current leader and followers set up.
+**Market Sentiment & Emotion**: 
+ - Workflow: Alpha Vantage API provides financial news and market sentiment. Reddit comments, collected through PRAW, implement emotion analysis using LLM. Both are stored in RDS MySQL.
+ - Data Orchestration: Airflow, hosted on an EC2 instance with docker-compose, orchestrates batch pipelines and triggers tasks to run. Airflow serves as pure orchestrator, actual computations are executed by ECS Fargate tasks. Moreover, LLM is deployed on SageMaker for serverless inference.
 
-API Server - Flask is used as API server to provide data for users to access. Flask also listens to Kafka for realtime streaming data, which allows users to get realtime streaming trades through WebSocket connection. 
+**Database**: RDS MySQL offers data consistency and cost-effectiveness, and is set up for scalability.
 
-Web Backend - Spring Boot with Java is used as web backend to provide data for frontend page. Spring Boot framwork provides auto-configuration and dependency injection, which makes it easy to build and deploy. With integration of Spring Data JPA, connecting to RDS MySQL is managed though connection pool.
+**API Server**: Flask serves data from RDS MySQL and listens to Kafka for real-time trades to users. It uses WebSocket to provide users with live trade streams. This API aims to provide a easy-to-use connection point for users.
 
-Web Frontend - React is used as web frontend to provide data visualization and user interaction. The combination of React and Spring Boot is popular and resourceful in terms of documentation. 
+**Web Backend**: Developed using Spring Boot in Java. Spring Data JPA facilitates RDS MySQL connectivity. Java is chosen for its statical typing and strong type checking, which helps to avoid bugs and improve code quality for a large codebase.
 
+**Web Frontend**: React offers an interactive and visually appealing user interface.
 
 ### Content Delivery Architecture
 ![Content Delivery Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/content_delivery_architecture.jpg)
 
-The diagram above provides architecture of how Market Mind's web application is delivered to users. When users or admins send requests through url, the requests first received by Route 53, which is a DNS service. Route 53 then routes the requests to different servers based on the subdomains. For frontend web page, Route 53 routes the requests to CloudFront, which is a CDN service shielding before S3. 
-For API, Grafana, Airflow, and Market Mind Backend, Route 53 routes the requests to Application Load Balancer. Application Load Balancer then routes the requests to different servers on ECS Fargate based on the subdomains. 
+How Market Mind reaches its users:
 
-Moreover, Auto Scaling Group is used to scale out and in to adjust the number of servers based on the CPU utilization for API and Market Mind Backend. 
+**Request Routing**: User requests, initiated via URL, hit Route 53 (DNS service) first. Based on subdomains, Route 53 routes the requests:
 
+ - Web Frontend: To CloudFront (CDN) which sits in front of S3.
+ - API, Grafana, Airflow, Backend: To Application Load Balancer, which subsequently routes them to specific ECS Fargate servers.
+
+**Auto-scaling**: To manage demand efficiently, the Auto Scaling Group scales the number of servers based on API and Backend CPU utilization.
 
 ### Servers Monitoring Architecture
 ![Servers Monitoring Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/servers_monitoring_architecture.jpg)
