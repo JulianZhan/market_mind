@@ -14,7 +14,7 @@ Market Mind provides a comprehensive solution for investors by offering latest m
 
 Here's a brief overview of Market Mind's architecture:
 
-**Containerization**: All services are packaged within Docker containers, mainly managed and deployed via AWS ECS and Fargate.
+**Containerization**: All services are packaged within Docker containers, which provides a consistent environment for development and deployment.
 
 **Market Trades**: Polygon.io API streams BTC price data. This data is collected by a Python producer, sent to Kafka, processed by PySpark Structured Streaming, and finally stored in RDS MySQL.
 
@@ -27,9 +27,19 @@ Here's a brief overview of Market Mind's architecture:
 
 **API Server**: Flask serves data from RDS MySQL and listens to Kafka for real-time trades to users. It uses WebSocket to provide users with live trade streams. This API aims to provide a easy-to-use connection point for users.
 
-**Web Backend**: Developed using Spring Boot in Java. Spring Data JPA facilitates RDS MySQL connectivity. Java is chosen for its statical typing and strong type checking, which helps to avoid bugs and improve code quality for a large codebase.
 
-**Web Frontend**: React offers an interactive and visually appealing user interface.
+**Web Infrastructure**: 
+- Backend: Developed using Spring Boot in Java. Spring Data JPA facilitates RDS MySQL connectivity. Java is chosen for its statical typing and strong type checking, which helps to avoid bugs and improve code quality for a large codebase.
+
+ - Frontend: React offers an interactive and visually appealing user interface.
+
+
+**Docker deployment**: ECS Fargate is used to manage and deploy these Docker containers. Moreover, task definitions and service definitions are provided for easy deployment and IaC implementation.
+
+**Monitoring**: 
+ - Metrics Collection: Prometheus for server and custom metrics; CloudWatch for logs and infrastructure metrics.
+ - Visualization: Grafana visualizes the metrics.
+ - Server Location: Cloud Map helps Prometheus locate servers.
 
 ### Content Delivery Architecture
 ![Content Delivery Architecture](https://github.com/JulianZhan/market_mind/raw/refactoring/project_architecture/content_delivery_architecture.jpg)
