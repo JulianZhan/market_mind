@@ -1,9 +1,15 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode, current_timestamp, concat_ws, expr
+from pyspark.sql.functions import col, current_timestamp, concat_ws, expr
 from pyspark.sql.avro.functions import from_avro
 import logging
 from config import Config
 from prometheus_client import start_http_server, Counter, Summary
+
+# set up logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # metrics definition for Prometheus monitoring
 decode_time = Summary(
@@ -24,6 +30,16 @@ parse_errors = Counter(
 database_errors = Counter(
     "pyspark_consumer_database_errors", "Errors encountered while inserting into RDS"
 )
+metrics_port = 5052
+
+# global variables for kafka data handling
+kafka_topic_name = f"{Config.KAFKA_TOPIC_NAME}"
+kafka_bootstrap_server = f"{Config.KAFKA_SERVER}:{Config.KAFKA_PORT}"
+batch_size = "3000"
+trades_schema = open("trades_schema.avsc", "r").read()
+
+# global variables for mysql connection
+jdbc_url = f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}"
 
 
 @decode_time.time()
@@ -117,13 +133,7 @@ def insert_to_rds(batch_df, batch_id):
 
 if __name__ == "__main__":
     # start metrics server for prometheus monitoring
-    start_http_server(5052)
-
-    # set up logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
-    )
-    logger = logging.getLogger(__name__)
+    start_http_server(metrics_port)
 
     # define spark session
     spark = (
@@ -131,14 +141,6 @@ if __name__ == "__main__":
     )
     # set log level
     spark.sparkContext.setLogLevel("ERROR")
-    # define kafka and mysql connection details
-    kafka_topic_name = f"{Config.KAFKA_TOPIC_NAME}"
-    kafka_bootstrap_server = f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"
-    batch_size = "3000"
-    trades_schema = open("trades_schema.avsc", "r").read()
-    jdbc_url = (
-        f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}"
-    )
 
     # read streaming data from kafka
     raw_df = (
