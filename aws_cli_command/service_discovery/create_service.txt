@@ -1,0 +1,4 @@
+aws servicediscovery create-service \
+      --name {service_name} \
+      --dns-config "NamespaceId={cloud_map_namespace_id},DnsRecords=[{Type="A",TTL="300"}]" \
+      --health-check-custom-config FailureThreshold=1

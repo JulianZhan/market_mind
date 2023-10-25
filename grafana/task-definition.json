@@ -26,25 +26,6 @@
               }
             ],
             "secrets": [
-                {"name": "RDS_HOSTNAME",
-                 "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_HOSTNAME_Follower"
-                },
-                {
-                    "name": "RDS_USER",
-                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_USER"
-                },
-                {
-                    "name": "RDS_PASSWORD",
-                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PASSWORD"
-                },
-                {
-                    "name": "RDS_DB_NAME",
-                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_DB_NAME"
-                },
-                {
-                    "name": "RDS_PORT",
-                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/RDS_PORT"
-                },
                 {
                     "name": "AWS_ACCESS_KEY",
                     "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/GRAFANA_MONITOR_ACCESS_KEY"
@@ -52,6 +33,10 @@
                 {
                     "name":"AWS_SECRET_KEY",
                     "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/GRAFANA_MONITOR_SECRET_ACCESS_KEY"
+                },
+                {
+                    "name": "GF_SMTP_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:ap-southeast-2:145723653607:parameter/GF_SMTP_PASSWORD"
                 }
             ],
             "logConfiguration": {

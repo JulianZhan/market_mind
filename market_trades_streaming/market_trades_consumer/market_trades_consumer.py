@@ -1,12 +1,17 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode, current_timestamp, concat_ws
+from pyspark.sql.functions import col, current_timestamp, concat_ws, expr
 from pyspark.sql.avro.functions import from_avro
 import logging
 from config import Config
-from prometheus_client import start_http_server, Counter, Gauge, Summary
+from prometheus_client import start_http_server, Counter, Summary
 
-# Metrics
+# set up logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
 
+# metrics definition for Prometheus monitoring
 decode_time = Summary(
     "pyspark_consumer_decode_time_seconds", "Time spent decoding a batch"
 )
@@ -25,6 +30,16 @@ parse_errors = Counter(
 database_errors = Counter(
     "pyspark_consumer_database_errors", "Errors encountered while inserting into RDS"
 )
+metrics_port = 5052
+
+# global variables for kafka data handling
+kafka_topic_name = f"{Config.KAFKA_TOPIC_NAME}"
+kafka_bootstrap_server = f"{Config.KAFKA_SERVER}:{Config.KAFKA_PORT}"
+batch_size = "3000"
+trades_schema = open("trades_schema.avsc", "r").read()
+
+# global variables for mysql connection
+jdbc_url = f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}"
 
 
 @decode_time.time()
@@ -41,10 +56,12 @@ def decode_avro_df(raw_df, trades_schema):
     """
     try:
         decoded_df = (
+            # select the avro data from the kafka message, using predefined trades_schema to decode data
             raw_df.withColumn("avro_data", from_avro(col("value"), trades_schema))
+            # select the decoded data which column name starts with "avro_data"
             .select("avro_data.*")
-            .select(explode(col("data")), col("type"))
-            .select("col.*")
+            # explode the data column, which contains a list of trade data
+            .select("data.c", "data.p", "data.pair", "data.t", "data.s")
         )
         return decoded_df
     except Exception as e:
@@ -65,15 +82,20 @@ def parse_decoded_df(decoded_df):
     """
     try:
         final_df = (
+            # rename the columns
             decoded_df.withColumnRenamed("c", "trade_conditions")
             .withColumnRenamed("p", "price")
-            .withColumnRenamed("s", "symbol")
+            .withColumnRenamed("pair", "symbol")
             .withColumnRenamed("t", "trade_timestamp")
-            .withColumnRenamed("v", "volume")
+            .withColumnRenamed("s", "volume")
             .withColumn(
                 "trade_timestamp", (col("trade_timestamp") / 1000).cast("timestamp")
             )
             .withColumn("created_at", current_timestamp())
+            .withColumn(
+                "trade_conditions",
+                expr("transform(trade_conditions, x -> cast(x as string))"),
+            )
             .withColumn("trade_conditions", concat_ws(",", col("trade_conditions")))
         )
         return final_df
@@ -110,13 +132,8 @@ def insert_to_rds(batch_df, batch_id):
 
 
 if __name__ == "__main__":
-    start_http_server(5052)
-
-    # set up logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
-    )
-    logger = logging.getLogger(__name__)
+    # start metrics server for prometheus monitoring
+    start_http_server(metrics_port)
 
     # define spark session
     spark = (
@@ -124,14 +141,6 @@ if __name__ == "__main__":
     )
     # set log level
     spark.sparkContext.setLogLevel("ERROR")
-    # define kafka and mysql connection details
-    kafka_topic_name = f"{Config.KAFKA_TOPIC_NAME}"
-    kafka_bootstrap_server = f"{Config.KAFAK_SERVER}:{Config.KAFKA_PORT}"
-    batch_size = "3000"
-    trades_schema = open("trades_schema.avsc", "r").read()
-    jdbc_url = (
-        f"jdbc:mysql://{Config.RDS_HOSTNAME}:{Config.RDS_PORT}/{Config.RDS_DB_NAME}"
-    )
 
     # read streaming data from kafka
     raw_df = (

@@ -1,18 +1,11 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
-from config import Config
-from news_sentiment_utils import save_news_sentiment_data_to_db, save_news_agg_to_db
-
-# set global variables, parse parameters to url
-max_news_items = 1000
-time_from = (datetime.now() - timedelta(days=1)).strftime("%Y%m%dT%H%M")
-url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&time_from={time_from}&limit={max_news_items}&apikey={Config.ALPHAVANTAGE_API_KEY}"
+from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
+from airflow.operators.empty import EmptyOperator
 
 
-# default arguments for airflow dag
+# define the default_args dictionary for dag
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -27,7 +20,6 @@ default_args = {
 dag = DAG(
     "news_sentiment_dag",
     default_args=default_args,
-    # execute every day at midnight UTC
     schedule="0 0 * * *",
     catchup=False,
 )
@@ -42,18 +34,30 @@ task_finished = EmptyOperator(
     dag=dag,
 )
 
-
-# define the tasks, use op_args to pass arguments to python callable function
-get_news_sentiment_data_task = PythonOperator(
-    task_id="get_news_sentiment_data",
-    python_callable=save_news_sentiment_data_to_db,
-    op_args=[url, 300],
+# trigger the ECS task to actually run the data pipeline
+news_sentiment_task = EcsRunTaskOperator(
+    task_id="news_sentiment_task",
+    cluster="market-mind",
+    task_definition="news-sentiment-task:2",
+    launch_type="FARGATE",
+    region="ap-southeast-2",
+    overrides={
+        "executionRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::145723653607:role/ecsTaskExecutionRole",
+    },
+    network_configuration={
+        "awsvpcConfiguration": {
+            "securityGroups": ["sg-08d17d26eb8ea6c2e"],
+            "subnets": [
+                "subnet-0cf71e0cf5d773ad4",
+                "subnet-0f6b1c2ca448ec20f",
+                "subnet-02b7717f0ab78def5",
+            ],
+            "assignPublicIp": "ENABLED",
+        },
+    },
     dag=dag,
 )
 
-get_news_agg_task = PythonOperator(
-    task_id="get_news_agg", python_callable=save_news_agg_to_db, dag=dag
-)
-
-# define the task dependencies
-task_start >> get_news_sentiment_data_task >> get_news_agg_task >> task_finished
+# set up the order of the tasks
+(task_start >> news_sentiment_task >> task_finished)

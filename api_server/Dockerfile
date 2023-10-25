@@ -1,14 +1,13 @@
-# Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# Set the working directory in the container to /app
+# set the working directory in the container to /app
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# copy the current directory contents into the container at /app
 COPY . /app
 
-# Install any needed packages specified in requirements.txt
+# install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt
 
-# Define command to run app
+# run the command to start up the api server
 CMD ["python", "app.py"]

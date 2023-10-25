@@ -1,0 +1,5 @@
+transformers==4.33.1
+torch==2.0.1
+boto3==1.28.54
+botocore==1.31.54
+sagemaker==2.187.0
