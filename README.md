@@ -8,10 +8,10 @@ Market Mind provides a comprehensive solution for investors by offering latest m
 
 ## Introduction Video
 ### Project Introduction Video
-![Project Introduction Video](https://drive.google.com/file/d/1qamHYQQ0_eUTW03VceWKZkxA_5decMgt/view?usp=sharing)
+[Click here to view the video on Google Drive](https://drive.google.com/file/d/1qamHYQQ0_eUTW03VceWKZkxA_5decMgt/view?usp=sharing)
 
 ### Streaming Solution Video
-![Streaming Solution Video](https://drive.google.com/file/d/1u0kVVSNYyy6KvL_2Xd-KRP4zFjrhwE24/view?usp=sharing)
+[Click here to view the video on Google Drive](https://drive.google.com/file/d/1u0kVVSNYyy6KvL_2Xd-KRP4zFjrhwE24/view?usp=sharing)
 
 
 ## Architecture
