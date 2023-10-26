@@ -6,6 +6,12 @@ Market Mind provides a comprehensive solution for investors by offering latest m
 **Market Sentiment Analysis** from Alpha Vantage API. \
 **Market Emotion Analysis** by crawling Reddit comments in the CryptoCurrency subreddit using PRAW, and processing with LLM. 
 
+## Introduction Video
+### Project Introduction Video
+![Project Introduction Video](https://drive.google.com/file/d/1qamHYQQ0_eUTW03VceWKZkxA_5decMgt/view?usp=sharing)
+
+### Streaming Solution Video
+![Streaming Solution Video](https://drive.google.com/file/d/1u0kVVSNYyy6KvL_2Xd-KRP4zFjrhwE24/view?usp=sharing)
 
 
 ## Architecture
