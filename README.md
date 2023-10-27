@@ -48,7 +48,7 @@ Market Mind provides a comprehensive solution for investors by offering latest m
 
 ## Architecture
 ### Overall Architecture
-![Overall Architecture](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/architecture/overall_architecture.jpg)
+![Overall Architecture](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/architecture/overall_architecture.jpg)
 
 Here's a brief overview of Market Mind's architecture:
 
@@ -80,7 +80,7 @@ Here's a brief overview of Market Mind's architecture:
  - Server Location: Cloud Map helps Prometheus locate servers.
 
 ### Content Delivery Architecture
-![Content Delivery Architecture](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/architecture/content_delivery_architecture.jpg)
+![Content Delivery Architecture](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/architecture/content_delivery_architecture.jpg)
 
 How Market Mind delivers content to users:
 
@@ -92,7 +92,7 @@ How Market Mind delivers content to users:
 **Auto-scaling**: To manage demand from clients efficiently, the Auto Scaling Group scales the number of servers based on API and Backend CPU utilization.
 
 ### Servers Monitoring Architecture
-![Servers Monitoring Architecture](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/architecture/servers_monitoring_architecture.jpg)
+![Servers Monitoring Architecture](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/architecture/servers_monitoring_architecture.jpg)
 
 Market Mind employs Cloud Map to efficiently monitor its server operations.
 
@@ -109,7 +109,7 @@ Visualization: Grafana retrieves logs and metrics from CloudWatch to provide a v
 
 
 ### Airflow Batch Pipelines Architecture
-![Airflow Batch Pipelines Architecture](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/architecture/airflow_batch_pipelines_architecture.jpg)
+![Airflow Batch Pipelines Architecture](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/architecture/airflow_batch_pipelines_architecture.jpg)
 
 For efficient operation of batch data pipelines, Airflow operates as the primary orchestrator. And ECS Fargate tasks serve as the computational engines. Then, SageMaker endpoints are activated for serverless inference. This architecture is designed to be scalable and cost-effective.
 
@@ -123,7 +123,7 @@ For efficient operation of batch data pipelines, Airflow operates as the primary
 
 ## Data Pipelines Details
 ### Market Trades Data Pipeline Details
-![Market Trades Data Pipeline Details](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/pipelines_details/trades_data_pipeline_detail.jpg)
+![Market Trades Data Pipeline Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/pipelines_details/trades_data_pipeline_detail.jpg)
 The data is streamed from Polygon.io API, collected by a Python producer, sent to Kafka, processed by PySpark Structured Streaming, and finally stored in RDS MySQL. \
 This streaming solution is designed to be scalable and cost-effective, which can handle up to 130 records/sec and ensure sub-second delivery and display to end-users. \
 Instance details: 
@@ -134,20 +134,20 @@ Instance details:
  - Python producer - cpu: 0.5 vCP, memory: 2 GB
 
 ### Market Sentiment Data Pipeline Details
-![Market Sentiment Data Pipeline Details](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/pipelines_details/alpha_vantage_data_pipeline_detail.jpg)
+![Market Sentiment Data Pipeline Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/pipelines_details/alpha_vantage_data_pipeline_detail.jpg)
 The data is collected from Alpha Vantage API, processed by Airflow, and finally stored in RDS MySQL. \
 
 ### Market Emotion Data Pipeline Details
-![Market Emotion Data Pipeline Details](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/pipelines_details/reddit_data_pipeline_detail.jpg)
+![Market Emotion Data Pipeline Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/pipelines_details/reddit_data_pipeline_detail.jpg)
 The data is collected from Reddit using PRAW, first cleaned, then processed by LLM on SageMaker, and finally stored in RDS MySQL. \
 
 ## Web & API Details
 ### Web Details
-![Web Details](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/web_and_api_details/web_detail.jpg)
+![Web Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/web_and_api_details/web_detail.jpg)
 Web Backend is developed using Spring Boot in Java. Spring Data JPA facilitates RDS MySQL connectivity. The connection pool follows the default configuration of HikariCP. \
 
 ### API Details
-![API Details](https://github.com/JulianZhan/market_mind/raw/update_readme/project_info/web_and_api_details/api_detail.jpg)
+![API Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/web_and_api_details/api_detail.jpg)
 API Server is developed using Flask in Python. It serves data from RDS MySQL and listens to Kafka for real-time trades to users. It uses Socket.io to implement WebSocket to provide users with live trade streams. This API aims to provide a easy-to-use connection point for users. \
 
 ## Deployment
