@@ -1,10 +1,9 @@
 # Market Mind
-
+Market Mind provides a comprehensive solution for investors by offering latest market sentiment, emotion analysis, and real-time BTC price streaming.
 
 ## Table of Contents
 - [Market Mind](#market-mind)
   - [Table of Contents](#table-of-contents)
-  - [Introduction](#introduction)
   - [Features:](#features)
   - [Introduction Video](#introduction-video)
     - [Project Introduction Video](#project-introduction-video)
@@ -25,10 +24,10 @@
     - [Airflow](#airflow)
     - [Airflow Tasks](#airflow-tasks)
     - [All Other Services](#all-other-services)
+  - [Technologies Used](#technologies-used)
+  - [Contact](#contact)
 
 
-## Introduction
-Market Mind provides a comprehensive solution for investors by offering latest market sentiment, emotion analysis, and real-time BTC price streaming.
 
 ## Features:
 **Real-time BTC Price** streaming from Polygon.io API. \
@@ -182,3 +181,13 @@ aws ecs register-task-definition \
 
 The rest of the services are deployed in the same way. \
 Moreover, the required permissions should be granted to the task roles and users.
+
+## Technologies Used
+ - Programming: Python, Java, JavaScript
+ - Frameworks: Spring Boot, Flask
+ - Database: MySQL
+ - Tools: Airflow, Kafka, PySpark, Docker, Prometheus, Grafana, React JS
+ - Cloud Engineering - AWS: ECS Fargate, EC2, SageMaker, ALB, CloudMap, CloudFront, Auto-Scaling, CloudWatch, S3, RDS, Route53
+
+## Contact
+Julian Zhan - julianzhan6@gmail.com
