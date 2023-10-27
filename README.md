@@ -36,7 +36,7 @@ Market Mind provides a comprehensive solution for investors by offering latest m
 **Market Emotion Analysis** by crawling Reddit comments in the CryptoCurrency subreddit using PRAW, and processing with LLM. 
 **Monitoring and Alerting** for server admin if the server is down or data is not updated. \
 **Web Frontend** for users to view the data. \
-**API Server** for users to access the data. \
+**API Server** for users to access the data. 
 
 ## Introduction Video
 ### Project Introduction Video
@@ -109,7 +109,7 @@ Visualization: Grafana retrieves logs and metrics from CloudWatch to provide a v
 
 
 ### Airflow Batch Pipelines Architecture
-![Airflow Batch Pipelines Architecture](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/architecture/airflow_batch_pipelines_architecture.jpg)
+![Airflow Batch Pipelines Architecture](https://github.com/JulianZhan/market_mind/blob/upade_readme/project_info/architecture/airflow_batch_pipelines_architecture.jpg)
 
 For efficient operation of batch data pipelines, Airflow operates as the primary orchestrator. And ECS Fargate tasks serve as the computational engines. Then, SageMaker endpoints are activated for serverless inference. This architecture is designed to be scalable and cost-effective.
 
@@ -135,20 +135,20 @@ Instance details:
 
 ### Market Sentiment Data Pipeline Details
 ![Market Sentiment Data Pipeline Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/pipelines_details/alpha_vantage_data_pipeline_detail.jpg)
-The data is collected from Alpha Vantage API, processed by Airflow, and finally stored in RDS MySQL. \
+The data is collected from Alpha Vantage API, processed by Airflow, and finally stored in RDS MySQL. 
 
 ### Market Emotion Data Pipeline Details
 ![Market Emotion Data Pipeline Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/pipelines_details/reddit_data_pipeline_detail.jpg)
-The data is collected from Reddit using PRAW, first cleaned, then processed by LLM on SageMaker, and finally stored in RDS MySQL. \
+The data is collected from Reddit using PRAW, first cleaned, then processed by LLM on SageMaker, and finally stored in RDS MySQL. 
 
 ## Web & API Details
 ### Web Details
 ![Web Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/web_and_api_details/web_detail.jpg)
-Web Backend is developed using Spring Boot in Java. Spring Data JPA facilitates RDS MySQL connectivity. The connection pool follows the default configuration of HikariCP. \
+Web Backend is developed using Spring Boot in Java. Spring Data JPA facilitates RDS MySQL connectivity. The connection pool follows the default configuration of HikariCP. 
 
 ### API Details
 ![API Details](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/web_and_api_details/api_detail.jpg)
-API Server is developed using Flask in Python. It serves data from RDS MySQL and listens to Kafka for real-time trades to users. It uses Socket.io to implement WebSocket to provide users with live trade streams. This API aims to provide a easy-to-use connection point for users. \
+API Server is developed using Flask in Python. It serves data from RDS MySQL and listens to Kafka for real-time trades to users. It uses Socket.io to implement WebSocket to provide users with live trade streams. This API aims to provide a easy-to-use connection point for users. 
 
 ## Deployment
 Airflow is deployed on an EC2 instance with docker-compose. \
