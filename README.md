@@ -5,6 +5,9 @@ Market Mind provides a comprehensive solution for investors by offering latest m
 - [Market Mind](#market-mind)
   - [Table of Contents](#table-of-contents)
   - [Features:](#features)
+  - [Demo](#demo)
+    - [Home](#home)
+    - [Trades](#trades)
   - [Introduction Video](#introduction-video)
     - [Project Introduction Video](#project-introduction-video)
     - [Streaming Solution Video](#streaming-solution-video)
@@ -36,6 +39,13 @@ Market Mind provides a comprehensive solution for investors by offering latest m
 **Monitoring and Alerting** for server admin if the server is down or data is not updated. \
 **Web Frontend** for users to view the data. \
 **API Server** for users to access the data. 
+
+## Demo
+### Home
+![Home](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/web_gif/market_mind_web_home.gif)
+
+### Trades
+![Trades](https://github.com/JulianZhan/market_mind/blob/update_readme/project_info/web_gif/market_mind_web_trades.gif)
 
 ## Introduction Video
 ### Project Introduction Video
